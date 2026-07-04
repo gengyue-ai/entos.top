@@ -1,0 +1,50 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="知识体系">
+  <div class="page-wrap">
+    <div style="font-size:12px; color:#2563eb; font-weight:600; letter-spacing:1.5px; margin-bottom:12px;">— Knowledge Framework —</div>
+    <h1 style="font-size:32px; font-weight:700; margin-bottom:8px;">六大知识体系</h1>
+    <p style="color:#64748b; font-size:14px; margin-bottom:40px; max-width:600px;">覆盖从理论到实践的完整链路，每篇文章对应一个具体的学习目标。</p>
+
+    <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:20px;">
+      <a href="/knowledge/01-theory" style="display:block; background:white; border:1.5px solid #e2e8f0; border-radius:10px; padding:24px;">
+        <div style="font-size:28px; margin-bottom:12px;">🧩</div>
+        <h3 style="font-size:16px; font-weight:600; margin-bottom:6px;">基础理论</h3>
+        <p style="font-size:13px; color:#64748b;">ReAct 范式、规划模式、记忆分层、Function Calling 机制、LLM 能力边界与局限。</p>
+        <div style="font-size:12px; color:#94a3b8; margin-top:12px; padding-top:12px; border-top:1px solid #f1f5f9;">4 篇文章 · 构建中</div>
+      </a>
+      <a href="/knowledge/02-architecture" style="display:block; background:white; border:1.5px solid #e2e8f0; border-radius:10px; padding:24px;">
+        <div style="font-size:28px; margin-bottom:12px;">🏗️</div>
+        <h3 style="font-size:16px; font-weight:600; margin-bottom:6px;">架构设计</h3>
+        <p style="font-size:13px; color:#64748b;">编排模式决策、MCP/A2A 协议、多租户隔离、企业级扩展性与高可用设计。</p>
+        <div style="font-size:12px; color:#94a3b8; margin-top:12px; padding-top:12px; border-top:1px solid #f1f5f9;">4 篇文章 · 构建中</div>
+      </a>
+      <a href="/knowledge/03-engineering" style="display:block; background:white; border:1.5px solid #e2e8f0; border-radius:10px; padding:24px;">
+        <div style="font-size:28px; margin-bottom:12px;">⚙️</div>
+        <h3 style="font-size:16px; font-weight:600; margin-bottom:6px;">工程实践</h3>
+        <p style="font-size:13px; color:#64748b;">主流框架对比、MCP Server 开发、RAG 工程、可观测性、CI/CD 与部署流水线。</p>
+        <div style="font-size:12px; color:#94a3b8; margin-top:12px; padding-top:12px; border-top:1px solid #f1f5f9;">5 篇文章 · 构建中</div>
+      </a>
+      <a href="/knowledge/04-security" style="display:block; background:white; border:1.5px solid #e2e8f0; border-radius:10px; padding:24px;">
+        <div style="font-size:28px; margin-bottom:12px;">🛡️</div>
+        <h3 style="font-size:16px; font-weight:600; margin-bottom:6px;">安全与治理</h3>
+        <p style="font-size:13px; color:#64748b;">Prompt 注入防护、数据隐私合规、审计链设计、Human-in-the-loop 实践模式。</p>
+        <div style="font-size:12px; color:#94a3b8; margin-top:12px; padding-top:12px; border-top:1px solid #f1f5f9;">3 篇文章 · 构建中</div>
+      </a>
+      <a href="/knowledge/05-evaluation" style="display:block; background:white; border:1.5px solid #e2e8f0; border-radius:10px; padding:24px;">
+        <div style="font-size:28px; margin-bottom:12px;">📊</div>
+        <h3 style="font-size:16px; font-weight:600; margin-bottom:6px;">评估与优化</h3>
+        <p style="font-size:13px; color:#64748b;">Agent 评估方法论、成本模型与优化策略、模型路由、反馈闭环与持续改进。</p>
+        <div style="font-size:12px; color:#94a3b8; margin-top:12px; padding-top:12px; border-top:1px solid #f1f5f9;">3 篇文章 · 构建中</div>
+      </a>
+      <a href="/knowledge/06-strategy" style="display:block; background:white; border:1.5px solid #e2e8f0; border-radius:10px; padding:24px;">
+        <div style="font-size:28px; margin-bottom:12px;">🎯</div>
+        <h3 style="font-size:16px; font-weight:600; margin-bottom:6px;">业务与战略</h3>
+        <p style="font-size:13px; color:#64748b;">场景识别框架、ROI 计算模型、组织采纳路径、行业案例库与最佳实践。</p>
+        <div style="font-size:12px; color:#94a3b8; margin-top:12px; padding-top:12px; border-top:1px solid #f1f5f9;">3 篇文章 · 构建中</div>
+      </a>
+    </div>
+  </div>
+</Layout>

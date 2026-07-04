@@ -1,0 +1,172 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const domains = [
+  { icon: '🧩', iconClass: 'blue', name: '基础理论', desc: 'Agent 范式 · 记忆系统 · LLM 边界', count: '4 篇' },
+  { icon: '🏗️', iconClass: 'purple', name: '架构设计', desc: '编排模式 · MCP/A2A · 企业扩展', count: '4 篇' },
+  { icon: '⚙️', iconClass: 'teal', name: '工程实践', desc: '框架选型 · RAG · 可观测性', count: '5 篇' },
+  { icon: '🛡️', iconClass: 'orange', name: '安全与治理', desc: '注入防护 · 审计 · Human-in-loop', count: '3 篇' },
+  { icon: '📊', iconClass: 'blue', name: '评估与优化', desc: '成本模型 · 模型路由 · 反馈闭环', count: '3 篇' },
+  { icon: '🎯', iconClass: 'purple', name: '业务与战略', desc: '场景识别 · ROI · 组织采纳', count: '3 篇' },
+];
+
+const articles = [
+  { tag: '行业全景', title: '企业级智能体在 2026 年的真实面貌', status: 'green', statusText: '已发布', date: '2026.07.04' },
+  { tag: '知识体系', title: '企业级智能体六大知识域总览', status: 'yellow', statusText: '撰写中', date: '—' },
+  { tag: '核心循环', title: '从 0 搭建一个生产级 Agent：ReAct 循环解剖', status: 'gray', statusText: '策划中', date: '—' },
+  { tag: '架构', title: '多 Agent 架构：什么时候拆，怎么拆', status: 'gray', statusText: '策划中', date: '—' },
+  { tag: '实战', title: 'Agent 落地最大的三个坑（以及怎么绕过）', status: 'gray', statusText: '策划中', date: '—' },
+];
+---
+
+<Layout title="企业级智能体工程实践指南">
+  <style>
+    .hero { max-width: 1100px; margin: 0 auto; padding: 80px 80px 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+    .hero-left h1 { font-size: 42px; font-weight: 800; line-height: 1.15; letter-spacing: -0.5px; }
+    .gradient { background: linear-gradient(135deg, #2563eb, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-left p { color: #64748b; font-size: 15px; margin-top: 16px; line-height: 1.8; max-width: 460px; }
+    .hero-actions { display: flex; gap: 12px; margin-top: 28px; }
+    .btn { padding: 10px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: #0f172a; color: white; border: 1px solid #0f172a; }
+    .btn-ghost { background: white; color: #475569; border: 1.5px solid #e2e8f0; }
+    .hero-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+    .tag { padding: 4px 12px; border-radius: 4px; font-size: 12px; background: #ffffff; color: #475569; border: 1px solid #e2e8f0; }
+    .tag-blue { color: #2563eb; border-color: #bfdbfe; }
+    .tag-purple { color: #7c3aed; border-color: #ddd6fe; }
+
+    .hero-right { border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 28px; background: #ffffff; }
+    .hr-title { font-weight: 600; font-size: 14px; color: #0f172a; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1.5px solid #e2e8f0; }
+    .layers { display: flex; flex-direction: column; gap: 0; }
+    .layer { display: grid; grid-template-columns: 40px 80px 1fr; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid #f1f5f9; }
+    .layer:last-child { border-bottom: none; }
+    .l-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; border: 1px solid #e2e8f0; }
+    .l-icon.bg-blue { background: #eef2ff; border-color: #bfdbfe; }
+    .l-icon.bg-purple { background: #f5f3ff; border-color: #ddd6fe; }
+    .l-icon.bg-teal { background: #f0fdfa; border-color: #a7f3d0; }
+    .l-icon.bg-orange { background: #fff7ed; border-color: #fed7aa; }
+    .l-name { font-weight: 600; color: #0f172a; font-size: 13px; }
+    .l-desc { color: #64748b; font-size: 13px; }
+
+    .section { max-width: 1100px; margin: 0 auto; padding: 60px 80px; }
+    .sec-label { font-size: 12px; color: #2563eb; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+    .sec-title { font-size: 28px; font-weight: 700; }
+    .sec-desc { color: #64748b; font-size: 14px; margin-top: 8px; margin-bottom: 36px; }
+
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .card { background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 24px; }
+    .card:hover { border-color: #2563eb; }
+    .c-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 16px; border: 1px solid #e2e8f0; }
+    .c-icon.bg-blue { background: #eef2ff; border-color: #bfdbfe; }
+    .c-icon.bg-purple { background: #f5f3ff; border-color: #ddd6fe; }
+    .c-icon.bg-teal { background: #f0fdfa; border-color: #a7f3d0; }
+    .c-icon.bg-orange { background: #fff7ed; border-color: #fed7aa; }
+    .card h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+    .card p { font-size: 13px; color: #64748b; line-height: 1.7; }
+    .card-foot { font-size: 12px; color: #94a3b8; margin-top: 12px; padding-top: 12px; border-top: 1px solid #f1f5f9; }
+
+    .article-tbl { width: 100%; border-collapse: collapse; background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+    .article-tbl th { text-align: left; padding: 12px 20px; font-size: 12px; color: #64748b; font-weight: 500; border-bottom: 1.5px solid #e2e8f0; background: #f8fafc; }
+    .article-tbl td { padding: 14px 20px; font-size: 14px; border-bottom: 1px solid #f1f5f9; }
+    .article-tbl tr:last-child td { border-bottom: none; }
+    .article-tbl tr:hover td { background: #f8fafc; }
+    .tag-cell { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; display: inline-block; }
+    .date-cell { color: #94a3b8; font-size: 13px; }
+    .sdot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; }
+    .sdot.green { background: #22c55e; }
+    .sdot.yellow { background: #eab308; }
+    .sdot.gray { background: #cbd5e1; }
+
+    @media (max-width: 768px) {
+      .hero { grid-template-columns: 1fr; padding: 40px 24px; }
+      .grid-3 { grid-template-columns: 1fr; }
+      .section { padding: 40px 24px; }
+    }
+  </style>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-left">
+      <h1>企业级智能体<br><span class="gradient">工程实践指南</span></h1>
+      <p>面向开发者和技术决策者的系统性知识库。从模型控制到系统架构，从工具集成到安全治理——让 AI Agent 在企业中真正落地。</p>
+      <div class="hero-actions">
+        <a href="/knowledge" class="btn btn-primary">探索知识体系 →</a>
+        <a href="/blog" class="btn btn-ghost">最新文章</a>
+      </div>
+      <div class="hero-tags">
+        <span class="tag tag-blue">Agent Architecture</span>
+        <span class="tag tag-purple">MCP Protocol</span>
+        <span class="tag">Security</span>
+        <span class="tag tag-blue">Observability</span>
+        <span class="tag">RAG</span>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hr-title">企业级智能体架构全景</div>
+      <div class="layers">
+        <div class="layer">
+          <div class="l-icon bg-blue">🧩</div>
+          <span class="l-name">基础理论</span>
+          <span class="l-desc">Agent 范式 · 记忆系统 · LLM 边界</span>
+        </div>
+        <div class="layer">
+          <div class="l-icon bg-purple">🏗️</div>
+          <span class="l-name">架构设计</span>
+          <span class="l-desc">编排模式 · MCP/A2A · 企业扩展</span>
+        </div>
+        <div class="layer">
+          <div class="l-icon bg-teal">⚙️</div>
+          <span class="l-name">工程实践</span>
+          <span class="l-desc">框架选型 · RAG · 可观测性</span>
+        </div>
+        <div class="layer">
+          <div class="l-icon bg-orange">🛡️</div>
+          <span class="l-name">安全与治理</span>
+          <span class="l-desc">注入防护 · 审计 · Human-in-loop</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Knowledge System -->
+  <section class="section">
+    <div class="sec-label">— Knowledge Framework —</div>
+    <div class="sec-title">六大知识体系</div>
+    <div class="sec-desc">覆盖从理论到实践的完整链路，每篇文章对应一个具体的学习目标。</div>
+    <div class="grid-3">
+      {domains.map(d => (
+        <div class="card">
+          <div class={`c-icon bg-${d.iconClass}`}>{d.icon}</div>
+          <h3>{d.name}</h3>
+          <p>{d.desc}</p>
+          <div class="card-foot">{d.count} · 构建中</div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Articles -->
+  <section class="section">
+    <div class="sec-label">— Latest Articles —</div>
+    <div class="sec-title">最新文章</div>
+    <div class="sec-desc">以输出倒逼输入——每篇文章都是一个完整的学习闭环。</div>
+    <table class="article-tbl">
+      <thead>
+        <tr><th style="width:80px">分类</th><th>标题</th><th style="width:100px">状态</th><th style="width:110px">日期</th></tr>
+      </thead>
+      <tbody>
+        {articles.map(a => (
+          <tr>
+            <td><span class="tag-cell">{a.tag}</span></td>
+            <td>{a.title}</td>
+            <td><span class={`sdot ${a.status}`}></span>{a.statusText}</td>
+            <td class="date-cell">{a.date}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </section>
+</Layout>
