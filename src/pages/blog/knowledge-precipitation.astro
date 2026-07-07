@@ -1,0 +1,204 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = '知识沉淀——从对话中提取可复用的资产';
+const desc = '每一次 Agent 交互都会产生有价值的信息。知识沉淀就是把对话中的经验、模式、决策转化为可复用的资产，而不是让它们随着对话结束而蒸发。';
+const date = '2026.07.06';
+---
+
+<Layout title={title} description={desc}>
+  <style>
+    .article { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; display: inline-block; margin-bottom: 12px; }
+    h1 { font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.25; letter-spacing: -0.3px; }
+    .meta { color: #334155; font-size: 13px; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1.5px solid #e2e8f0; }
+    h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 1.5px solid #f1f5f9; }
+    h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    p { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; }
+    strong { color: #0f172a; }
+    ul, ol { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; padding-left: 24px; }
+    li { margin-bottom: 6px; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #0f172a; }
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 20px; overflow-x: auto; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
+    pre code { background: transparent; padding: 0; color: inherit; font-size: 13px; }
+    .callout { background: #f8fafc; border-left: 3px solid #2563eb; border-radius: 0 8px 8px 0; padding: 16px 20px; margin-bottom: 20px; font-size: 14px; color: #334155; }
+    .callout strong { color: #2563eb; }
+    .callout-warn { border-left-color: #f59e0b; }
+    .callout-warn strong { color: #d97706; }
+    @media (max-width: 768px) { .article { padding: 40px 20px 80px; } h1 { font-size: 24px; } }
+  </style>
+  <div class="article">
+    <div class="bread"><a href="/blog">文章</a> / {title}</div>
+    <span class="label">Harness</span>
+    <h1>{title}</h1>
+    <div class="meta">{date} · 约 3000 字</div>
+
+    <p>
+      上下文管理解决了"当前对话中模型能看到什么"的问题，验证闭环解决了"模型的输出是否可信"的问题。但还有一个更隐蔽的问题：<strong>每次对话结束后，对话中产生的有价值信息去哪里了？</strong>
+    </p>
+    <p>
+      大部分系统的答案是：消失了。下一次对话，模型从零开始——不知道上次发现了什么 bug、不知道用户之前设置过什么偏好、不知道哪种 Prompt 写法效果更好。这不是 Agent 不够聪明，这是系统没有知识沉淀机制。
+    </p>
+
+    <div class="callout">
+      <strong>核心命题：</strong> 知识沉淀把"一次性对话"变成"持续积累的资产"。每一次交互产生的经验、模式、决策，都应该被提取、结构化、存储，并在未来的对话中被复用。
+    </div>
+
+    <h2>一、什么是值得沉淀的知识</h2>
+    <p>不是所有对话内容都值得保存。知识沉淀的第一课是<strong>区分"信息"和"知识"</strong>：</p>
+
+    <table>
+      <tr><th>信息（一次性）</th><th>知识（可复用）</th></tr>
+      <tr><td>用户今天的查询</td><td>用户对某种问题的偏好处理方式</td></tr>
+      <tr><td>某次工具调用的返回值</td><td>某个 API 的常见错误模式及解决方案</td></tr>
+      <tr><td>本次对话的日志</td><td>某种场景下最优的 Prompt 模板</td></tr>
+      <tr><td>用户的一次抱怨</td><td>系统在某个边界条件下的行为缺陷</td></tr>
+    </table>
+
+    <p>知识沉淀的目标是将右侧的"知识"提取出来，让它们在未来的对话中可以主动被使用。</p>
+
+    <h3>可沉淀的知识类型</h3>
+    <ul>
+      <li><strong>模式（Pattern）：</strong>反复出现的解决问题的步骤。例如"排查数据库连接超时的六步流程"。</li>
+      <li><strong>坑点（Pitfall）：</strong>已知的容易出错的地方。例如"调用供应商 A 的 API 时，日期格式必须是 YYYYMMDD，其他格式会被拒绝"。</li>
+      <li><strong>决策（Decision）：</strong>在特定场景下选型的理由。例如"为什么选择 MCP 而不是自定义工具协议——因为标准化带来的生态价值大于学习成本"。</li>
+      <li><strong>偏好（Preference）：</strong>用户或团队的常规设置。例如"代码风格偏好、命名约定、常用的部署流程"。</li>
+      <li><strong>术语（Term）：</strong>项目特有的缩写、别名、内部命名。例如"上游 A = 星辉广告系统的数据供应商，internal ID = 1003"。</li>
+    </ul>
+
+    <h2>二、沉淀的流程</h2>
+    <p>知识沉淀不是一次性的工程活动，而是需要嵌入到 Agent 的日常运行中的持续流程：</p>
+
+    <pre><code>知识沉淀的五步流程：
+
+Step 1: 捕获（Capture）
+  在对话中识别出"值得保存"的信息
+  → 触发条件：解决问题后、发现新坑后、做出决策后
+  → 执行者：Agent 主动识别 + 用户标记
+
+Step 2: 结构化（Structure）
+  将原始信息转化为标准格式
+  → 问题描述 / 解决方案 / 适用场景 / 注意事项
+  → 格式：结构化的文本或 JSON
+
+Step 3: 存储（Store）
+  写入持久化存储
+  → 短期：当前会话的记忆层
+  → 长期：知识库、技能文件、配置文件
+  → 需要索引以便后续检索
+
+Step 4: 索引（Index）
+  建立可检索的索引
+  → 关键词标签、场景标签、向量 Embedding
+  → 确保在相似场景下可以被自动检索到
+
+Step 5: 复用（Reuse）
+  在未来的对话中主动加载
+  → 场景匹配时自动注入上下文
+  → 用户明确查询时返回</code></pre>
+
+    <div class="callout callout-warn">
+      <strong>常见误区：</strong> 想把所有东西都存下来。"万一是知识呢？"的心态会导致知识库迅速膨胀，大部分内容永远不会被复用。更好的策略是<strong>先存后筛</strong>——先宽松地捕获，再定期清理和合并。
+    </div>
+
+    <h2>三、两种沉淀模式</h2>
+    <p>知识沉淀在工程实现上有两种模式，适用于不同场景：</p>
+
+    <h3>自动沉淀</h3>
+    <p>Agent 在对话过程中自动识别并沉淀知识：</p>
+    <pre><code>// 自动知识沉淀的触发逻辑
+function checkKnowledgeOpportunity(conversation):
+    // 1. 问题解决后：用户说"解决了"、"搞定了"、"可以了"
+    if userExpressedResolution(conversation):
+        extract = callLLM("从这段对话中提取出解决问题的步骤")
+        saveAsPattern(extract)
+    
+    // 2. 发现错误后：工具调用返回异常
+    if toolCallFailed(conversation):
+        error = conversation.lastToolError
+        if isNewError(error):
+            saveAsPitfall(error, conversation.solution)
+    
+    // 3. 用户明确要求后
+    if userSaid("记住这个", "记下来", "以后注意"):
+        saveToMemory(conversation.lastExchange)</code></pre>
+
+    <h3>手动沉淀</h3>
+    <p>用户或开发者在对话结束后主动沉淀知识。适用场景：</p>
+    <ul>
+      <li>用户完成一个复杂的排查流程后，将整个流程提炼成标准操作步骤</li>
+      <li>开发者在代码审查中发现一个重复出现的错误模式，沉淀到团队知识库</li>
+      <li>运营人员在处理客诉后发现了一个边界情况，记录到系统的知识库</li>
+    </ul>
+
+    <p>两种模式不是二选一，而是互补。自动沉淀负责捕获日常对话中的"小知识"（一个参数、一个偏好、一个注意事项），手动沉淀负责提炼周期性的"大知识"（一个工作流、一个架构决策、一个最佳实践）。</p>
+
+    <h2>四、知识库的维护</h2>
+    <p>知识沉淀最大的挑战不是"怎么存"，而是"怎么维护"。一个不维护的知识库会迅速退化：</p>
+
+    <ul>
+      <li><strong>膨胀：</strong>条目越来越多，检索质量越来越差</li>
+      <li><strong>过时：</strong>旧的解决方案不再适用，但没有被标记</li>
+      <li><strong>冲突：</strong>不同的沉淀条目给出了矛盾的指导</li>
+      <li><strong>噪音：</strong>低质量的沉淀淹没了高质量的条目</li>
+    </ul>
+
+    <h3>维护策略</h3>
+    <ul>
+      <li><strong>定期审计：</strong>每周或每月检查知识库，标记过时条目，合并重复条目</li>
+      <li><strong>使用度量：</strong>追踪每条知识的"引用次数"和"最后使用时间"。长期未被引用的知识应该归档</li>
+      <li><strong>版本迭代：</strong>知识不是一成不变的。当更好的方案出现时，旧知识应该被更新而不是堆积</li>
+      <li><strong>质量门槛：</strong>自动沉淀的知识走"暂存区"，经过人工确认后才进入正式库</li>
+    </ul>
+
+    <pre><code>知识库健康度的三个指标：
+
+覆盖率：知识库覆盖了多少常见的用户问题？
+  → 不足 → 需要更多沉淀
+
+准确率：知识库给出的建议有多准确？
+  → 不足 → 需要清理过时条目
+
+检索率：知识库中的条目被实际用到了多少？
+  → 不足 → 需要更好的索引或剔除噪音</code></pre>
+
+    <h2>五、从沉淀到自动化</h2>
+    <p>知识沉淀的终极目标不是"建一个文档库"，而是让沉淀的知识<strong>自动影响系统的行为</strong>。</p>
+
+    <p>当知识条目的数量和质量达到一定阈值后，系统可以开始：</p>
+    <ul>
+      <li><strong>主动提示：</strong>"上次你处理这个问题时用了方案 B，是否要沿用？"</li>
+      <li><strong>自动规避：</strong>"这个操作在之前 3 次尝试中都失败了，建议先检查 X 条件"</li>
+      <li><strong>模式复用：</strong>"检测到场景 Y，正在加载之前成功的处理流程"</li>
+      <li><strong>持续改进：</strong>"这条知识的引用率在下降，可能已经过时，建议审核"</li>
+    </ul>
+
+    <p>这就是 Harness 的"飞轮效应"——使用得越多，沉淀的知识越多；知识越多，系统越智能；系统越智能，产生更多可沉淀的知识。</p>
+
+    <h2>六、小结</h2>
+    <pre><code>知识沉淀的四要素：
+
+1. 识别——区分"信息"和"知识"
+   × 用户今天的查询 → 一次性信息
+   ✓ 用户偏好的处理方式 → 可复用知识
+
+2. 提取——五步流程
+   捕获 → 结构化 → 存储 → 索引 → 复用
+
+3. 维护——防止知识库退化
+   审计 × 度量 × 迭代 × 门槛
+
+4. 进化——从文档到自动化
+   被动查询 → 主动提示 → 自动规避
+
+知识沉淀不是一次性的文档工程，
+而是 Agent 持续自我进化的燃料。
+每一次对话都在为下一次对话积累势能。</code></pre>
+
+    <p>
+      上下文管理让模型"看得到"，验证闭环让模型"靠得住"，知识沉淀让系统"长记性"。三根缰绳合在一起，才构成 Harness 的完整图景——不是让模型更聪明，而是让每一次交互都成为系统能力的一部分，而不是消耗在对话结束的那一刻。
+    </p>
+  </div>
+</Layout>

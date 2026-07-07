@@ -1,14 +1,86 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+
+const title = '架构设计';
+const icon = '🏗️';
+const desc = '把 Agent 组织成系统的设计方法——从单 Agent 到多 Agent 协作、标准化协议、企业级扩展性。';
+
+const topics = [
+  { name: '多Agent 协作（Supervisor-Worker）', desc: '并行分发、流水线、动态委派三种模式的实际工程经验。从 Hermes 的实战出发。', status: 'published', slug: 'multi-agent-collaboration' },
+  { name: '三种编排模式', desc: 'Orchestrator（中心化）、Pipeline（流水线）、Router（路由器）——各自的适用场景与决策方法。', status: 'published', slug: 'orchestration-patterns' },
+  { name: 'MCP 协议', desc: 'Anthropic 提出的标准化工具接入协议，正在成为行业标准。', status: 'published', slug: 'mcp-protocol' },
+  { name: 'A2A 协议', desc: 'Agent-to-Agent 通信协议，解决多 Agent 间的互操作问题。', status: 'planned' },
+  { name: '多租户与隔离', desc: '企业级部署中，如何让多个业务线安全地共享同一个 Agent 基础设施。', status: 'planned' },
+  { name: '扩展性与高可用', desc: 'Agent 系统的水平扩展、状态管理、故障转移与灾备策略。', status: 'planned' },
+];
+
+const articles = [
+  { title: '多Agent 协作（Supervisor-Worker）', slug: 'multi-agent-collaboration', tag: '架构设计' },
+  { title: '三种编排模式与选型决策', slug: 'orchestration-patterns', tag: '架构设计' },
+  { title: 'MCP 协议——工具接入的标准化', slug: 'mcp-protocol', tag: '架构设计' },
+];
 ---
 
-<Layout title="架构设计">
-  <div class="page-wrap">
-    <div style="font-size:12px; color:#2563eb; font-weight:600; letter-spacing:1.5px; margin-bottom:12px;">
-      <a href="/knowledge" style="color:#94a3b8;">知识体系</a> / 架构设计
+<Layout title={title}>
+  <style>
+    .page { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .head-icon { font-size: 32px; margin-bottom: 12px; }
+    h1 { font-size: 28px; font-weight: 700; color: #0f172a; margin-bottom: 12px; }
+    .subtitle { font-size: 15px; color: #334155; line-height: 1.7; border-left: 3px solid #7c3aed; padding-left: 16px; margin-bottom: 40px; }
+    h2 { font-size: 18px; font-weight: 600; color: #0f172a; margin-bottom: 16px; margin-top: 0; }
+    .stat-line { font-size: 12px; color: #334155; margin-bottom: 16px; }
+    .grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 48px; }
+    .card { background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 20px; transition: border-color .15s; }
+    .card:hover { border-color: #7c3aed; }
+    .card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .card h3 { font-size: 15px; font-weight: 600; color: #0f172a; margin: 0; }
+    .badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-gray { background: #f1f5f9; color: #334155; }
+    .card p { font-size: 13px; color: #334155; line-height: 1.6; margin: 0; }
+    .card-link { display: inline-block; margin-top: 10px; font-size: 12px; color: #7c3aed; font-weight: 500; text-decoration: none; }
+    .card-link:hover { text-decoration: underline; }
+    .related { border-top: 1px solid #e2e8f0; padding-top: 24px; }
+    .related h2 { font-size: 16px; }
+    .rel-item { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+    .rel-item:last-child { border-bottom: none; }
+    .rel-tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: #f5f3ff; color: #6d28d9; font-weight: 500; }
+    .rel-item a { font-size: 14px; color: #7c3aed; text-decoration: none; }
+    .rel-item a:hover { text-decoration: underline; }
+    @media (max-width: 768px) { .page { padding: 40px 20px 80px; } h1 { font-size: 24px; } }
+  </style>
+  <div class="page">
+    <div class="bread"><a href="/knowledge">知识体系</a> / 架构设计</div>
+    <div class="head-icon">{icon}</div>
+    <h1>{title}</h1>
+    <div class="subtitle">{desc}</div>
+
+    <h2>子话题</h2>
+    <div class="stat-line">已发布 2 / 共 6</div>
+    <div class="grid">
+      {topics.filter(t => t.status === 'published').map(t => (
+        <div class="card">
+          <div class="card-top">
+            <h3>{t.name}</h3>
+            <span class="badge badge-green">已发布</span>
+          </div>
+          <p>{t.desc}</p>
+          {t.slug && <a href={`/blog/${t.slug}`} class="card-link">阅读文章 →</a>}
+        </div>
+      ))}
     </div>
-    <h1 style="font-size:32px; font-weight:700; margin-bottom:8px;">🏗️ 架构设计</h1>
-    <p style="color:#64748b; font-size:14px; margin-bottom:36px; max-width:600px;">编排模式决策、MCP/A2A 协议、多租户隔离、企业级扩展性与高可用设计。</p>
-    <div style="background:white; border:1.5px solid #e2e8f0; border-radius:10px; padding:40px; text-align:center; color:#94a3b8; font-size:14px;">该分类下的文章正在策划中。</div>
+
+    <div class="related">
+      <h2>关联文章</h2>
+      {articles.map(a => (
+        <div class="rel-item">
+          <span class="rel-tag">{a.tag}</span>
+          <a href={`/blog/${a.slug}`}>{a.title}</a>
+        </div>
+      ))}
+    </div>
   </div>
 </Layout>

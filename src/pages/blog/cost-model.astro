@@ -1,0 +1,198 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = '成本模型——Agent 不是越强越好';
+const desc = '一个 Agent 调用的真实成本远不止 API 账单上的那几块钱。从 Token 到延迟到人力到基础设施，每个维度都有优化空间。';
+const date = '2026.07.05';
+---
+
+<Layout title={title} description={desc}>
+  <style>
+    .article { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; display: inline-block; margin-bottom: 12px; }
+    h1 { font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.25; letter-spacing: -0.3px; }
+    .meta { color: #334155; font-size: 13px; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1.5px solid #e2e8f0; }
+    h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 1.5px solid #f1f5f9; }
+    h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    p { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; }
+    strong { color: #0f172a; }
+    ul, ol { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; padding-left: 24px; }
+    li { margin-bottom: 6px; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #0f172a; }
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 20px; overflow-x: auto; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
+    pre code { background: transparent; padding: 0; color: inherit; font-size: 13px; }
+    .callout { background: #f8fafc; border-left: 3px solid #2563eb; border-radius: 0 8px 8px 0; padding: 16px 20px; margin-bottom: 20px; font-size: 14px; color: #334155; }
+    .callout strong { color: #2563eb; }
+    .callout-warn { border-left-color: #f59e0b; }
+    .callout-warn strong { color: #d97706; }
+    .callout-danger { border-left-color: #ef4444; }
+    .callout-danger strong { color: #dc2626; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+    th { background: #f8fafc; text-align: left; padding: 10px 14px; font-weight: 600; color: #0f172a; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+    tr:last-child td { border-bottom: none; }
+    @media (max-width: 768px) { .article { padding: 40px 20px 80px; } h1 { font-size: 24px; } }
+  </style>
+  <div class="article">
+    <div class="bread"><a href="/blog">文章</a> / {title}</div>
+    <span class="label">评估与优化</span>
+    <h1>{title}</h1>
+    <div class="meta">{date} · 约 2800 字</div>
+
+    <p>
+      很多人觉得 Agent 的成本就是 API 账单。实际上，<strong>API 费用只是冰山露出水面的那一角</strong>——延迟带来的用户流失、调试排错的工程人力、基础设施的运维成本，每一项都比 Token 费用更隐蔽，也更难控制。
+    </p>
+    <p>
+      更麻烦的是，你无法像传统软件那样通过"加机器"来线性降低成本。Agent 的每笔调用都涉及多个 LLM 请求、工具调用和上下文传递，成本结构远比普通 API 调用复杂。
+    </p>
+
+    <div class="callout callout-danger">
+      <strong>核心问题：</strong> 用最强的模型做所有事情，不仅浪费钱，还会让你在成本失控之前就放弃 Agent 方案。成本优化的本质不是省钱，而是让每一分钱都花在刀刃上。
+    </div>
+
+    <h2>一、Agent 成本的五个维度</h2>
+    <p>在开始优化之前，先搞清楚钱花在了哪里：</p>
+
+    <table>
+      <tr><th style="width:120px">维度</th><th>说明</th><th>占比参考</th></tr>
+      <tr><td>Token 费用</td><td>LLM 调用的输入/输出 Token，按量计费</td><td>40-60%</td></tr>
+      <tr><td>延迟成本</td><td>响应慢导致的用户流失、转化率下降</td><td>15-25%</td></tr>
+      <tr><td>调试排错</td><td>Agent 行为不可预测，排查问题的工程人力</td><td>10-20%</td></tr>
+      <tr><td>基础设施</td><td>向量库、缓存、嵌入模型服务的运维成本</td><td>5-15%</td></tr>
+      <tr><td>评估迭代</td><td>数据集构建、人工标注、测试验证</td><td>5-10%</td></tr>
+    </table>
+
+    <p>
+      注意一个关键洞察：<strong>Token 费用虽然占比最大，但也是最容易优化的。</strong>真正难控制的是隐性成本——比如一个 Agent 因为调试困难导致工程师花了两天定位问题，这比浪费的几万 Token 贵得多。
+    </p>
+
+    <h2>二、Token 成本——最明显也最好下手</h2>
+    <p>不同模型的 Token 单价差异巨大。选对模型，成本能差 10 倍以上。</p>
+
+    <h3>模型单价对比</h3>
+    <table>
+      <tr><th>模型</th><th>输入/$1M Token</th><th>输出/$1M Token</th><th>相对成本</th></tr>
+      <tr><td>GPT-4o</td><td>$2.50</td><td>$10.00</td><td>10x</td></tr>
+      <tr><td>Claude Sonnet 4</td><td>$3.00</td><td>$15.00</td><td>12x</td></tr>
+      <tr><td>GPT-4o Mini</td><td>$0.15</td><td>$0.60</td><td>1x（基准）</td></tr>
+      <tr><td>DeepSeek-V4</td><td>$0.50</td><td>$2.00</td><td>~2x</td></tr>
+      <tr><td>Llama 3 70B（自托管）</td><td>~$0.20（硬件均摊）</td><td>~$0.20</td><td>~1x</td></tr>
+    </table>
+
+    <p>但这里有个陷阱：便宜模型在某些场景下效果太差，需要多次重试才能达到强模型一次的效果。真正的成本不是单价，而是<strong>达到目标效果的总成本</strong>。</p>
+
+    <div class="callout callout-warn">
+      <strong>常见误区：</strong> 用便宜模型做复杂推理。一个需要 3 次重试 + 人工审核的"便宜"方案，往往比一次到位的大模型方案更贵。
+    </div>
+
+    <h2>三、模型路由——省钱的核心策略</h2>
+    <p>模型路由的核心思想很简单：<strong>不要用大炮打蚊子</strong>。但实现起来远比听起来复杂。</p>
+
+    <h3>路由策略</h3>
+    <ul>
+      <li><strong>基于任务类型：</strong>简单分类用 Mini 模型，复杂推理用旗舰模型。需要先对任务做预分类。</li>
+      <li><strong>基于置信度路由：</strong>先用小模型尝试，如果置信度低于阈值再升级到大模型。适合需要高准确率的场景。</li>
+      <li><strong>基于上下文长度路由：</strong>短上下文用小模型（64K 以内），长上下文用大模型（128K+）。</li>
+      <li><strong>基于用户层级：</strong>免费用户用低成本模型，付费用户用高精度模型。</li>
+    </ul>
+
+    <pre><code>// 模型路由伪代码
+function routeTask(task):
+    // 1. 预估任务复杂度
+    complexity = estimateComplexity(task)
+    // 2. 根据复杂度选择模型
+    if complexity &lt; LOW_THRESHOLD:
+        return callModel("gpt-4o-mini")
+    elif complexity &lt; MED_THRESHOLD:
+        // 先用小模型尝试
+        result = callModel("gpt-4o-mini")
+        if result.confidence > 0.85:
+            return result
+    // 3. 复杂/不确信的走大模型
+    return callModel("gpt-4o")</code></pre>
+
+    <p><strong>实测效果：</strong>一个基于置信度的路由系统，可以在保持 95%+ 精度的前提下，将总体 Token 成本降低 40-60%。</p>
+
+    <h2>四、缓存策略——被低估的省钱利器</h2>
+    <p>Agent 系统中存在大量重复计算。缓存是见效最快的优化手段。</p>
+
+    <h3>三种缓存模式</h3>
+    <ul>
+      <li><strong>Prompt 缓存：</strong>相同的系统 Prompt + 用户输入，缓存 LLM 的输出。适用于高频重复查询（FAQ、模板化任务）。</li>
+      <li><strong>语义缓存：</strong>语义相似的查询命中同一缓存。用 Embedding 计算查询相似度，相似度大于阈值的返回缓存结果。适用于问答类 Agent。</li>
+      <li><strong>中间结果缓存：</strong>Agent 多轮推理中，缓存每轮的工具调用结果和 LLM 中间输出。适用于复杂工作流中重复调用同一工具的场景。</li>
+    </ul>
+
+    <pre><code>语义缓存命中示例：
+  查询 A："这个月的收入是多少"
+  查询 B："本月营收数据"
+  → Embedding 相似度 0.92 > 阈值 0.85
+  → 命中缓存，无需调用 LLM</code></pre>
+
+    <p>好的缓存策略通常可以降低 20-40% 的 Token 消耗，且对用户体验几乎无影响。</p>
+
+    <h2>五、Token 压缩技术</h2>
+    <p>当路由和缓存都优化到位后，下一步是减少每次调用的 Token 消耗。</p>
+
+    <ul>
+      <li><strong>Prompt 精简：</strong>移除冗余指令、合并重复约束。很多 Prompt 模板中 30% 的内容是冗余的。</li>
+      <li><strong>上下文压缩：</strong>对 RAG 检索结果做摘要后再送入 LLM，而不是直接塞原始文档。可以用一个轻量模型做压缩。</li>
+      <li><strong>对话历史剪枝：</strong>Agent 的多轮对话历史随轮数线性增长。定期对历史做摘要压缩，或只保留最近 N 轮。</li>
+      <li><strong>结构化输出：</strong>要求 LLM 输出 JSON/结构化格式，避免冗余的自然语言修饰。输出 Token 可减少 30-50%。</li>
+      <li><strong>工具描述缩短：</strong>工具描述过长会消耗大量输入 Token。把工具描述从 200 字精简到 50 字，多个工具累加效果显著。</li>
+    </ul>
+
+    <div class="callout">
+      <strong>一个真实案例：</strong> 某 Agent 系统的 Prompt 模板包含 12 个工具的描述，每个 200 字左右。将工具描述精简到 50 字后，每次调用节省约 1800 个输入 Token，每天 10 万次调用 = 节省 1.8 亿 Token/天，折合约 $100-300/天。
+    </div>
+
+    <h2>六、ROI 计算框架</h2>
+    <p>成本优化不能脱离业务价值来看。一个简单的 ROI 计算框架：</p>
+
+    <pre><code>Agent 系统的 ROI 计算：
+  
+  总成本 = Token 费用 + 基础设施 + 人力维护 + 评估测试
+  
+  总收益 = 人工替代成本 + 效率提升价值 + 质量改进收益
+  
+  ROI = (总收益 - 总成本) / 总成本 × 100%
+  
+  关键数字示例（一个日处理 10 万次查询的客服 Agent）：
+  
+  Token 成本：$500/天
+  基础设施：$100/天
+  人力维护：$200/天（均摊）
+  → 月成本 ≈ $24,000
+  
+  替代 5 个客服（每人月薪 $3000）
+  → 月节省 ≈ $15,000
+  → 加上 24 小时响应 + 响应速度提升
+  → ROI ≈ 60-80%/月</code></pre>
+
+    <p>ROI 计算的难点在于量化"效率提升"和"质量改进"这类软收益。一个可操作的方法：上线前后对比同类工单的处理时长和客户满意度。</p>
+
+    <h2>七、小结</h2>
+    <pre><code>Agent 成本优化的分层策略：
+
+第一层：模型选型（立竿见影）
+  用对的模型做对的事，别让旗舰模型干杂活
+
+第二层：模型路由（最大潜力）
+  动态路由 + 置信度兜底，保持质量的同时降成本
+
+第三层：缓存策略（低投入高产出）
+  Prompt 缓存 + 语义缓存 + 中间结果缓存
+
+第四层：Token 压缩（持续优化）
+  Prompt 精简 + 上下文压缩 + 结构化输出
+
+第五层：ROI 审视（业务视角）
+  成本优化要服务于业务价值，不是为省而省</code></pre>
+
+    <p>
+      Agent 的部署成本不是恒定值，而是设计变量。从模型选型到缓存策略到 Token 压缩，每一层都有 20-50% 的优化空间。把这些层叠起来，总成本降低 70-80% 是完全可行的——关键是不要等到账单来了才想优化。
+    </p>
+  </div>
+</Layout>

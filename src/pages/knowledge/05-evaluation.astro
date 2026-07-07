@@ -1,14 +1,84 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+
+const title = '评估与优化';
+const icon = '📊';
+const desc = '如何衡量 Agent 系统的质量、控制成本、持续改进——从拍脑袋到数据驱动。';
+
+const topics = [
+  { name: 'Agent 评估方法论', desc: '成功率、成本、延迟、用户满意度——建立多维度的评估指标体系。', status: 'planned' },
+  { name: '成本模型与优化', desc: 'Token 成本计算、模型路由策略、缓存与压缩——Agent 不是越强越好。', status: 'published', slug: 'cost-model' },
+  { name: '模型路由', desc: '简单任务用小模型、复杂任务用大模型——动态路由策略的实现。', status: 'planned' },
+  { name: '反馈闭环', desc: '从用户反馈到模型改进的完整回路——数据收集、标注、微调、评估。', status: 'planned' },
+  { name: 'A/B 测试框架', desc: 'Agent 系统的实验设计——如何科学地比较不同方案的效果。', status: 'planned' },
+  { name: 'SLA 与质量保障', desc: '响应时间、可用性、准确率——生产级 Agent 的服务质量承诺。', status: 'planned' },
+];
+
+const articles = [
+  { title: '成本模型——Agent 不是越强越好', slug: 'cost-model', tag: '评估与优化' },
+];
 ---
 
-<Layout title="评估与优化">
-  <div class="page-wrap">
-    <div style="font-size:12px; color:#2563eb; font-weight:600; letter-spacing:1.5px; margin-bottom:12px;">
-      <a href="/knowledge" style="color:#94a3b8;">知识体系</a> / 评估与优化
+<Layout title={title}>
+  <style>
+    .page { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .head-icon { font-size: 32px; margin-bottom: 12px; }
+    h1 { font-size: 28px; font-weight: 700; color: #0f172a; margin-bottom: 12px; }
+    .subtitle { font-size: 15px; color: #334155; line-height: 1.7; border-left: 3px solid #2563eb; padding-left: 16px; margin-bottom: 40px; }
+    h2 { font-size: 18px; font-weight: 600; color: #0f172a; margin-bottom: 16px; margin-top: 0; }
+    .stat-line { font-size: 12px; color: #334155; margin-bottom: 16px; }
+    .grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 48px; }
+    .card { background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 20px; transition: border-color .15s; }
+    .card:hover { border-color: #2563eb; }
+    .card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .card h3 { font-size: 15px; font-weight: 600; color: #0f172a; margin: 0; }
+    .badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-gray { background: #f1f5f9; color: #334155; }
+    .card p { font-size: 13px; color: #334155; line-height: 1.6; margin: 0; }
+    .card-link { display: inline-block; margin-top: 10px; font-size: 12px; color: #2563eb; font-weight: 500; text-decoration: none; }
+    .card-link:hover { text-decoration: underline; }
+    .related { border-top: 1px solid #e2e8f0; padding-top: 24px; }
+    .related h2 { font-size: 16px; }
+    .rel-item { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+    .rel-item:last-child { border-bottom: none; }
+    .rel-tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; }
+    .rel-item a { font-size: 14px; color: #2563eb; text-decoration: none; }
+    .rel-item a:hover { text-decoration: underline; }
+    @media (max-width: 768px) { .page { padding: 40px 20px 80px; } h1 { font-size: 24px; } }
+  </style>
+  <div class="page">
+    <div class="bread"><a href="/knowledge">知识体系</a> / 评估与优化</div>
+    <div class="head-icon">{icon}</div>
+    <h1>{title}</h1>
+    <div class="subtitle">{desc}</div>
+
+    <h2>子话题</h2>
+    <div class="stat-line">已发布 1 / 共 6</div>
+    <div class="grid">
+      {topics.filter(t => t.status === 'published').map(t => (
+        <div class="card">
+          <div class="card-top">
+            <h3>{t.name}</h3>
+            <span class="badge badge-green">已发布</span>
+          </div>
+          <p>{t.desc}</p>
+          {t.slug && <a href={`/blog/${t.slug}`} class="card-link">阅读文章 →</a>}
+        </div>
+      ))}
     </div>
-    <h1 style="font-size:32px; font-weight:700; margin-bottom:8px;">📊 评估与优化</h1>
-    <p style="color:#64748b; font-size:14px; margin-bottom:36px; max-width:600px;">Agent 评估方法论、成本模型与优化策略、模型路由、反馈闭环与持续改进。</p>
-    <div style="background:white; border:1.5px solid #e2e8f0; border-radius:10px; padding:40px; text-align:center; color:#94a3b8; font-size:14px;">该分类下的文章正在策划中。</div>
+
+    <div class="related">
+      <h2>关联文章</h2>
+      {articles.map(a => (
+        <div class="rel-item">
+          <span class="rel-tag">{a.tag}</span>
+          <a href={`/blog/${a.slug}`}>{a.title}</a>
+        </div>
+      ))}
+    </div>
   </div>
 </Layout>

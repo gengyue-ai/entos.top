@@ -1,0 +1,209 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = '上下文管理——模型的记忆边界在哪里';
+const desc = '上下文窗口再大也是有限的。好的上下文管理不是"塞更多"，而是"知道该放什么、该扔什么"。';
+const date = '2026.07.06';
+---
+
+<Layout title={title} description={desc}>
+  <style>
+    .article { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; display: inline-block; margin-bottom: 12px; }
+    h1 { font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.25; letter-spacing: -0.3px; }
+    .meta { color: #334155; font-size: 13px; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1.5px solid #e2e8f0; }
+    h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 1.5px solid #f1f5f9; }
+    h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    p { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; }
+    strong { color: #0f172a; }
+    ul, ol { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; padding-left: 24px; }
+    li { margin-bottom: 6px; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #0f172a; }
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 20px; overflow-x: auto; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
+    pre code { background: transparent; padding: 0; color: inherit; font-size: 13px; }
+    .callout { background: #f8fafc; border-left: 3px solid #2563eb; border-radius: 0 8px 8px 0; padding: 16px 20px; margin-bottom: 20px; font-size: 14px; color: #334155; }
+    .callout strong { color: #2563eb; }
+    .callout-warn { border-left-color: #f59e0b; }
+    .callout-warn strong { color: #d97706; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+    th { background: #f8fafc; text-align: left; padding: 10px 14px; font-weight: 600; color: #0f172a; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+    tr:last-child td { border-bottom: none; }
+    @media (max-width: 768px) { .article { padding: 40px 20px 80px; } h1 { font-size: 24px; } }
+  </style>
+  <div class="article">
+    <div class="bread"><a href="/blog">文章</a> / {title}</div>
+    <span class="label">Harness</span>
+    <h1>{title}</h1>
+    <div class="meta">{date} · 约 3000 字</div>
+
+    <p>
+      上下文管理是 Harness 的第一根缰绳。原因很简单：<strong>LLM 的上下文窗口是有限的</strong>——128K、200K 甚至 1M Token，听上去很大，但一轮多工具调用的 Agent 对话里，几千字的系统 Prompt + 不断累积的工具返回结果 + 历史对话，会以你想象不到的速度填满这个窗口。
+    </p>
+    <p>
+      更重要的是，填满窗口不是最糟糕的事。最糟糕的是<strong>重要信息被淹没在无关内容中</strong>——模型在长上下文中的注意力分布并不均匀，放在开头和结尾的内容被关注的概率远高于中间（Lost in the Middle 问题）。你塞进去的东西越多，模型真正用到的比例反而越低。
+    </p>
+
+    <div class="callout callout-danger">
+      <strong>核心命题：</strong> 上下文管理的目标不是"塞进尽可能多的内容"，而是"在有限的窗口里，让模型看到对它当前决策最重要的信息"。
+    </div>
+
+    <h2>一、窗口的物理限制</h2>
+    <p>先看清现实：模型的上下文窗口不是"大"的问题，而是"管理"的问题。</p>
+
+    <table>
+      <tr><th>模型</th><th>窗口大小</th><th>Agent 场景下的实际可用量</th></tr>
+      <tr><td>GPT-4o</td><td>128K</td><td>~30K（越界后性能下降）</td></tr>
+      <tr><td>Claude Sonnet 4</td><td>200K</td><td>~60K（Lost in the Middle）</td></tr>
+      <tr><td>DeepSeek-V4</td><td>128K</td><td>~40K（同）</td></tr>
+      <tr><td>Gemini 1.5 Pro</td><td>1M</td><td>~200K（同，但范围更大）</td></tr>
+    </table>
+
+    <p>注意"实际可用量"这个列——模型声称的窗口大小和它能有效利用的大小是两回事。大量研究表明，<strong>超过一定阈值后，增加上下文长度并不会线性提升任务表现，甚至可能因干扰而下降</strong>。</p>
+
+    <h2>二、上下文里有什么</h2>
+    <p>一个典型的 Agent 对话中，上下文由以下几部分组成：</p>
+
+    <pre><code>Agent 上下文构成（按体积排序）：
+
+1. 系统 Prompt（固定部分）        ≈ 2-5K Token
+   └─ 角色定义、行为规则、输出格式
+
+2. 工具描述（工具数量 × 描述长度）  ≈ 1-10K Token
+   └─ 每个工具的 schema、用途、参数说明
+   └─ 每多一个工具，多约 200-500 Token
+
+3. 对话历史（轮数 × 每轮长度）     ≈ 10-200K Token
+   └─ 用户输入 + Agent 回复 + 工具调用
+   └─ 每一轮 Agent 思考 + 工具返回 = 2-10K Token
+
+4. RAG 检索结果                    ≈ 2-20K Token
+   └─ 每次检索注入的相关文档段落
+
+5. 记忆/知识上下文                 ≈ 1-5K Token
+   └─ 跨会话持久化的用户偏好、项目信息</code></pre>
+
+    <p>这里最危险的是"对话历史"——它在 Agent 的多轮交互中以最快的速度增长。一个执行了 5 轮工具调用的 Agent 对话，仅仅工具返回的结果就可能消耗 10K 以上 Token。</p>
+
+    <h2>三、压缩策略</h2>
+    <p>既然窗口有限，压缩就是必然选择。以下是实测有效的策略：</p>
+
+    <h3>1. 对话历史剪枝</h3>
+    <p>最简单的策略：只保留最近 N 轮对话，丢弃最早的。问题在于"只保留最近"可能会丢失关键的上下文——比如用户在 10 轮前设置的筛选条件。</p>
+    <p>改进版：保留系统 Prompt + 最近的 N 轮 + 标记为"关键"的历史轮次（比如用户设置了某个参数、确认了某个决策）。</p>
+
+    <h3>2. 对话历史摘要</h3>
+    <p>用一个轻量模型定期对历史对话做压缩摘要：</p>
+    <pre><code>// 对话历史压缩策略
+function compressHistory(messages, threshold = 20K):
+    if totalTokens(messages) &lt; threshold:
+        return messages  // 不需要压缩
+    
+    // 保留最近的 M 轮完整消息
+    recent = messages.slice(-5)
+    
+    // 对更早的消息做摘要
+    early = messages.slice(0, -5)
+    summary = callLLM("请用一段话总结以上对话的核心信息")
+    
+    // 用摘要替代早期消息
+    return [summary, ...recent]</code></pre>
+    <p>实测效果：一轮压缩可以将 40K Token 的历史压缩到 5K 以内，关键信息保留率约 90%。</p>
+
+    <h3>3. 选择性遗忘</h3>
+    <p>不是所有历史都值得保存。Agent 可以主动标记哪些信息是"当前不需要的"并丢弃：</p>
+    <ul>
+      <li>已完成的中间步骤结果 → 丢弃（只保留最终结果）</li>
+      <li>工具调用的原始返回值 → 如果已处理完成，可以丢弃原始数据</li>
+      <li>冗余的确认对话（"好的"、"明白了"） → 直接丢弃</li>
+    </ul>
+
+    <h3>4. 预计算缓存</h3>
+    <p>系统 Prompt 和工具描述在每一轮对话中是固定的。利用 LLM 的 Prompt Caching 机制，这部分不会重复消耗 Token 预算，只有新增的对话内容计入。这个优化在大部分主流 API 中已自动支持。</p>
+
+    <div class="callout callout-warn">
+      <strong>常见误区：</strong> 以为压缩会损失信息所以不敢用。实际上，<strong>不压缩导致的"关键信息被淹没"比压缩带来的信息损失更严重</strong>。一个有策略的压缩系统，表现远好于一个塞满内容但不加管理的上下文。
+    </div>
+
+    <h2>四、记忆分层</h2>
+    <p>上下文管理的更高阶形态是记忆分层——不是简单的一刀切压缩，而是让不同类型的记忆有不同的生命周期和管理策略。</p>
+
+    <pre><code>记忆分层模型：
+
+┌────────────────────────────────────────────┐
+│  L1：工作记忆（当前对话）                   │
+│  ├─ 用户当前输入                            │
+│  ├─ 最近 5-10 轮对话                        │
+│  └─ 当前正在执行的工具调用结果               │
+│  特征：高精度、短生命周期、全部保留           │
+├────────────────────────────────────────────┤
+│  L2：情景记忆（一次会话）                    │
+│  ├─ 压缩后的历史对话摘要                    │
+│  ├─ 用户在本轮对话中设置的关键信息            │
+│  └─ 已完成步骤的结果摘要                     │
+│  特征：有损压缩、中等生命周期                 │
+├────────────────────────────────────────────┤
+│  L3：语义记忆（跨会话）                      │
+│  ├─ 用户偏好和常规设置                       │
+│  ├─ 项目相关的持久化知识                     │
+│  └─ 从经验中提取的可复用模式                  │
+│  特征：高度抽象、长生命周期、固化存储          │
+└────────────────────────────────────────────┘</code></pre>
+
+    <p>三个层级的数据来源不同、用途不同、管理策略也不同：</p>
+    <ul>
+      <li><strong>L1 工作记忆：</strong>不需要管理，用完即弃。关注窗口不要溢出即可。</li>
+      <li><strong>L2 情景记忆：</strong>需要定期压缩。每次会话结束时做一次摘要，下次会话开始时加载。</li>
+      <li><strong>L3 语义记忆：</strong>需要持久化存储。用向量库或结构化存储，需要时检索注入。</li>
+    </ul>
+
+    <h2>五、工程实践</h2>
+    <p>基于以上原理，一个生产级 Agent 的上下文管理流程大致如下：</p>
+
+    <pre><code>每一轮对话的处理流程：
+
+用户输入到达
+    ↓
+Step 1: 注入 L3 语义记忆（从持久化存储检索）
+    ↓
+Step 2: 注入 L2 情景记忆（上一轮的压缩摘要）
+    ↓
+Step 3: 注入 L1 工作记忆（最近的 N 轮完整对话）
+    ↓
+Step 4: 注入本轮用户输入
+    ↓
+Step 5: 检查总 Token 数是否超过阈值
+    ├─ 未超过 → 直接调用 LLM
+    └─ 超过 → 触发压缩：
+        ├─ 丢弃非关键的工具返回
+        ├─ 压缩早期对话历史
+        └─ 如仍超过 → 丢弃最旧的非关键轮次
+    ↓
+LLM 生成回复 + 工具调用
+    ↓
+Step 6: 将本轮结果追加到 L1 工作记忆
+Step 7: 将关键信息同步到 L2/L3 记忆层</code></pre>
+
+    <h2>六、小结</h2>
+    <pre><code>上下文管理的三条原则：
+
+1. 窗口再大也是有限的
+   不要被 200K Token 的规格迷惑
+   模型真正能有效利用的远小于标称值
+
+2. 少即是多
+   上下文质量 > 上下文数量
+   放对的东西比放多的东西重要得多
+
+3. 分层管理
+   工作记忆 → 情景记忆 → 语义记忆
+   不同生命周期用不同策略
+   不要把所有记忆塞进同一个桶里</code></pre>
+
+    <p>
+      上下文管理是 Agent 工程中最容易被低估的基础能力。很多人把精力花在选模型、调 Prompt 上，却忽略了每一轮对话中模型实际"看到"的是什么。一个好的上下文管理策略，可以在不换模型、不加预算的前提下，显著提升 Agent 的表现一致性——这就是 Harness 第一根缰绳的威力。
+    </p>
+  </div>
+</Layout>

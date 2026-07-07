@@ -1,0 +1,251 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = '可配置化风控告警引擎——不要让规则写在代码里';
+const desc = '告警规则写在代码里，改一条规则就要改代码、测试、部署。可配置化之后，新增一条规则只需要 INSERT 一条记录。';
+const date = '2026.07.06';
+---
+
+<Layout title={title} description={desc}>
+  <style>
+    .article { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; display: inline-block; margin-bottom: 12px; }
+    h1 { font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.25; letter-spacing: -0.3px; }
+    .meta { color: #334155; font-size: 13px; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1.5px solid #e2e8f0; }
+    h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 1.5px solid #f1f5f9; }
+    h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    p { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; }
+    strong { color: #0f172a; }
+    ul, ol { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; padding-left: 24px; }
+    li { margin-bottom: 6px; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #0f172a; }
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 20px; overflow-x: auto; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
+    pre code { background: transparent; padding: 0; color: inherit; font-size: 13px; }
+    .callout { background: #f8fafc; border-left: 3px solid #2563eb; border-radius: 0 8px 8px 0; padding: 16px 20px; margin-bottom: 20px; font-size: 14px; color: #334155; }
+    .callout strong { color: #2563eb; }
+    .callout-warn { border-left-color: #f59e0b; }
+    .callout-warn strong { color: #d97706; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+    th { background: #f8fafc; text-align: left; padding: 10px 14px; font-weight: 600; color: #0f172a; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+    tr:last-child td { border-bottom: none; }
+    @media (max-width: 768px) { .article { padding: 40px 20px 80px; } h1 { font-size: 24px; } }
+  </style>
+  <div class="article">
+    <div class="bread"><a href="/blog">文章</a> / {title}</div>
+    <span class="label">案例复盘</span>
+    <h1>{title}</h1>
+    <div class="meta">{date} · 约 2800 字</div>
+
+    <p>
+      上篇文章讲了同步引擎 V2——把数据接入从硬编码变成配置化。这次讲另一个把"规则从代码中解放出来"的故事：<strong>风控告警引擎</strong>。
+    </p>
+    <p>
+      在广告系统中，每天有大量的运营数据流过——收入波动、展示量骤降、数据同步延迟、各维度报表不一致。这些异常靠人工盯是盯不过来的。但是，告警规则如果用代码写，每加一条规则就是一次开发排期。
+    </p>
+
+    <h2>一、V1 的问题</h2>
+    <p>最初的告警系统是一个硬编码的定时任务：</p>
+    <pre><code>// V1 告警代码（简化）
+func RunAlertChecks() &lbrace;
+    // 规则 1：收入波动超过 20%
+    for each link in activeLinks &lbrace;
+        if abs(todayRevenue[link] - yesterdayRevenue[link]) / yesterdayRevenue[link] > 0.2 &lbrace;
+            sendAlert("收入异常波动: " + link.name)
+        &rbrace;
+    &rbrace;
+
+    // 规则 2：展示量骤降超过 50%
+    for each link in activeLinks &lbrace;
+        if todayImpressions[link] &lt; yesterdayImpressions[link] * 0.5 &lbrace;
+            sendAlert("展示量骤降: " + link.name)
+        &rbrace;
+    &rbrace;
+
+    // 规则 3：数据同步延迟超过 2 小时
+    for each supplier in suppliers &lbrace;
+        if lastSyncTime[supplier] &lt; now() - 2h &lbrace;
+            sendAlert("同步延迟: " + supplier.name)
+        &rbrace;
+    &rbrace;
+    // ... 每加一条规则就多一段这样的代码
+&rbrace;</code></pre>
+
+    <p>这带来了几个问题：</p>
+    <ul>
+      <li><strong>规则变更慢：</strong>修改阈值、新增规则都要改代码→测试→部署，平均 1-2 天</li>
+      <li><strong>同一规则不同维度重复：</strong>收入波动要按链接查，也要按渠道查、按公司查——每多一个维度就多一段几乎一样的代码</li>
+      <li><strong>规则增多导致主流程复杂：</strong>30 多条规则挤在一个函数里，阅读和维护都困难</li>
+      <li><strong>没有检查频率控制：</strong>所有规则都用同一个定时器，频繁检查的和低频检查的绑在一起</li>
+    </ul>
+
+    <h2>二、V2 的设计——配置化规则引擎</h2>
+    <p>重构的核心思路：<strong>规则是数据，不是代码</strong>。</p>
+
+    <pre><code>风控告警引擎 V2 架构：
+
+告警规则配置表 → 规则引擎 → 检测执行 → 告警写入
+    ↑                            │
+    └────── 可配置化调度 ─────────┘
+    
+每条规则 = 数据库中的一行记录：
+&lbrace;
+    rule_name:    "收入异常波动",
+    metric:       "revenue",           // 检测指标
+    dimension:    "link",              // 检测维度（link/channel/account...）
+    operator:     "drop_pct",          // 检测算子（涨/跌/绝对值）
+    threshold:    20,                  // 阈值（%）
+    window:       "1d",                // 对比窗口
+    check_interval: 30,                // 检查频率（分钟）
+    enabled:      true,
+    notify:       ["dingtalk", "email"]
+&rbrace;</code></pre>
+
+    <h3>配置表设计</h3>
+    <p>核心配置表 alert_rule：</p>
+    <pre><code>alert_rule &lbrace;
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    name            VARCHAR(128),       // 规则名称
+    description     VARCHAR(512),       // 规则描述
+    
+    // 检测配置
+    metric          VARCHAR(64),        // 检测指标（revenue/impressions/clicks/fill_rate...）
+    dimension       VARCHAR(64),        // 检测维度（link/channel/account/domain/company）
+    operator        VARCHAR(64),        // 检测算子
+    threshold       DECIMAL(10,2),      // 阈值
+    window_minutes  INT,                // 对比时间窗口（分钟）
+    
+    // 调度配置
+    check_interval  INT,                // 检查频率（分钟）
+    cooldown_minutes INT,               // 冷却时间（防止重复告警）
+    
+    // 状态
+    enabled         TINYINT(1),
+    last_checked_at DATETIME,           // 上次检查时间
+    created_at      DATETIME,
+    updated_at      DATETIME,
+    
+    // 通知配置
+    notify_channels VARCHAR(255),       // 通知渠道（逗号分隔）
+    notify_level    ENUM('info','warn','critical')
+&rbrace;</code></pre>
+
+    <h3>规则引擎核心逻辑</h3>
+    <pre><code>func RunAlertEngine() &lbrace;
+    // 1. 加载所有已启用的规则
+    rules = loadActiveRules()
+    
+    // 2. 检查每条规则是否到了执行时间
+    for each rule in rules &lbrace;
+        if now() - rule.last_checked_at &lt; rule.check_interval &lbrace;
+            continue  // 还没到检查时间
+        &rbrace;
+        
+        // 3. 执行检测
+        result = evaluateRule(rule)
+        
+        // 4. 如果触发告警
+        if result.triggered &lbrace;
+            // 检查是否在冷却期内
+            if not inCooldown(rule) &lbrace;
+                saveAlert(rule, result)
+                notify(rule.notify_channels, result)
+            &rbrace;
+        &rbrace;
+        
+        // 5. 更新检查时间
+        updateLastChecked(rule.id)
+    &rbrace;
+&rbrace;
+
+func evaluateRule(rule) &lbrace;
+    // 根据规则配置动态生成查询
+    query = buildQuery(
+        metric: rule.metric,       // SELECT sum(revenue) ...
+        dimension: rule.dimension, // WHERE dimension_type = 'link' ...
+        window: rule.window_minutes
+    )
+    currentValue = db.Query(query)
+    
+    // 对比基准值
+    baseline = getBaseline(rule.metric, rule.dimension, rule.window_minutes)
+    
+    // 根据算子判断是否触发
+    return rule.operator.evaluate(currentValue, baseline, rule.threshold)
+&rbrace;</code></pre>
+
+    <p>核心变化：检测逻辑不再与业务规则绑定。<strong>evaluateRule 是通用的</strong>——不管是检测收入波动还是展示量变化，它都走同样的流程：查当前值 → 查基准值 → 算子判断 → 输出结果。</p>
+
+    <h2>三、可配置维度的实现</h2>
+    <p>最关键的突破是"维度可配置化"。同一套检测逻辑，可以按链接、渠道、账号、域名、公司任意维度执行：</p>
+
+    <pre><code>// 维度适配器——动态生成 SQL
+function buildQuery(metric, dimension, window):
+    dimensionMap = &lbrace;
+        "link":    "link_id",
+        "channel": "channel_id",
+        "account": "account_id",
+        "domain":  "domain_id",
+        "company": "supplier_id"
+    &rbrace;
+    
+    dimField = dimensionMap[dimension]
+    
+    sql = "SELECT " + dimField + ", sum(" + metric + ") as val " +
+          "FROM fact_ad_stats " +
+          "WHERE stat_date = CURDATE() " +
+          "GROUP BY " + dimField
+    
+    return db.Query(sql)</code></pre>
+
+    <p>这样，在 alert_rule 表里 INSERT 一条记录，就能创建一个全新的告警规则——不需要改一行代码。比如要新增"按域名检测收入波动"，只需要：</p>
+    <pre><code>INSERT INTO alert_rule (name, metric, dimension, operator, threshold, check_interval)
+VALUES ('域名收入波动', 'revenue', 'domain', 'drop_pct', 30, 60);</code></pre>
+
+    <h2>四、改造的效果</h2>
+
+    <table>
+      <tr><th>指标</th><th>V1</th><th>V2</th></tr>
+      <tr><td>新增规则周期</td><td>1-2 天（开发+部署）</td><td>5 分钟（INSERT）</td></tr>
+      <tr><td>规则数量</td><td>8 条硬编码</td><td>40+ 条配置化</td></tr>
+      <tr><td>覆盖维度</td><td>仅链接</td><td>链接/渠道/账号/域名/公司</td></tr>
+      <tr><td>误报率</td><td>~30%（无冷却机制）</td><td>&lt;5%（冷却+分级）</td></tr>
+      <tr><td>每次规则变更</td><td>代码修改 + 部署</td><td>管理后台配表或 SQL</td></tr>
+    </table>
+
+    <h2>五、踩过的坑</h2>
+
+    <ul>
+      <li><strong>告警风暴：</strong>一条规则触发后，下游多个系统同时收到告警，造成整体噪音。解决方案：增加冷却时间和告警聚合——同一条规则在冷却期内只发一次。</li>
+      <li><strong>维度爆炸：</strong>40+ 条规则 x 5 个维度，理论上可能同时执行 200 次检测。如果都用同一频率，数据库会被压垮。解决方案：每规则独立 check_interval，低频规则（如收入异常）30 分钟一次，高频规则（如同步延迟）5 分钟一次。</li>
+      <li><strong>规则冲突：</strong>两条规则检测同一个指标但阈值不同时，产生矛盾告警。解决方案：规则优先级 + 告警聚合——高优先级规则覆盖低优先级。</li>
+      <li><strong>基线漂移：</strong>业务量自然增长导致"跟昨天比"的基线不断变化，告警变得越来越不敏感。解决方案：支持多种对比方式——环比（昨天）、同比（上周同日）、移动平均（最近 7 天均值）。</li>
+    </ul>
+
+    <h2>六、总结</h2>
+    <pre><code>风控告警引擎 V2 的核心变化：
+
+从"规则是代码"到"规则是数据"
+  每加一条规则 = INSERT，不是 git commit
+
+从"固定维度"到"可配置维度"
+  同一套检测逻辑覆盖 5 个维度
+
+从"统一频率"到"独立调度"
+  每条规则有自己的检查频率
+
+从"无防护告警"到"冷却+分级"
+  冷却时间 + 告警聚合 + 优先级
+
+三条经验：
+1. 规则是业务逻辑，不是技术逻辑——它应该存在于数据库中，而不是代码里
+2. 可配置维度是"乘法效应"——让一条规则在不同维度上复用
+3. 告警系统自己做减法——冷却和聚合比"更多告警"更重要</code></pre>
+
+    <p>
+      同步引擎 V2 和风控告警引擎 V2，本质上在做同一件事：<strong>把"变化的部分"从代码中分离出来</strong>。变化的（供应商接入方式、告警规则）变成配置，不变的（同步流程、检测逻辑）固化成引擎。这大概是我在星辉系统中学到的最有价值的东西——代码应该只包含"不变的东西"，一切会变的，都应该是数据。
+    </p>
+  </div>
+</Layout>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><title>entos.top 首页示意图预览</title>
+<style>
+  body { background: #f8fafc; display: flex; justify-content: center; padding: 40px; font-family: system-ui; }
+  .preview { max-width: 540px; }
+  h3 { font-size: 14px; color: #475569; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<div class="preview">
+<h3>首页 Hero 右侧替换为这样的示意图</h3>
+<svg width="520" height="440" viewBox="0 0 520 440" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+    <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d9488"/>
+      <stop offset="100%" stop-color="#2dd4bf"/>
+    </linearGradient>
+    <linearGradient id="g4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#334155"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background card -->
+  <rect x="0" y="0" width="520" height="440" rx="16" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+
+  <!-- Title -->
+  <text x="260" y="40" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a">内容架构</text>
+  <line x1="120" y1="52" x2="400" y2="52" stroke="#e2e8f0" stroke-width="1"/>
+
+  <!-- Layer 1: 控制层 -->
+  <rect x="140" y="72" width="240" height="36" rx="18" fill="url(#g1)"/>
+  <text x="260" y="95" text-anchor="middle" font-size="13" font-weight="600" fill="#ffffff">控制层（内核）</text>
+
+  <!-- Two sub-pillars under control layer -->
+  <rect x="50" y="126" width="200" height="44" rx="8" fill="#eef2ff" stroke="#bfdbfe" stroke-width="1.5"/>
+  <text x="70" y="142" font-size="12" font-weight="600" fill="#1e40af">🪢 Harness</text>
+  <text x="70" y="158" font-size="10" fill="#475569">控制输出 · 验证 · 约束</text>
+
+  <rect x="270" y="126" width="200" height="44" rx="8" fill="#f5f3ff" stroke="#ddd6fe" stroke-width="1.5"/>
+  <text x="290" y="142" font-size="12" font-weight="600" fill="#5b21b6">🧠 记忆系统</text>
+  <text x="290" y="158" font-size="10" fill="#475569">情景记忆 · 工作记忆 · 语义知识</text>
+
+  <!-- Arrow down -->
+  <line x1="260" y1="170" x2="260" y2="210" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="254,208 260,218 266,208" fill="#94a3b8"/>
+
+  <!-- Layer 2: 能力层 -->
+  <rect x="140" y="222" width="240" height="36" rx="18" fill="url(#g3)"/>
+  <text x="260" y="245" text-anchor="middle" font-size="13" font-weight="600" fill="#ffffff">能力层</text>
+
+  <rect x="50" y="276" width="200" height="34" rx="6" fill="#f0fdfa" stroke="#a7f3d0" stroke-width="1.2"/>
+  <text x="60" y="297" font-size="11" fill="#0f766e">🔧 Tool Use · MCP 协议</text>
+
+  <rect x="270" y="276" width="200" height="34" rx="6" fill="#f0fdfa" stroke="#a7f3d0" stroke-width="1.2"/>
+  <text x="280" y="297" font-size="11" fill="#0f766e">📡 RAG · 可观测性</text>
+
+  <!-- Arrow -->
+  <line x1="260" y1="310" x2="260" y2="340" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="254,338 260,348 266,338" fill="#94a3b8"/>
+
+  <!-- Layer 3: 系统层 -->
+  <rect x="140" y="352" width="240" height="36" rx="18" fill="url(#g4)"/>
+  <text x="260" y="375" text-anchor="middle" font-size="13" font-weight="600" fill="#ffffff">系统层</text>
+
+  <rect x="50" y="398" width="200" height="28" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="60" y="416" font-size="10" fill="#475569">🏗️ 架构模式 · 多 Agent · 安全</text>
+
+  <rect x="270" y="398" width="200" height="28" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="280" y="416" font-size="10" fill="#475569">🎯 场景 · 案例 · ROI</text>
+</svg>
+</div>
+</body>
+</html>

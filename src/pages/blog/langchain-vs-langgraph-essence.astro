@@ -1,0 +1,147 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = 'LangChain 与 LangGraph 的本质区别——同一个公司的两种武器';
+const desc = 'LangChain 和 LangGraph 是竞品吗？一个做链，一个做图？都不是。LangChain 官方文档一句话说清了：LangChain 的 Agent 建立在 LangGraph 之上。它们是上下层，不是替代关系。';
+const date = '2026.07.07';
+---
+
+<Layout title={title} description={desc}>
+  <style>
+    .article { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; display: inline-block; margin-bottom: 12px; }
+    h1 { font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.25; letter-spacing: -0.3px; }
+    .meta { color: #334155; font-size: 13px; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1.5px solid #e2e8f0; }
+    h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 1.5px solid #f1f5f9; }
+    h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    p { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; }
+    strong { color: #0f172a; }
+    ul, ol { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; padding-left: 24px; }
+    li { margin-bottom: 6px; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #0f172a; }
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 20px; overflow-x: auto; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+    th { background: #f8fafc; color: #0f172a; font-weight: 600; padding: 10px 14px; border: 1px solid #e2e8f0; text-align: left; }
+    td { padding: 10px 14px; border: 1px solid #e2e8f0; color: #334155; }
+    .callout { background: #f8fafc; border-left: 3px solid #2563eb; border-radius: 0 8px 8px 0; padding: 16px 20px; margin-bottom: 20px; font-size: 14px; color: #334155; }
+    @media (max-width: 768px) { .article { padding: 40px 20px 80px; } h1 { font-size: 24px; } }
+  </style>
+  <div class="article">
+    <div class="bread"><a href="/blog">文章</a> / {title}</div>
+    <span class="label">架构设计</span>
+    <h1>{title}</h1>
+    <div class="meta">{date} · 约 3800 字</div>
+
+    <h2>一、一个容易混淆的问题</h2>
+
+    <p>LangChain 和 LangGraph 是什么关系？</p>
+
+    <p>很多人搞混，因为它们是同一个公司（LangChain Inc）出的，名字也像，文档还互相引用。</p>
+
+    <p>有人说是升级版——LangGraph 是 LangChain 的替代品。有人说是互补版——LangChain 做链，LangGraph 做图。</p>
+
+    <p>都不对。LangChain 的官方文档有一句非常清楚的描述：</p>
+
+    <div class="callout">
+      <strong>"LangChain's agents are built on top of LangGraph."</strong> — LangChain 的 Agent 是建立在 LangGraph 之上的。
+    </div>
+
+    <p>这意味着：LangGraph 是地基，LangChain 是上层建筑。它们不是竞品，是上下层关系。</p>
+
+    <h2>二、官方定位：三层武器</h2>
+
+    <p>LangChain 官网把自己家的产品分成三个层级：</p>
+
+    <table>
+      <tr><th>产品</th><th>层级</th><th>一句话定位</th></tr>
+      <tr><td><strong>Deep Agents</strong></td><td>高层</td><td>开箱即用的 Agent，带上下文压缩、虚拟文件系统、子代理</td></tr>
+      <tr><td><strong>LangChain</strong></td><td>中层</td><td><code>create_agent</code>——最小可配的 Harness（缰绳）</td></tr>
+      <tr><td><strong>LangGraph</strong></td><td>底层</td><td>有状态、长运行 Agent 的完整编排框架</td></tr>
+    </table>
+
+    <p>选择指南也很清晰：想快速上手用 Deep Agents；想高度定制自己的 Agent 用 LangChain；需要高级编排用 LangGraph。</p>
+
+    <h2>三、LangGraph 到底是什么</h2>
+
+    <p>LangGraph 的官方定义：低阶编排框架，用于构建、管理和部署长运行、有状态的 Agent。</p>
+
+    <p>关键词：</p>
+    <ul>
+      <li><strong>Orchestration（编排）</strong>——不是写 Agent 逻辑，是编排 Agent 的执行流程</li>
+      <li><strong>Stateful（有状态）</strong>——运行中的状态持久化，不怕重启</li>
+      <li><strong>Long-running（长运行）</strong>——Agent 跑几小时甚至几天</li>
+    </ul>
+
+    <p>它的核心模型是 StateGraph（状态图）：</p>
+
+    <pre><code>节点（Node） → 执行一个函数
+边（Edge）   → 控制执行流向
+状态（State） → 在节点间传递和持久化</code></pre>
+
+    <p>这更像 Pregel（Google 的大规模图处理框架）和 NetworkX（Python 图论库），而不是传统的 Agent 框架。LangGraph 自己也承认受这两者启发。</p>
+
+    <p><strong>LangGraph 解决的核心问题：</strong> 当 Agent 逻辑不是"调用工具→返回结果"这么简单时——比如需要多步决策、条件分支、人机协作、失败恢复——你需要一个图来建模执行流，而不是一条链。</p>
+
+    <h2>四、LangChain 到底是什么</h2>
+
+    <p>LangChain 在 2026 年的定位已经非常清晰：</p>
+
+    <div class="callout">
+      <strong>Agent = Model + Harness.</strong> LangChain provides <code>create_agent</code>: a minimal, highly configurable harness.
+    </div>
+
+    <p>它的核心就是 <code>create_agent</code>——模型 + 工具 + 提示词的最小组合：</p>
+
+    <pre><code>from langchain.agents import create_agent
+
+agent = create_agent(
+    model="openai:gpt-5.5",
+    tools=[get_weather],
+    system_prompt="You are a helpful assistant",
+)</code></pre>
+
+    <p>简单、直接。</p>
+
+    <p><strong>LangChain 本质上是对 LangGraph 的封装</strong>——它用 LangGraph 的 StateGraph 实现了一个预配置的 Agent 循环，让开发者不需要跟图打交道。</p>
+
+    <h2>五、本质区别一张表</h2>
+
+    <table>
+      <tr><th>维度</th><th>LangChain</th><th>LangGraph</th></tr>
+      <tr><td>层级</td><td>中层抽象</td><td>底层框架</td></tr>
+      <tr><td>核心模型</td><td><code>create_agent</code> + 中间件</td><td>StateGraph（节点+边+状态）</td></tr>
+      <tr><td>抽象程度</td><td>Harness——围绕模型循环的配置层</td><td>编排引擎——控制执行流程</td></tr>
+      <tr><td>状态管理</td><td>有（基于 LangGraph）</td><td>核心特性（持久化/恢复）</td></tr>
+      <tr><td>学习曲线</td><td>低（几行代码）</td><td>中高（需理解图模型）</td></tr>
+      <tr><td>与对方关系</td><td>建立在 LangGraph 之上</td><td>可被 LangChain 调用，也可独立使用</td></tr>
+    </table>
+
+    <h2>六、什么时候该用哪个</h2>
+
+    <p>一个简单的决策树：</p>
+
+    <pre><code>你的 Agent 逻辑是不是"调用工具→返回结果"？
+  ├── 是 → LangChain 就够了
+  └── 否 → 你需要：
+       ├── 多步决策？→ LangGraph
+       ├── 条件分支？→ LangGraph
+       ├── 人机协作？→ LangGraph
+       ├── 失败恢复？→ LangGraph
+       └── 多 Agent 协作？→ LangGraph</code></pre>
+
+    <p>更直白地说：如果你的 Agent 逻辑能写在一段代码里，LangChain 就够了。如果需要画一张图才能说清楚执行逻辑，你需要 LangGraph。</p>
+
+    <h2>七、对我们意味着什么</h2>
+
+    <p>LangGraph 给了我们一个系统的方案来建模多 Agent 编排。但有一个关键的取舍：目前用 Hermes 的 <code>delegate_task</code> 对我们更实际——不需要引入新语言、新框架，就能跑通流水线。等流水线复杂到"用语言描述不清楚"的时候，再考虑 LangGraph 不迟。</p>
+
+    <h2>八、一句话</h2>
+
+    <div class="callout">
+      LangChain 和 LangGraph 不是竞品。LangChain 是给大多数人用的——几行代码跑一个 Agent。LangGraph 是给复杂场景用的——当你需要画图才能说清 Agent 逻辑时。
+    </div>
+
+  </div>
+</Layout>

@@ -1,0 +1,152 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = '框架选型指南——LangGraph / CrewAI / Dify / AutoGen 横评';
+const desc = '四个主流 Agent 框架的设计哲学、适用场景和选型决策方法。没有最好的框架，只有最合适的。';
+const date = '2026.07.05';
+---
+
+<Layout title={title} description={desc}>
+  <style>
+    .article { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; display: inline-block; margin-bottom: 12px; }
+    h1 { font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.25; letter-spacing: -0.3px; }
+    .meta { color: #334155; font-size: 13px; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1.5px solid #e2e8f0; }
+    h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 1.5px solid #f1f5f9; }
+    h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    p { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; }
+    strong { color: #0f172a; }
+    ul, ol { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; padding-left: 24px; }
+    li { margin-bottom: 6px; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #0f172a; }
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 20px; overflow-x: auto; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
+    pre code { background: transparent; padding: 0; color: inherit; font-size: 13px; }
+    .callout { background: #f8fafc; border-left: 3px solid #2563eb; border-radius: 0 8px 8px 0; padding: 16px 20px; margin-bottom: 20px; font-size: 14px; color: #334155; }
+    .callout strong { color: #2563eb; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+    th { background: #f8fafc; text-align: left; padding: 10px 14px; font-weight: 600; color: #0f172a; border-bottom: 1px solid #e2e8f0; font-size: 12px; }
+    td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+    tr:last-child td { border-bottom: none; }
+    .fw { font-weight: 600; color: #0f172a; }
+    .tag-box { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; margin-right: 4px; }
+    @media (max-width: 768px) { .article { padding: 40px 20px 80px; } h1 { font-size: 24px; } table { font-size: 12px; } }
+  </style>
+  <div class="article">
+    <div class="bread"><a href="/blog">文章</a> / {title}</div>
+    <span class="label">工程实践</span>
+    <h1>{title}</h1>
+    <div class="meta">{date} · 约 3200 字</div>
+
+    <p>
+      2026 年，Agent 框架已经不是一个要不要用的问题，而是用哪个的问题。LangGraph、CrewAI、Dify、AutoGen 四个框架各有拥趸，选错了不仅浪费时间，还会把你带到错误的方向。
+    </p>
+    <p>
+      本文不做"哪个最好"的结论——那是营销号干的事。本文从<strong>设计哲学、编排模式、状态管理、工具集成、部署方式</strong>五个维度做横评，帮你根据真实场景做决策。
+    </p>
+
+    <h2>一、四个框架的基因</h2>
+    <p>要理解一个框架，先理解它诞生的背景——每个框架的设计哲学都深深植根于它要解决的问题。</p>
+
+    <h3>LangGraph — LangChain 生态的图编排引擎</h3>
+    <p>LangGraph 是 LangChain 团队在 2024 年推出的有状态图编排框架。它的核心抽象是<strong>节点（Node）+ 边（Edge）</strong>——节点是处理逻辑，边是流转条件。你不需要在代码层面写 if-else 来控制 Agent 行为，而是用图结构来定义。</p>
+    <p><strong>适合：</strong>复杂工作流、多步推理、需要精细控制每一步的场景。</p>
+    <p><strong>不适合：</strong>简单的"问答式"Agent、非技术团队使用的场景。</p>
+
+    <h3>CrewAI — 角色化多 Agent 协作</h3>
+    <p>CrewAI 的核心抽象是<strong>角色（Role）</strong>。每个 Agent 被赋予一个角色定义（你是谁、你擅长什么、你的目标是什么），多个 Agent 组成一个 Crew（团队），通过任务（Task）和流程（Process）协作完成任务。</p>
+    <p>它的设计更接近"组织模拟"——像一支球队，每个位置有明确分工。</p>
+    <p><strong>适合：</strong>多角色协作任务（内容创作团队、研究分析团队）、原型验证。</p>
+    <p><strong>不适合：</strong>需要精细控制 Agent 内部逻辑的复杂场景。</p>
+
+    <h3>Dify — 可视化的 LLMOps 平台</h3>
+    <p>Dify 不是纯粹的框架，而是一个<strong>平台</strong>。它提供了可视化的 Agent 编排界面、内置的 RAG 管道、模型管理、监控等企业级功能。用户可以在不写代码的情况下搭建一个可用的 Agent 应用。</p>
+    <p><strong>适合：</strong>快速原型验证、非技术团队参与、需要内置 RAG 和监控的场景。</p>
+    <p><strong>不适合：</strong>需要深度定制、大规模高并发生产系统。</p>
+
+    <h3>AutoGen — 微软的对话式多 Agent</h3>
+    <p>AutoGen 的核心抽象是<strong>对话（Conversation）</strong>。Agent 之间通过对话来协商、分工、协作。支持代码生成与自动执行（Code Agent），可以自主写代码、跑代码、看结果、改代码。</p>
+    <p><strong>适合：</strong>代码生成与执行闭环、去中心化的多 Agent 系统、研究实验。</p>
+    <p><strong>不适合：</strong>生产环境的可靠性要求高的场景、需要简单快速上手的场景。</p>
+
+    <h2>二、横向对比</h2>
+
+    <table>
+      <tr><th style="width:100px">维度</th><th>LangGraph</th><th>CrewAI</th><th>Dify</th><th>AutoGen</th></tr>
+      <tr><td class="fw">编排模式</td><td>有向图（节点+边）</td><td>角色+任务+流程</td><td>可视化拖拽</td><td>对话驱动</td></tr>
+      <tr><td class="fw">状态管理</td><td>内置（StateGraph）</td><td>隐式管理</td><td>平台托管</td><td>对话历史</td></tr>
+      <tr><td class="fw">多 Agent</td><td>手动编排</td><td>原生支持</td><td>插件级</td><td>原生支持</td></tr>
+      <tr><td class="fw">工具集成</td><td>LangChain 工具生态</td><td>自定义工具</td><td>内置工具+API</td><td>函数注册</td></tr>
+      <tr><td class="fw">部署方式</td><td>代码集成（库）</td><td>代码集成（库）</td><td>独立服务（Docker）</td><td>代码集成（库）</td></tr>
+      <tr><td class="fw">学习曲线</td><td>较陡</td><td>平缓</td><td>最平缓</td><td>中等</td></tr>
+      <tr><td class="fw">可定制性</td><td>极高</td><td>中等</td><td>低</td><td>高</td></tr>
+      <tr><td class="fw">生态</td><td>LangChain 生态</td><td>独立</td><td>自建生态</td><td>微软生态</td></tr>
+      <tr><td class="fw">生产就绪度</td><td>中等</td><td>中等</td><td>较高</td><td>较低</td></tr>
+    </table>
+
+    <h2>三、选型决策方法</h2>
+    <p>框架选型没有银弹，但有决策路径。以下是一个实用的决策树：</p>
+
+    <pre><code>你的场景是什么？
+    │
+    ├─ 简单问答 / RAG / 非技术团队
+    │   └─ Dify（最快出活，可视化编排）
+    │
+    ├─ 复杂工作流 / 多步推理 / 精细控制
+    │   └─ LangGraph（图编排，表达能力强）
+    │
+    ├─ 多角色协作 / 团队模拟 / 内容生产
+    │   └─ CrewAI（角色化设计，易上手）
+    │
+    └─ 代码生成 / 自主 Agent / 研究实验
+        └─ AutoGen（代码执行闭环，灵活）
+    
+    如果你的场景跨越多个类别：
+    ─────────────────────────────
+    记住：框架不是单选题。MCP 做工具层标准化，
+    LangGraph 做复杂流程，Dify 做快速原型
+    ─ 这是企业级系统的常见组合。</code></pre>
+
+    <div class="callout">
+      <strong>核心建议：</strong> 如果你拿不准，从 Dify 开始做原型验证，确认方向后，再用 LangGraph 或 CrewAI 做生产实现。比一开始就选一个"全能"框架要好得多。
+    </div>
+
+    <h2>四、框架之外的考量</h2>
+    <p>选框架只是第一步。以下因素往往比框架本身更重要：</p>
+
+    <ul>
+      <li><strong>团队的编程语言偏好：</strong>以上四个框架都以 Python 为主。如果你的团队是 Go/Java 技术栈，需要额外考虑语言适配成本。</li>
+      <li><strong>部署环境限制：</strong>Dify 需要 Docker 运行，在企业内网部署时可能有额外的审批流程。LangGraph/CrewAI 作为 Python 库，集成更灵活。</li>
+      <li><strong>长期维护风险：</strong>框架演进速度极快。2024-2025 年间，多个框架经历了 API 大改。选择 API 稳定、社区活跃的框架，或做好抽象层隔离。</li>
+      <li><strong>可观测性支持：</strong>框架内置的可观测性（Trace、Log、Metric）直接决定了你调试 Agent 的效率。LangGraph 的 LangSmith、Dify 的监控面板都是重要考量点。</li>
+      <li><strong>供应商锁定：</strong>LangChain 生态绑定最深（用 LangGraph 基本意味着用 LangChain 全家桶）。Dify 有平台锁定风险。</li>
+    </ul>
+
+    <h2>五、小结</h2>
+    <pre><code>框架选型的核心原则：
+
+1. 先确定场景，再选框架
+   不是"这个框架很火所以用它"
+   而是"我的场景适合这种编排模式"
+
+2. 框架不是单选题
+   企业级系统往往需要组合使用
+   MCP(工具层) + 主框架(编排层) + 平台(管理层)
+
+3. 从简单开始
+   Dify 原型 → 验证方向 → 换/保留框架做生产
+
+4. 关注生态和演进速度
+   一个 API 半年大改三次的框架
+   比功能少的框架更难维护
+
+5. 留好抽象层
+   无论选哪个框架，核心业务逻辑应该与框架解耦
+   这样换框架时不需要重写所有代码</code></pre>
+
+    <p>
+      当前 Agent 框架的格局类似于 2015 年前后的前端框架大战——多个方案并存，各自适用不同场景。最终市场会收敛，但在收敛之前，<strong>理解每个框架的设计哲学比背诵 API 更有价值</strong>。因为设计哲学不会变，API 会。
+    </p>
+  </div>
+</Layout>

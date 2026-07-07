@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/rss-style.xsl"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>entos.top</title>
+    <description>企业级智能体工程实践指南 — 以输出倒逼输入</description>
+    <link>https://entos.top</link>
+    <language>zh-CN</language>
+    <lastBuildDate>Tue, 07 Jul 2026 00:00:00 GMT</lastBuildDate>
+    <atom:link href="https://entos.top/rss.xml" rel="self" type="application/rss+xml"/>
+
+    <item>
+      <title>多 Agent 编排模式实战——6 种模式，挑一种现在就上路</title>
+      <link>https://entos.top/blog/multi-agent-orchestration-patterns/</link>
+      <description>当你手上的 Agent 从 1 个变成 N 个，你用什么方式把它们组织起来？6 种经过了验证的编排模式，从 Supervisor-Worker 到 StateGraph，每种都有对比表和适用场景。</description>
+      <guid>https://entos.top/blog/multi-agent-orchestration-patterns/</guid>
+      <pubDate>Tue, 07 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>从作坊到工厂——我的 AI Agent 集群升级四步路线图</title>
+      <link>https://entos.top/blog/workshop-to-factory-agent-cluster-upgrade/</link>
+      <description>Agent 流水线跑通了，多 Agent 协作验证了——但架构还是作坊级的。上云、Kanban、质量门、自我进化，四步从作坊到工厂。</description>
+      <guid>https://entos.top/blog/workshop-to-factory-agent-cluster-upgrade/</guid>
+      <pubDate>Tue, 07 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>半小时实现一个 Hook 系统——从理论到落地</title>
+      <link>https://entos.top/blog/hook-system-implementation/</link>
+      <description>写完了 Hook 的理论文章，然后照着做了一个。结果半小时从零到跑通。Hook 系统核心只有三样东西：注册表 + 动作函数 + 引擎。</description>
+      <guid>https://entos.top/blog/hook-system-implementation/</guid>
+      <pubDate>Tue, 07 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>LangChain 与 LangGraph 的本质区别——同一个公司的两种武器</title>
+      <link>https://entos.top/blog/langchain-vs-langgraph-essence/</link>
+      <description>LangChain 和 LangGraph 是竞品吗？都不是。LangChain 官方文档一句话说清了：LangChain 的 Agent 建立在 LangGraph 之上。它们是上下层，不是替代关系。</description>
+      <guid>https://entos.top/blog/langchain-vs-langgraph-essence/</guid>
+      <pubDate>Tue, 07 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>大多数公司只走到了 AI 的 5%——一个 20 年 IT 老兵的真实观察</title>
+      <link>https://entos.top/blog/majority-companies-ai-5-percent/</link>
+      <description>霍夫曼说大多数公司 AI 落地只到 5%。一个经历了 ERP、大数据、云三次技术浪潮的 IT 老兵告诉你：不是技术买不起，是组织改不动。</description>
+      <guid>https://entos.top/blog/majority-companies-ai-5-percent/</guid>
+      <pubDate>Tue, 07 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>技能即资产——我们用 2 小时标准化了 20 个 AI Skills</title>
+      <link>https://entos.top/blog/skills-as-assets-standardization/</link>
+      <description>240 个技能，格式参差不齐。ECC 理论落地第一步：定义标准模板，批量升级 20 个最常用技能。2 小时做了什么、学到了什么。</description>
+      <guid>https://entos.top/blog/skills-as-assets-standardization/</guid>
+      <pubDate>Tue, 07 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>从 Session 到 Skill——AI Agent 如何自我进化</title>
+      <link>https://entos.top/blog/session-to-skill-continuous-learning/</link>
+      <description>每天产生几十条会话数据，除了翻出来看还有什么用？连续学习把"翻历史→找模式→写 skill"自动化——四步管道从 Session 到 Skill，产生复利效应。</description>
+      <guid>https://entos.top/blog/session-to-skill-continuous-learning/</guid>
+      <pubDate>Tue, 07 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>Hook 系统——工具调用的前与后</title>
+      <link>https://entos.top/blog/hook-system/</link>
+      <description>Agent 的本质是工具调用循环。Hook 系统在工具调用前后插一脚——安全检查、自动质检、连续学习，把"靠人记着做"变成"系统自动做"。</description>
+      <guid>https://entos.top/blog/hook-system/</guid>
+      <pubDate>Tue, 07 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>AI Agent 不只是模型——从 ECC 看 Agent 操作系统的五层架构</title>
+      <link>https://entos.top/blog/ai-agent-os-five-layer-architecture/</link>
+      <description>一个好的 Agent 不是"模型+提示词"的堆砌，而是一个有五层架构的操作系统。从 ECC 的 22 万 Star 看分层设计的必要性。</description>
+      <guid>https://entos.top/blog/ai-agent-os-five-layer-architecture/</guid>
+      <pubDate>Tue, 07 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>Agent 的"失忆症"——为什么 LLM 记不住事</title>
+      <link>https://entos.top/blog/agent-amnesia/</link>
+      <description>开发过程中 Agent 频繁"断片"——长对话健忘、新会话归零、重复问题。这不是模型不够聪明，是记忆架构没有设计。</description>
+      <pubDate>Mon, 06 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>三层记忆模型——工作记忆、情景记忆、语义知识</title>
+      <link>https://entos.top/blog/three-layer-memory/</link>
+      <description>工作记忆管当前会话、情景记忆管历史交互、语义知识管长期沉淀。三层对应三种不同的信息生命周期，也意味着三种不同的存储方案和检索策略。</description>
+      <pubDate>Mon, 06 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>工作记忆管理——不要让 Token 成为瓶颈</title>
+      <link>https://entos.top/blog/working-memory/</link>
+      <description>更大的上下文不等于更好的记忆。注意力衰减是硬约束。分层结构、摘要压缩、优先级保留——三种策略组合让 Agent 在有限上下文内记住关键信息。</description>
+      <pubDate>Mon, 06 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>从硬编码到配置化——星辉广告系统的同步引擎 V2 改造实录</title>
+      <link>https://entos.top/blog/sync-engine-v2-case/</link>
+      <description>一个广告中介平台的同步引擎，从每个上游写一份硬编码逻辑，到零代码配置化接入的完整过程。</description>
+      <guid>https://entos.top/blog/sync-engine-v2-case/</guid>
+      <pubDate>Mon, 06 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>框架选型指南——LangGraph / CrewAI / Dify / AutoGen 横评</title>
+      <link>https://entos.top/blog/framework-comparison/</link>
+      <description>四个主流框架的设计哲学、适用场景和选型决策方法。</description>
+      <guid>https://entos.top/blog/framework-comparison/</guid>
+      <pubDate>Sun, 05 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>成本模型——Agent 不是越强越好</title>
+      <link>https://entos.top/blog/cost-model/</link>
+      <description>Token 成本、模型路由、缓存策略、Token 压缩、ROI 计算——五个维度的成本优化方法论。</description>
+      <guid>https://entos.top/blog/cost-model/</guid>
+      <pubDate>Sun, 05 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>RAG 不是把文档扔进去——检索增强生成工程实战</title>
+      <link>https://entos.top/blog/rag-engineering/</link>
+      <description>Chunking、Embedding、检索优化、重排序、生成优化、评估——RAG 是一条完整的工程流水线。</description>
+      <guid>https://entos.top/blog/rag-engineering/</guid>
+      <pubDate>Sun, 05 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>Agent 可观测性——没有追踪就没有信任</title>
+      <link>https://entos.top/blog/agent-observability/</link>
+      <description>传统软件能打断点，Agent 出错了你连它刚才想了什么都不知道。</description>
+      <guid>https://entos.top/blog/agent-observability/</guid>
+      <pubDate>Sat, 04 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>Agent 落地最大的坑（以及怎么绕过）</title>
+      <link>https://entos.top/blog/agent-pitfalls/</link>
+      <description>PoC 翻车、成本失控、人抵制、没评估、安全后置——五个你迟早会遇到的坑。</description>
+      <guid>https://entos.top/blog/agent-pitfalls/</guid>
+      <pubDate>Sat, 04 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>Agent 安全设计指南</title>
+      <link>https://entos.top/blog/agent-security-guide/</link>
+      <description>三大威胁、三层防护、HITL 设计、审计链——Agent 上生产的安全必修课。</description>
+      <guid>https://entos.top/blog/agent-security-guide/</guid>
+      <pubDate>Sat, 04 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>三种编排模式与选型决策</title>
+      <link>https://entos.top/blog/orchestration-patterns/</link>
+      <description>一个 Agent 还是多个 Agent？谁来管？怎么管？三种模式与选型决策。</description>
+      <guid>https://entos.top/blog/orchestration-patterns/</guid>
+      <pubDate>Sat, 04 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>MCP 协议——工具接入的标准化</title>
+      <link>https://entos.top/blog/mcp-protocol/</link>
+      <description>Agent 的智能来自模型，但能力来自工具。MCP 如何让工具被标准化地发现和调用。</description>
+      <guid>https://entos.top/blog/mcp-protocol/</guid>
+      <pubDate>Sat, 04 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>ReAct 范式——Agent 的底层循环</title>
+      <link>https://entos.top/blog/react-paradigm/</link>
+      <description>所有 Agent 框架本质上都在做同一件事：让 LLM 像人一样想一步做一步看一步。</description>
+      <guid>https://entos.top/blog/react-paradigm/</guid>
+      <pubDate>Sat, 04 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>企业级智能体在 2026 年的真实面貌</title>
+      <link>https://entos.top/blog/enterprise-agent-2026/</link>
+      <description>不谈概念，只讲现实。AI Agent 到底走到了哪一步，以及传统企业应该怎么办。</description>
+      <guid>https://entos.top/blog/enterprise-agent-2026/</guid>
+      <pubDate>Sat, 04 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>企业级智能体六大知识域总览</title>
+      <link>https://entos.top/blog/six-knowledge-domains/</link>
+      <description>一张知识地图——这个领域到底有多大、从哪里开始、每一步通向哪里。</description>
+      <guid>https://entos.top/blog/six-knowledge-domains/</guid>
+      <pubDate>Sat, 04 Jul 2026 00:00:00 GMT</pubDate>
+    </item>
+
+  </channel>
+</rss>

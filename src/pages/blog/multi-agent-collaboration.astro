@@ -1,0 +1,148 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = '多Agent 协作——Supervisor-Worker 模式的实战经验';
+const desc = '什么时候用单Agent，什么时候拆成多个？并行分发、流水线、动态委派三种模式的实际工程经验。从 Hermes Agent 的真实使用出发。';
+const date = '2026.07.07';
+---
+
+<Layout title={title} description={desc}>
+  <style>
+    .page { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #475569; margin-bottom: 8px; }
+    .bread a { color: #475569; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 12px; color: #2563eb; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+    .label::before { content: '— '; } .label::after { content: ' —'; }
+    h1 { font-size: 32px; font-weight: 700; color: #0f172a; line-height: 1.2; margin-bottom: 12px; }
+    .meta { color: #475569; font-size: 13px; margin-bottom: 8px; }
+    .subtitle { color: #334155; font-size: 16px; line-height: 1.7; border-left: 3px solid #2563eb; padding-left: 16px; margin-bottom: 36px; }
+    h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 1.5px solid #e2e8f0; }
+    h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    p { color: #334155; font-size: 15px; line-height: 1.9; margin-bottom: 16px; }
+    strong { color: #0f172a; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+    th { text-align: left; padding: 10px 14px; background: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #334155; font-weight: 600; }
+    td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 20px; overflow-x: auto; margin: 20px 0; }
+    pre code { background: transparent; color: inherit; padding: 0; font-size: 13px; line-height: 1.6; }
+    ul, ol { color: #334155; font-size: 15px; line-height: 1.9; padding-left: 20px; margin-bottom: 16px; }
+    li { margin-bottom: 6px; }
+    .practice-box { margin: 36px 0; padding: 20px; background: #f0fdfa; border: 1.5px solid #a7f3d0; border-radius: 10px; display: flex; gap: 14px; align-items: flex-start; }
+    .practice-icon { font-size: 20px; flex-shrink: 0; }
+    .practice-content strong { font-size: 13px; color: #0f172a; display: block; margin-bottom: 4px; }
+    .practice-content p { font-size: 13px; color: #334155; margin: 0; line-height: 1.7; }
+    hr { border: none; border-top: 1px solid #e2e8f0; margin: 36px 0; }
+    @media (max-width: 768px) { .page { padding: 40px 20px 80px; } h1 { font-size: 26px; } }
+  </style>
+
+  <div class="page">
+    <div class="bread"><a href="/knowledge">知识域</a> / <a href="/knowledge/02-architecture">架构设计</a></div>
+    <div class="label">架构设计 · Phase 2</div>
+    <h1>{title}</h1>
+    <div class="meta">{date} · 核心阅读</div>
+    <div class="subtitle">{desc}</div>
+
+    <h2>一、为什么要从单 Agent 走向多 Agent</h2>
+
+    <p>单 Agent 能解决很多问题。但当任务变复杂时，一个 Agent 什么都要管，会遇到三个瓶颈。</p>
+
+    <h3>瓶颈 1：上下文膨胀</h3>
+
+    <p>假设你让一个 Agent 同时做三件事：查询数据库获取报表 → 分析数据找出异常 → 写一份分析报告。</p>
+
+    <p>每件事有自己的中间结果。这三件事的上下文全部挤在同一个上下文窗口里。Token 很快涨到上限，Agent 开始丢信息——它在写报告时"忘记"了 SQL 查出来的关键数据点。</p>
+
+    <p><strong>更糟的是：</strong> 即使上下文窗口够大（128K、1M），注意力衰减也在起作用。模型对窗口中间部分的关注度远低于开头和结尾。大量有用信息实际上处于"存了但看不到"的状态。</p>
+
+    <h3>瓶颈 2：工具集冲突</h3>
+
+    <p>Agent 的工具越多，调用正确工具的难度越大。数据库查询、数据库写入、文件读取、文件写入、Web 搜索、代码执行——混合使用时，Agent 可能在执行一个"只查数据"的任务时意外调用了写入工具。</p>
+
+    <p><strong>经验：</strong> 工具集超过 6 个时，误调用率明显上升。</p>
+
+    <h3>瓶颈 3：关注点混杂</h3>
+
+    <p>业务逻辑、工具调用、输出格式化——全在同一个推理过程中。改一个地方的影响不可控。关注点分离不仅适用于代码设计，也适用于 Agent 设计。</p>
+
+    <h2>二、Supervisor-Worker 模式详解</h2>
+
+    <p>Supervisor（总设计师）的职责：</p>
+    <ul>
+      <li><strong>任务拆解：</strong> 把一个大目标拆成多个独立的子任务。好的拆解：每个子任务边界清晰、产出明确、不重叠。</li>
+      <li><strong>工具集配置：</strong> 给每个 Worker 只分配它需要的工具。</li>
+      <li><strong>结果回收：</strong> 等所有 Worker 完成后，把结果组合成一致的输出。</li>
+      <li><strong>异常处理：</strong> 如果 Worker 失败，决定是重试、换人、还是降级处理。</li>
+    </ul>
+
+    <p>Worker 的职责只有一个：完成分配给它的任务，返回结果。它不需要知道其他 Worker 在做什么。</p>
+
+    <h3>实战案例：entos.top 网站改造</h3>
+
+    <p>在今天（2026.07.07）的 entos.top 改造中，这个模式反复使用：</p>
+
+    <pre><code>Supervisor（Hermes Agent）
+  用户需求："创建学习路径、Harness、记忆系统三个页面"
+
+  ├── Worker A：创建学习路径页面（四阶段路线图）
+  ├── Worker B：创建 Harness 落地页（四维卡片+案例）
+  └── Worker C：创建记忆系统落地页（三层模型+文章规划）
+
+  三个 Worker 并行工作。
+  完成后 Supervisor 做一致性检查：
+  - 导航链接是否正确
+  - 风格是否统一
+  - 有没有重复或遗漏</code></pre>
+
+    <p>结果：三个页面在约 2 分钟内全部完成，0 处返工。每个 Worker 的上下文只有自己那一个页面的信息。</p>
+
+    <h2>三、三种协作模式</h2>
+
+    <h3>1. 并行分发（Fan-out）</h3>
+    <p>Supervisor 同时启动多个 Worker，等到全部完成后汇总。适合多个独立子任务。</p>
+    <p><strong>真实场景：</strong> 多个独立页面并行创建、同时查询多个数据源、批量生成多份文档。</p>
+
+    <h3>2. 流水线（Pipeline）</h3>
+    <p>前一个 Worker 的输出作为下一个的输入。适合有明确前后依赖的任务。</p>
+    <p><strong>真实场景：</strong> ETL 流程（提取→转换→加载）、数据处理流水线（抓取→清洗→分析→可视化）。</p>
+
+    <h3>3. 动态委派（Dynamic Delegation）</h3>
+    <p>Supervisor 根据执行结果动态决定下一步谁来做。适合需要容错的场景。</p>
+    <p><strong>真实场景：</strong> 调试排查（先查日志→没找到再查DB→再没找到查上游API）、需要权限分级的操作。</p>
+
+    <h2>四、三个关键问题</h2>
+
+    <h3>怎么分任务</h3>
+    <p>好的任务单元：边界清晰、产出明确、自包含。</p>
+
+    <h3>怎么汇总结果</h3>
+    <p>在任务拆解阶段就约定输出格式。让所有 Worker 用同一套模板返回结果。</p>
+
+    <h3>出错怎么办</h3>
+    <p>可恢复错误（超时、临时故障）→ 重试。不可恢复（没权限、数据不存在）→ 降级用默认值替代。可选任务失败 → 跳过。</p>
+
+    <h2>五、什么时候用多Agent</h2>
+
+    <table>
+      <thead><tr><th>场景</th><th>推荐</th><th>理由</th></tr></thead>
+      <tbody>
+        <tr><td>一个明确的任务</td><td>单 Agent</td><td>不需要调度开销</td></tr>
+        <tr><td>2-3 个独立子任务</td><td>单 Agent 顺序执行</td><td>上下文窗口够用</td></tr>
+        <tr><td>4 个以上独立子任务</td><td>多 Agent 并行</td><td>上下文扛不住</td></tr>
+        <tr><td>任务有明确前后依赖</td><td>流水线</td><td>职责清晰</td></tr>
+        <tr><td>涉及不同领域工具</td><td>多 Agent</td><td>工具隔离</td></tr>
+      </tbody>
+    </table>
+
+    <div class="practice-box">
+      <div class="practice-icon">📌</div>
+      <div class="practice-content">
+        <strong>实践建议</strong>
+        <p>下周遇到复杂任务时，先问自己：这个任务能拆成几个独立子任务？每个子任务的产出是什么？拆完如果超过 3 个，试试 Supervisor-Worker 模式。</p>
+      </div>
+    </div>
+
+    <hr>
+
+    <p style="font-size:13px;color:#475569"><strong>关联阅读：</strong> <a href="/blog/mcp-protocol" style="color:#2563eb">MCP 协议</a> · <a href="/blog/orchestration-patterns" style="color:#2563eb">三种编排模式</a></p>
+  </div>
+</Layout>

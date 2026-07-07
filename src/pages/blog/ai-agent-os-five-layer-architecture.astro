@@ -1,0 +1,208 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = 'AI Agent 不只是模型——从 ECC 看 Agent 操作系统的五层架构';
+const desc = '一个好的 Agent 不是"模型+提示词"的堆砌，而是一个有五层架构的操作系统——用户交互层、跨平台适配层、运行时层、可观测层、安全层。';
+const date = '2026.07.07';
+---
+
+<Layout title={title} description={desc}>
+  <style>
+    .article { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; display: inline-block; margin-bottom: 12px; }
+    h1 { font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.25; letter-spacing: -0.3px; }
+    .meta { color: #334155; font-size: 13px; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1.5px solid #e2e8f0; }
+    h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 1.5px solid #f1f5f9; }
+    h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    p { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; }
+    strong { color: #0f172a; }
+    ul, ol { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; padding-left: 24px; }
+    li { margin-bottom: 6px; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #0f172a; }
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 20px; overflow-x: auto; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
+    pre code { background: transparent; padding: 0; color: inherit; font-size: 13px; }
+    .callout { background: #f8fafc; border-left: 3px solid #2563eb; border-radius: 0 8px 8px 0; padding: 16px 20px; margin-bottom: 20px; font-size: 14px; color: #334155; }
+    .callout strong { color: #2563eb; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+    th { background: #f8fafc; color: #0f172a; font-weight: 600; padding: 10px 14px; border: 1px solid #e2e8f0; text-align: left; }
+    td { padding: 10px 14px; border: 1px solid #e2e8f0; color: #334155; }
+    .arch-box { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 20px; margin-bottom: 24px; font-family: monospace; font-size: 13px; line-height: 1.8; color: #334155; white-space: pre; overflow-x: auto; }
+    .practice-box { margin: 36px 0; padding: 20px; background: #f0fdfa; border: 1.5px solid #a7f3d0; border-radius: 10px; display: flex; gap: 14px; align-items: flex-start; }
+    .practice-icon { font-size: 20px; flex-shrink: 0; }
+    .practice-content strong { font-size: 13px; color: #0f172a; display: block; margin-bottom: 4px; }
+    .practice-content p { font-size: 13px; color: #475569; margin: 0; line-height: 1.7; }
+    @media (max-width: 768px) { .article { padding: 40px 20px 80px; } h1 { font-size: 24px; } }
+  </style>
+  <div class="article">
+    <div class="bread"><a href="/blog">文章</a> / {title}</div>
+    <span class="label">Harness</span>
+    <h1>{title}</h1>
+    <div class="meta">{date} · 约 5000 字</div>
+
+    <h2>一、一个让我重新思考的问题</h2>
+
+    <p>几个月前，我发现了一个 GitHub 仓库，当时它的 star 数还在十几万，现在已经飙到了 <strong>22.6 万</strong>——<strong>affaan-m/ECC</strong>。</p>
+
+    <p>ECC 的定位很特别。它不是一个新的 AI 模型，不是一个新的框架，而是定位为 <strong>"Agent Harness Operating System"</strong>——Agent 的"马笼头"操作系统。</p>
+
+    <p>当时我正在用自己的一套 Agent 系统做日常开发。Skills 系统有了，记忆能力有了，定时任务也有了。看起来该有的都有了。但当我深入阅读 ECC 的架构文档时，我发现自己缺了一个东西——<strong>系统思维</strong>。</p>
+
+    <p>我一直在"加功能"：加一个 skill、加一条记忆、加一个工具。而 ECC 在做的，是把 Agent 当成一个<strong>操作系统</strong>来设计。它有明确的分层、标准化的接口、完整的生命周期管理。</p>
+
+    <p>这个视角转换，比任何单个功能都更重要。</p>
+
+    <h2>二、Agent 操作系统的五层架构</h2>
+
+    <p>ECC 2.0 的参考架构文档定义了一个清晰的分层模型。下面是我从中提炼的五层结构，每一层解决一个核心问题。</p>
+
+    <div class="arch-box">
+┌──────────────────────────────────────────────┐
+│ ① Operator Surface  (用户交互层)              │
+│ CLI, GUI, HUD, 通知, PR 审查                  │
+├──────────────────────────────────────────────┤
+│ ② Harness Adapter  (跨平台兼容层)             │
+│ 适配 Claude Code / Codex / OpenCode / Hermes │
+├──────────────────────────────────────────────┤
+│ ③ Runtime  (运行时层)                         │
+│ 工作树管理 / 会话持久化 / 任务队列              │
+├──────────────────────────────────────────────┤
+│ ④ Observability  (可观测层)                   │
+│ 链路追踪 / 状态快照 / 审计评分                  │
+├──────────────────────────────────────────────┤
+│ ⑤ Security  (安全层)                          │
+│ 注入检测 / 策略管控 / 供应链安全                │
+└──────────────────────────────────────────────┘
+    </div>
+
+    <p>每一层都有明确的职责边界，下层为上层提供能力，上层不越界干涉下层实现。这个设计让我意识到，我之前的"All-in-One"思路——把所有功能塞进一个系统——是没有可扩展性的。</p>
+
+    <h3>第二层才是核心创新：Harness Adapter</h3>
+
+    <p>ECC 让我印象最深的设计，不是功能多丰富，而是它对<strong>移植性</strong>的执念。</p>
+
+    <div class="callout">
+      <strong>ECC 架构第一原则：</strong> "Skills 是便携单元，Harness 只是执行表面。"
+    </div>
+
+    <p>这句话的意思是：一个 Skill（工作流定义）应该能在任何平台上跑——Claude Code 能跑、Codex 能跑、OpenCode 能跑、Cursor 也能跑。而适配层只做三件事：</p>
+
+    <ol>
+      <li><strong>加载共享资产</strong>——怎么读 SKILL.md</li>
+      <li><strong>适配事件形状</strong>——PreToolUse 在 Codex 里可能是别的事件名</li>
+      <li><strong>处理平台限制</strong>——这个平台不支持什么功能</li>
+    </ol>
+
+    <p>这意味着什么？<strong>你写一次工作流，就能在所有 Agent 工具上复用。</strong></p>
+
+    <p>对比我们的现状：Hermes 的 skills 只能用在 Hermes，Claude Code 的 skills 只能用在 Claude Code。每个工具都在造自己的轮子。ECC 给我们展示了一个更好的方式：<strong>把可复用的逻辑放在中间层，把适配的工作交给边缘层。</strong></p>
+
+    <h3>第三层的 Session 标准化是一个被低估的细节</h3>
+
+    <p>ECC 定义了一个 <code>ecc.session.v1</code> 的 JSON schema，用来统一所有会话的状态：</p>
+
+    <pre><code>&lbrace;
+  "schemaVersion": "ecc.session.v1",
+  "session": &lbrace; "id": "session-123", "kind": "history", "state": "recorded" &rbrace;,
+  "workers": [&lbrace; "id": "worker-1", "state": "running", "health": "healthy" &rbrace;]
+&rbrace;</code></pre>
+
+    <p>为什么要费这个劲？因为会话数据太重要了。调试要查、分析要查、自动化要查、改进要查。但如果每个工具的会话格式都不一样，这些事就没法系统化地做。</p>
+
+    <table>
+      <tr><th>不做标准化的后果</th><th>做标准化的好处</th></tr>
+      <tr><td>跨会话分析靠 grep</td><td>结构化查询</td></tr>
+      <tr><td>自动化无法获取上下文</td><td>统一接口</td></tr>
+      <tr><td>换工具数据全丢</td><td>Schema 适配即可</td></tr>
+      <tr><td>无法做模式挖掘</td><td>可直接做连续学习</td></tr>
+    </table>
+
+    <p>我强烈建议每个做 Agent 系统的团队，都在早期就定义自己的会话标准格式。别等到几千条会话数据堆在那里才想起来要统一。</p>
+
+    <h3>第五层应该是第三层：为什么安全这么靠下</h3>
+
+    <p>ECC 把安全放在了第五层（最底层）。这不是说安全不重要，而是说安全应该是<strong>基础设施</strong>，不是<strong>功能</strong>。</p>
+
+    <p>ECC 的 AgentShield 有 <strong>1282 个测试、102 条规则</strong>。它覆盖：</p>
+
+    <ul>
+      <li>提示注入检测（Prompt Injection）</li>
+      <li>供应链漏洞（第三方 MCP 包的安全扫描）</li>
+      <li>策略管控（什么工具在什么场景下可用）</li>
+      <li>SARIF 格式输出（与 GitHub 代码扫描集成）</li>
+    </ul>
+
+    <p>对比很多系统的现状：安全是靠"用户手工确认"来保证的——执行危险命令要确认，敏感操作要确认。这不是安全架构，这是<strong>人工审批流程</strong>。</p>
+
+    <p>一个成熟的 Agent 系统，安全不应该依赖人的警惕性，而应该依赖系统层面的策略引擎。</p>
+
+    <h2>三、当前主流 Agent 系统的层次对比</h2>
+
+    <p>这是我对几个主流系统的粗略定位（基于公开资料和个人使用经验）：</p>
+
+    <table>
+      <tr><th>系统</th><th>用户交互层</th><th>跨平台兼容</th><th>运行时标准</th><th>可观测性</th><th>安全层</th></tr>
+      <tr><td><strong>Claude Code</strong></td><td>CLI + 插件</td><td>❌ 仅 Claude</td><td>❌ 无</td><td>部分有</td><td>❌ 无</td></tr>
+      <tr><td><strong>Codex</strong></td><td>CLI + 编辑器</td><td>❌ 仅 Codex</td><td>❌ 无</td><td>部分有</td><td>❌ 无</td></tr>
+      <tr><td><strong>OpenCode</strong></td><td>CLI</td><td>❌ 仅自身</td><td>❌ 无</td><td>部分有</td><td>❌ 无</td></tr>
+      <tr><td><strong>ECC</strong></td><td>CLI + TUI + Statusline</td><td>✅ 跨 10+ 工具</td><td>✅ ecc.session.v1</td><td>✅ Traces + Audit</td><td>✅ AgentShield</td></tr>
+      <tr><td><strong>Hermes</strong></td><td>微信/QQ/Telegram + CLI</td><td>❌ 仅自身</td><td>❌ 非结构化</td><td>部分有</td><td>❌ 人工确认</td></tr>
+    </table>
+
+    <p>注意：这不是"谁好谁差"的对比，而是<strong>设计重点不同</strong>。Claude Code 专注于模型交互体验，Hermes 专注于多平台接入，ECC 专注于系统架构。但 ECC 的架构设计确实提供了一个很好的参考框架——尤其是它的分层思维。</p>
+
+    <h2>四、这个架构图给我们的三个启发</h2>
+
+    <h3>启发一：分层不是文档里的装饰，是代码里的实体</h3>
+
+    <p>不要在架构图里画了分层，代码里还是一团。每一层都应该有对应的：</p>
+    <ul>
+      <li><strong>目录</strong>——代码仓库里独立目录</li>
+      <li><strong>契约</strong>——层间通信的接口定义</li>
+      <li><strong>测试</strong>——层的独立测试套件</li>
+    </ul>
+    <p>如果在代码里找不到"适配器层"、"运行时层"的实体，那架构图就只是装饰。</p>
+
+    <h3>启发二：移植性应该从第一天开始设计</h3>
+
+    <p>ECC 的 SKILL.md 能在 10 种工具上运行，不是靠后期适配，而是靠<strong>从一开始就克制地写在 SKILL.md 里</strong>——不写平台独有命令、不嵌凭据、不依赖特定 hook。</p>
+
+    <p>对我们来说，这意味着：写一个 skill 时，不要假设它在哪个平台运行。用通用的 Markdown 描述工作流，把平台相关的部分隔离到配置中。</p>
+
+    <h3>启发三：安全不是"加个确认框"</h3>
+
+    <p>真正成熟的安全应该是：</p>
+    <ul>
+      <li><strong>策略引擎</strong>——什么可以做什么不能做</li>
+      <li><strong>扫描自动化</strong>——每次 tool call 前自动检查</li>
+      <li><strong>供应链管控</strong>——第三方工具的安全评级</li>
+      <li><strong>审计日志</strong>——所有操作的追踪记录</li>
+    </ul>
+    <p>如果你还在靠"弹窗确认"来做安全，你的系统还处在早期阶段。</p>
+
+    <h2>五、从今天可以做的三件事</h2>
+
+    <p><strong>1. 审查你的技能库的平台依赖。</strong> 打开你的所有 skill 文件，看看有没有硬编码了特定平台的写法。如果有，开始做隔离：工作流逻辑放一个文件，平台适配放另一个文件。</p>
+
+    <p><strong>2. 定义一个最简单的 Session 格式。</strong> 不一定要像 ecc.session.v1 那么完整。先从"会话 ID + 时间 + 关键操作摘要"开始，把格式固定下来。你会在做跨会话分析时感谢自己。</p>
+
+    <p><strong>3. 建一个安全检查清单。</strong> 列出你的 Agent 系统能执行的所有危险操作——文件删除、数据库写入、远程连接。不要只靠人工确认，看哪些可以用规则自动拦截。</p>
+
+    <div class="practice-box">
+      <div class="practice-icon">📌</div>
+      <div class="practice-content">
+        <strong>实践建议</strong>
+        <p>找一份你的 Agent 系统的架构图，对照五层模型做一次差距分析。把你已经有的层标绿，缺失的层标红。你会发现自己的系统的真实状态。</p>
+      </div>
+    </div>
+
+    <h2>参考资源</h2>
+    <ul>
+      <li><a href="https://github.com/affaan-m/ECC">ECC GitHub 仓库</a></li>
+      <li><a href="https://github.com/affaan-m/ECC/blob/main/docs/architecture/cross-harness.md">Cross-Harness Architecture</a></li>
+      <li><a href="https://github.com/affaan-m/ECC/blob/main/docs/ECC-2.0-REFERENCE-ARCHITECTURE.md">ECC 2.0 Reference Architecture</a></li>
+      <li><a href="https://github.com/affaan-m/ECC/blob/main/docs/SESSION-ADAPTER-CONTRACT.md">Session Adapter Contract</a></li>
+    </ul>
+  </div>
+</Layout>

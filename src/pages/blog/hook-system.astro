@@ -1,0 +1,237 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = 'Hook 系统——工具调用的前与后';
+const desc = 'Agent 的本质是工具调用循环。Hook 系统在工具调用前后插一脚——安全检查、自动质检、连续学习，把"靠人记着做"变成"系统自动做"。';
+const date = '2026.07.07';
+---
+
+<Layout title={title} description={desc}>
+  <style>
+    .article { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; display: inline-block; margin-bottom: 12px; }
+    h1 { font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.25; letter-spacing: -0.3px; }
+    .meta { color: #334155; font-size: 13px; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1.5px solid #e2e8f0; }
+    h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 1.5px solid #f1f5f9; }
+    h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    p { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; }
+    strong { color: #0f172a; }
+    ul, ol { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; padding-left: 24px; }
+    li { margin-bottom: 6px; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #0f172a; }
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 20px; overflow-x: auto; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
+    pre code { background: transparent; padding: 0; color: inherit; font-size: 13px; }
+    .callout { background: #f8fafc; border-left: 3px solid #2563eb; border-radius: 0 8px 8px 0; padding: 16px 20px; margin-bottom: 20px; font-size: 14px; color: #334155; }
+    .callout strong { color: #2563eb; }
+    .callout-warn { border-left-color: #f59e0b; }
+    .callout-warn strong { color: #d97706; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+    th { background: #f8fafc; color: #0f172a; font-weight: 600; padding: 10px 14px; border: 1px solid #e2e8f0; text-align: left; }
+    td { padding: 10px 14px; border: 1px solid #e2e8f0; color: #334155; }
+    .practice-box { margin: 36px 0; padding: 20px; background: #f0fdfa; border: 1.5px solid #a7f3d0; border-radius: 10px; display: flex; gap: 14px; align-items: flex-start; }
+    .practice-icon { font-size: 20px; flex-shrink: 0; }
+    .practice-content strong { font-size: 13px; color: #0f172a; display: block; margin-bottom: 4px; }
+    .practice-content p { font-size: 13px; color: #475569; margin: 0; line-height: 1.7; }
+    @media (max-width: 768px) { .article { padding: 40px 20px 80px; } h1 { font-size: 24px; } }
+  </style>
+  <div class="article">
+    <div class="bread"><a href="/blog">文章</a> / {title}</div>
+    <span class="label">Harness</span>
+    <h1>{title}</h1>
+    <div class="meta">{date} · 约 4500 字</div>
+
+    <h2>一、一个被低估的设计决策</h2>
+
+    <p>Agent 的工作流程，本质上就是"接收指令→调用工具→返回结果"的循环。</p>
+
+    <p>但这个描述太简化了。真正的问题是：<strong>在工具调用之前和之后，我们有没有机会插一脚？</strong></p>
+
+    <p>举几个我实际遇到的场景：</p>
+
+    <ul>
+      <li>想在执行 <code>rm -rf</code> 之前自动拦截，不要等我反应过来才后悔</li>
+      <li>想在每次编辑完 TypeScript 文件后自动跑 <code>tsc --noEmit</code>，而不是手动记着去做</li>
+      <li>想在每次会话结束时，自动保存当前的关键决策到记忆库</li>
+      <li>想在长时间命令执行前，提醒自己开一个 tmux 会话</li>
+    </ul>
+
+    <p>这些场景有一个共同点：它们都不是"主流程"的一部分，但少了它们，系统就是残废的。</p>
+
+    <p>这就是 <strong>Hook 系统</strong> 要解决的问题。</p>
+
+    <h2>二、ECC 的 Hook 架构</h2>
+
+    <p>ECC 定义了 6 种 Hook 事件：</p>
+
+    <table>
+      <tr><th>事件</th><th>触发时机</th><th>典型用途</th></tr>
+      <tr><td><strong>SessionStart</strong></td><td>会话开始时</td><td>加载前序上下文、检测项目状态</td></tr>
+      <tr><td><strong>PreToolUse</strong></td><td>工具执行之前</td><td>安全检查、提醒、验证</td></tr>
+      <tr><td><strong>PostToolUse</strong></td><td>工具执行之后</td><td>格式化、类型检查、连续学习记录</td></tr>
+      <tr><td><strong>UserPromptSubmit</strong></td><td>用户发送消息时</td><td>消息预处理</td></tr>
+      <tr><td><strong>PreCompact</strong></td><td>上下文压缩之前</td><td>保存重要状态</td></tr>
+      <tr><td><strong>Stop</strong></td><td>模型停止响应时</td><td>审计检查、持久化摘要</td></tr>
+    </table>
+
+    <p>每个 Hook 由三部分组成：</p>
+    <ol>
+      <li><strong>Matcher（匹配器）</strong>——什么时候触发。ECC 用表达式来匹配，比如 <code>tool == "Bash" && tool_input.command matches "npm|pytest"</code></li>
+      <li><strong>Hook 动作</strong>——触发后做什么。可以是执行一个命令行、运行一段脚本、或者调用一个 API。</li>
+      <li><strong>Profile（执行档位）</strong>——<code>minimal / standard / strict</code>，控制 Hook 的激进程度。</li>
+    </ol>
+
+    <p>下面是 ECC 的一个实际 Hook 配置：</p>
+
+    <pre><code>&lbrace;
+  "PreToolUse": [
+    &lbrace;
+      "matcher": "tool == \"Bash\" && tool_input.command matches \"(npm|pnpm|yarn|cargo|pytest)\"",
+      "hooks": [&lbrace;
+        "type": "command",
+        "command": "if [ -z \"$TMUX\" ]; then echo '[Hook] 建议在 tmux 中运行长命令' >&2; fi"
+      &rbrace;]
+    &rbrace;,
+    &lbrace;
+      "matcher": "tool == \"Write\" && tool_input.file_path matches \"\\.md$\"",
+      "hooks": [&lbrace;
+        "type": "command",
+        "command": "echo '[Hook] 非文档文件不要写 .md' >&2;"
+      &rbrace;]
+    &rbrace;
+  ],
+  "PostToolUse": [
+    &lbrace;
+      "matcher": "tool == \"Edit\" && tool_input.file_path matches \"\\.(ts|tsx)$\"",
+      "hooks": [&lbrace;
+        "type": "command",
+        "command": "tsc --noEmit 2>&1"
+      &rbrace;]
+    &rbrace;
+  ]
+&rbrace;</code></pre>
+
+    <p>这里的关键设计是 <strong>Matcher 是可编程的</strong>——不是硬编码的"在写文件前检查"，而是可以在运行时通过表达式匹配任意条件。这让 Hook 系统的扩展性远远超过简单的"前后回调"。</p>
+
+    <h2>三、Hook 系统的三层价值</h2>
+
+    <h3>安全层：PreToolUse 是最便宜的保险</h3>
+
+    <p>在 ECC 的真实使用中，PreToolUse 被大量用于安全检查。你可以在工具执行之前做：</p>
+
+    <ul>
+      <li><strong>命令黑名单</strong>：<code>rm -rf /</code>、<code>DROP TABLE</code>、<code>git push --force</code> 这些危险操作自动拦截</li>
+      <li><strong>凭据泄露检测</strong>：检查输出的内容是否包含了 API Key 或密码</li>
+      <li><strong>上下文审核</strong>：文件即将被覆写时，先打印 diff 让用户确认</li>
+    </ul>
+
+    <p>这些检查在系统层面做一次，比在每次对话中反复提醒模型要可靠得多。Hook 的保险作用在于：<strong>它不依赖模型的"自觉"。</strong> 模型可能在某次对话中被你提醒过"不要删文件"，但换个场景它可能就忘了。PreToolUse 的检查是系统级的，每次都会执行。</p>
+
+    <h3>质量层：PostToolUse 是自动化的质检员</h3>
+
+    <p>PostToolUse 的典型用法是"写完后自动检查"：</p>
+
+    <ul>
+      <li><strong>类型检查</strong>：改完 TypeScript 自动跑 tsc</li>
+      <li><strong>格式化</strong>：改完代码自动跑 prettier</li>
+      <li><strong>日志审计</strong>：检查是否有 console.log 被提交</li>
+    </ul>
+
+    <p>ECC 甚至有一个 <code>Stop</code> 阶段的 Hook，专门扫描所有被修改的文件，看有没有残留的调试代码。这个 Hook 是"阻塞模式"——检查失败会阻止整个操作被标记为完成。</p>
+
+    <div class="callout callout-warn">
+      <strong>一个反常识的洞察：</strong> 人是最不可靠的质检员。模型改完代码，你手动跑一次测试，十次有八次会忘记。PostToolUse 把"手动想起来"变成"每次自动做"，质量不是提升了，是质变了。
+    </div>
+
+    <h3>学习层：Hook 是连续学习的传感器</h3>
+
+    <p>ECC 的 Continuous Learning v2 系统，核心传感器就是 PostToolUse Hook。</p>
+
+    <p>每次工具调用完成后，Hook 记录下来"用了什么工具、做了什么、结果如何"。后台的分析器会从这些记录中提取模式，形成 Instinct（本能），最终演化为可重用的 Skill。</p>
+
+    <p>这个过程不需要人工干预——Hook 自动采集数据，分析器自动提炼模式，最终输出可复用的 Skill。如果你没有 Hook 系统，你就没有数据来源，连续学习就无从谈起。</p>
+
+    <h2>四、没有 Hook 系统的 Agent 缺陷</h2>
+
+    <table>
+      <tr><th>场景</th><th>有 Hook 系统</th><th>没有 Hook 系统</th></tr>
+      <tr><td>执行危险命令</td><td>PreToolUse 自动拦截</td><td>靠模型自觉，或者弹窗确认</td></tr>
+      <tr><td>写完代码检查</td><td>PostToolUse 自动跑检查</td><td>手动想起来再跑</td></tr>
+      <tr><td>跨会话记忆</td><td>Stop Hook 自动保存摘要</td><td>每次会话归零</td></tr>
+      <tr><td>连续学习</td><td>PostToolUse 记录数据</td><td>靠人工回顾</td></tr>
+      <tr><td>安全审计</td><td>所有操作都有日志</td><td>没有系统化记录</td></tr>
+    </table>
+
+    <p><strong>Hook 系统的本质，是把"偶发的、靠人记着做"的事情，变成"必然的、系统自动做"的事情。</strong></p>
+
+    <h2>五、如何构建自己的 Hook 系统</h2>
+
+    <p>如果你的 Agent 系统没有原生的 Hook 支持，你可以在工具调用包装层实现一个简化版。</p>
+
+    <h3>第一步：定义 Hook 注册表</h3>
+
+    <p>用一个 JSON 文件管理所有 Hook：</p>
+
+    <pre><code>&lbrace;
+  "preToolUse": [
+    &lbrace; "matcher": "terminal", "severity": "high", "action": "check_command_safety" &rbrace;,
+    &lbrace; "matcher": "write_file", "action": "check_file_extension" &rbrace;
+  ],
+  "postToolUse": [
+    &lbrace; "matcher": "terminal", "action": "record_tool_usage" &rbrace;,
+    &lbrace; "matcher": "write_file", "action": "lint_modified_file" &rbrace;
+  ],
+  "onStop": [
+    &lbrace; "action": "save_session_summary" &rbrace;
+  ]
+&rbrace;</code></pre>
+
+    <h3>第二步：在工具调用前后包装</h3>
+
+    <pre><code>def execute_with_hooks(tool_name, tool_input):
+    # PreToolUse
+    for hook in registry.get("preToolUse", []):
+        if matches(hook["matcher"], tool_name):
+            execute_action(hook["action"], tool_name, tool_input)
+
+    # 实际的工具调用
+    result = execute_tool(tool_name, tool_input)
+
+    # PostToolUse
+    for hook in registry.get("postToolUse", []):
+        if matches(hook["matcher"], tool_name):
+            execute_action(hook["action"], tool_name, tool_input, result)</code></pre>
+
+    <h3>第三步：从偶发走向必然</h3>
+
+    <p>Hook 系统的最终目标不是"加更多钩子"，而是<strong>把重复的、容易遗忘的事情自动化</strong>。一个好的衡量标准是：</p>
+
+    <div class="callout">
+      <strong>你的 Agent 系统，在日常使用中，还有多少事情需要你"记得去做"？</strong> 如果答案大于 0，就说明还有 Hook 可以加。
+    </div>
+
+    <h2>六、从今天可以做的三件事</h2>
+
+    <p><strong>1. 列出你的"遗忘清单"。</strong> 有哪些事情你经常忘记做？跑测试、格式化代码、保存笔记。每个"忘记"都是一个潜在的 Hook。</p>
+
+    <p><strong>2. 从最简单的 PostToolUse 开始。</strong> 不需要一开始就搭完整的 Hook 框架。先选一个你最常忘记的检查（比如改完代码跑 lint），在工具调用后自动执行它。</p>
+
+    <p><strong>3. 在 PreToolUse 建一个安全门。</strong> 至少对 <code>rm -rf</code>、<code>DROP TABLE</code>、<code>git push --force</code> 这三个操作做拦截。这是投入产出比最高的 Hook。</p>
+
+    <div class="practice-box">
+      <div class="practice-icon">📌</div>
+      <div class="practice-content">
+        <strong>实践建议</strong>
+        <p>今天就在你的工具调用流程中加上一条 PreToolUse 检查——拦截任何包含 <code>rm -rf</code> 的 terminal 命令。只需要三行代码，就能避免一次灾难性事故。</p>
+      </div>
+    </div>
+
+    <h2>参考资源</h2>
+    <ul>
+      <li><a href="https://github.com/affaan-m/ECC/blob/main/the-shortform-guide.md#hooks">ECC Hooks Documentation</a></li>
+      <li><a href="https://github.com/affaan-m/ECC/tree/main/hooks/memory-persistence">ECC Memory Persistence Hooks</a></li>
+      <li><a href="https://github.com/affaan-m/ECC/blob/main/docs/continuous-learning-v2-spec.md">ECC Continuous Learning v2 Spec</a></li>
+    </ul>
+  </div>
+</Layout>

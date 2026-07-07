@@ -1,0 +1,196 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = '技能即资产——我们用 2 小时标准化了 20 个 AI Skills';
+const desc = '240 个技能，格式参差不齐。ECC 理论落地第一步：定义标准模板，批量升级 20 个最常用技能。2 小时做了什么、学到了什么、你还差什么。';
+const date = '2026.07.07';
+---
+
+<Layout title={title} description={desc}>
+  <style>
+    .article { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; display: inline-block; margin-bottom: 12px; }
+    h1 { font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.25; letter-spacing: -0.3px; }
+    .meta { color: #334155; font-size: 13px; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1.5px solid #e2e8f0; }
+    h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 1.5px solid #f1f5f9; }
+    h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    p { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; }
+    strong { color: #0f172a; }
+    ul, ol { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; padding-left: 24px; }
+    li { margin-bottom: 6px; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #0f172a; }
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 20px; overflow-x: auto; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
+    pre code { background: transparent; padding: 0; color: inherit; font-size: 13px; }
+    .callout { background: #f8fafc; border-left: 3px solid #2563eb; border-radius: 0 8px 8px 0; padding: 16px 20px; margin-bottom: 20px; font-size: 14px; color: #334155; }
+    .callout strong { color: #2563eb; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+    th { background: #f8fafc; color: #0f172a; font-weight: 600; padding: 10px 14px; border: 1px solid #e2e8f0; text-align: left; }
+    td { padding: 10px 14px; border: 1px solid #e2e8f0; color: #334155; }
+    .practice-box { margin: 36px 0; padding: 20px; background: #f0fdfa; border: 1.5px solid #a7f3d0; border-radius: 10px; display: flex; gap: 14px; align-items: flex-start; }
+    .practice-icon { font-size: 20px; flex-shrink: 0; }
+    .practice-content strong { font-size: 13px; color: #0f172a; display: block; margin-bottom: 4px; }
+    .practice-content p { font-size: 13px; color: #475569; margin: 0; line-height: 1.7; }
+    @media (max-width: 768px) { .article { padding: 40px 20px 80px; } h1 { font-size: 24px; } }
+  </style>
+  <div class="article">
+    <div class="bread"><a href="/blog">文章</a> / {title}</div>
+    <span class="label">Harness</span>
+    <h1>{title}</h1>
+    <div class="meta">{date} · 约 4500 字</div>
+
+    <h2>一、理论落地的那一刻</h2>
+
+    <p>三个小时前，我刚刚发布了 ECC 研究的第三篇文章《从 Session 到 Skill》。文章讲的是"连续学习"——Agent 如何从历史会话中自动提炼可复用的技能。</p>
+
+    <p>发布之后我盯着屏幕看了一会儿，然后问了自己一个问题：</p>
+
+    <p><strong>我自己的技能库，跟 ECC 学到的"标准化"相比，差距有多大？</strong></p>
+
+    <p>答案不太好说出口。我有 240 个技能，但它们的格式参差不齐——有的有 <code>trigger</code> 字段，有的没有；有的有 <code>tags</code>，有的是空的；有的还躺在旧格式里。它们都"能用"，但离"可管理"差得很远。</p>
+
+    <p>于是我花了两个小时，做了三件事：</p>
+    <ol>
+      <li>定义了一个标准的技能格式模板</li>
+      <li>批量审计了最常用的 20 个技能</li>
+      <li>把它们全部升级到新格式</li>
+    </ol>
+
+    <p>这篇文章就是这两小时的复盘。</p>
+
+    <h2>二、为什么技能需要标准化</h2>
+
+    <h3>技能的"熵增"</h3>
+
+    <p>技能像代码一样，不用它的时候它不变，一用就开始"熵增"。</p>
+
+    <p>刚开始只有几个技能的时候，不需要标准格式——你记得每个技能是干什么的，什么时候该用，需要什么工具配合。但到了几十上百个的时候，问题就来了：</p>
+
+    <ul>
+      <li>翻技能列表看到 <code>plan-completion-audit</code>——这是干啥的？</li>
+      <li>看到 <code>systematic-debugging</code>——这个我常用，它需要配什么工具来着？</li>
+      <li>想找一个"审计类"的技能——现有的分类标准是什么？</li>
+    </ul>
+
+    <p>这些问题不是说"能查"就能解决的。如果每次都要 load 一个技能看正文才知道它是不是我想要的，那技能库越大、效率越低。</p>
+
+    <div class="callout">
+      <strong>这个问题在 ECC 项目里已经被解决了。</strong> ECC 的每个 SKILL.md 都有标准化的 YAML frontmatter，包含 name、description、metadata.origin，而且正文里有明确的 When to Use、How It Works、Examples 等章节。
+    </div>
+
+    <h3>ECC 的 SKILL.md 长什么样</h3>
+
+    <pre><code>---
+name: strategic-compact
+description: Suggests manual context compaction...
+metadata:
+  origin: ECC
+---</code></pre>
+
+    <p>它的正文结构是：When to Activate → Why Strategic Compaction? → How It Works。这是一个很好的参考模板。</p>
+
+    <h3>我们的格式选择了什么，为什么</h3>
+
+    <table>
+      <tr><th>字段</th><th>为什么加</th></tr>
+      <tr><td><strong>title</strong>（中文标题）</td><td>翻列表时一眼看出是啥</td></tr>
+      <tr><td><strong>trigger</strong>（触发条件）</td><td>明确"什么场景该用"</td></tr>
+      <tr><td><strong>required_tools</strong>（依赖工具）</td><td>不用进正文就知道需要什么工具</td></tr>
+      <tr><td><strong>tags</strong>（分类标签）</td><td>按类别过滤、未来做自动推荐</td></tr>
+      <tr><td><strong>origin</strong>（来源）</td><td>区分自建 skill 和外部导入</td></tr>
+    </table>
+
+    <p>模板定稿：</p>
+
+    <pre><code>---
+name: skill-name
+title: 中文标题
+description: 一句话描述
+trigger: 什么场景触发
+required_tools: [工具1, 工具2]
+tags: [分类1, 分类2]
+origin: hermes
+---</code></pre>
+
+    <h3>标准化 vs 过度设计</h3>
+
+    <p>在设计模板时有一个权衡：<strong>加太多字段维护成本高，没人愿意填。加太少信息不足。</strong></p>
+
+    <p>我选了"够用就行"的原则：必须有 title / trigger / tags（影响日常使用），可以有 required_tools（加分项），暂不加 version / author / license。</p>
+
+    <h2>三、我们具体做了什么</h2>
+
+    <h3>先看现状</h3>
+
+    <p>我审计了所有 240 个技能，发现它们处于三个状态：</p>
+
+    <table>
+      <tr><th>状态</th><th>占比</th><th>特征</th></tr>
+      <tr><td>✅ 完整格式</td><td>~5%</td><td>有 name/description/tags，甚至有 metadata 嵌套</td></tr>
+      <tr><td>⚠️ 基本格式</td><td>~60%</td><td>有 name/description，缺其他字段</td></tr>
+      <tr><td>❌ 简陋格式</td><td>~35%</td><td>只有 name+description</td></tr>
+    </table>
+
+    <p><strong>第一批选了 20 个最常用的升级。</strong> 选择标准是日常开发中反复加载的那些——部署、排查、审计、开发循环。</p>
+
+    <h3>逐批升级</h3>
+
+    <p>以 <code>harness-deploy-workflow</code> 为例，改动前：</p>
+
+    <pre><code>name: harness-deploy-workflow
+description: Harness 部署——一条make deploy搞定全部
+trigger: 需要编译部署后端/前端到服务器时</code></pre>
+
+    <p>改动后：</p>
+
+    <pre><code>name: harness-deploy-workflow
+title: Harness 部署
+description: Harness 部署——一条make deploy搞定全部
+trigger: 需要编译部署后端/前端到服务器时
+required_tools: [terminal, patch]
+tags: [harness, deploy, devops]
+origin: hermes</code></pre>
+
+    <p>只加了 4 行，但信息量翻了一倍。</p>
+
+    <h3>几个意外发现</h3>
+
+    <p>升级过程中发现了一些没注意到的信息：</p>
+
+    <p><strong>有的技能有 duplicate 字段。</strong> 一个技能的文件里出现了两行 <code>tags:</code>——新的和旧的都没删。说明有人升级过但没清理干净。</p>
+
+    <p><strong>有的 category 字段跑到了 frontmatter 里但不是标准字段。</strong> 需要确认它是什么工具的产物。</p>
+
+    <p><strong>约 30% 的技能已经有过部分升级痕迹。</strong> 说明"过去的我"已经意识到格式问题，但没有走到底。</p>
+
+    <h2>四、技能标准化的三个层次</h2>
+
+    <p>这次升级让我意识到，技能标准化不止是"加几个字段"，而是三个层次的工作：</p>
+
+    <p><strong>第一层：格式层（今天完成了）</strong>。所有技能有统一的 frontmatter 结构。这是基础，花 2 小时就能搞定。</p>
+
+    <p><strong>第二层：分类层（部分完成）</strong>。通过 <code>tags</code> 实现按类别过滤。目标是：任何场景下 3 秒内能定位到需要的技能。</p>
+
+    <p><strong>第三层：质量层（未开始）</strong>。技能的内容质量需要维护。理想状态下每个技能应该有：触发条件、所需工具、实际示例、已知陷阱。</p>
+
+    <p>这三层不必一次性完成。做完了第一层、打好了第二层的基础，第三层随用随补。</p>
+
+    <h2>五、从今天可以做的三件事</h2>
+
+    <p><strong>1. 检查你的技能库格式。</strong> 花 15 分钟看 5 个技能的 frontmatter。如果格式不一致，就是今天要修的问题。</p>
+
+    <p><strong>2. 定义你自己的标准模板。</strong> 根据你的使用场景挑字段：常换平台加 <code>origin</code>；共享给团队加 <code>author</code>；用版本管理加 <code>version</code>。<strong>关键在于先定下来，再执行。</strong></p>
+
+    <p><strong>3. 从最重要的 5 个开始改。</strong> 不用一次改完。剩余技能随用随改——每次用到一个"格式老旧"的技能就顺手升级。持续改进比一次性完美更现实。</p>
+
+    <div class="practice-box">
+      <div class="practice-icon">📌</div>
+      <div class="practice-content">
+        <strong>实践建议</strong>
+        <p>打开你的技能列表。找到最常用的那个看一下 frontmatter——如果只有 name 和 description，加一个 trigger 字段。5 秒能做完，但效果立竿见影。</p>
+      </div>
+    </div>
+
+  </div>
+</Layout>

@@ -1,0 +1,124 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = '半小时实现一个 Hook 系统——从理论到落地';
+const desc = '写完了 Hook 的理论文章，然后照着做了一个。结果半小时从零到跑通。Hook 系统核心只有三样东西：注册表 + 动作函数 + 引擎。';
+const date = '2026.07.07';
+---
+
+<Layout title={title} description={desc}>
+  <style>
+    .article { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; display: inline-block; margin-bottom: 12px; }
+    h1 { font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.25; letter-spacing: -0.3px; }
+    .meta { color: #334155; font-size: 13px; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1.5px solid #e2e8f0; }
+    h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 1.5px solid #f1f5f9; }
+    h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    p { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; }
+    strong { color: #0f172a; }
+    ul, ol { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; padding-left: 24px; }
+    li { margin-bottom: 6px; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #0f172a; }
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 20px; overflow-x: auto; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
+    pre code { background: transparent; padding: 0; color: inherit; font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+    th { background: #f8fafc; color: #0f172a; font-weight: 600; padding: 10px 14px; border: 1px solid #e2e8f0; text-align: left; }
+    td { padding: 10px 14px; border: 1px solid #e2e8f0; color: #334155; }
+    .callout { background: #f8fafc; border-left: 3px solid #2563eb; border-radius: 0 8px 8px 0; padding: 16px 20px; margin-bottom: 20px; font-size: 14px; color: #334155; }
+    .callout strong { color: #2563eb; }
+    @media (max-width: 768px) { .article { padding: 40px 20px 80px; } h1 { font-size: 24px; } }
+  </style>
+  <div class="article">
+    <div class="bread"><a href="/blog">文章</a> / {title}</div>
+    <span class="label">Harness</span>
+    <h1>{title}</h1>
+    <div class="meta">{date} · 约 3000 字</div>
+
+    <h2>一、写完理论之后</h2>
+
+    <p>三篇文章之前，我写了《Hook 系统——工具调用的前与后》。那篇文章讲的是 ECC 的 Hook 架构——PreToolUse、PostToolUse、Stop 这些概念，以及为什么需要它们。</p>
+
+    <p>文章发完之后，我做了一件事：<strong>照着理论，在自己的 Agent 里做了一个。</strong></p>
+
+    <p>结果是：从写代码到跑通测试，用了不到半小时。</p>
+
+    <p>这个速度不是因为我厉害，而是因为<strong>这件事本质上很简单</strong>——Hook 系统的核心只有三个文件、几十行代码。真正难的是"意识到需要它"和"决定动手做它"。</p>
+
+    <h2>二、Hook 系统到底长什么样</h2>
+
+    <p>去掉所有概念包装，Hook 系统就是三样东西：</p>
+
+    <h3>1. 一个注册表</h3>
+
+    <pre><code>&lbrace;
+  "preToolUse": [
+    &lbrace; "matcher": "terminal", "action": "check_dangerous_commands" &rbrace;,
+    &lbrace; "matcher": "write_file", "action": "check_file_path" &rbrace;
+  ],
+  "postToolUse": [
+    &lbrace; "matcher": "terminal", "action": "record_tool_usage" &rbrace;
+  ]
+&rbrace;</code></pre>
+
+    <h3>2. 几个动作函数</h3>
+
+    <pre><code>def check_dangerous_commands(tool_name, input_data):
+    dangerous = ["rm -rf /", "DROP TABLE", "git push --force"]
+    for d in dangerous:
+        if d in str(input_data):
+            return &lbrace;"block": True, "reason": f"危险操作被拦截: &lbrace;d&rbrace;"&rbrace;
+    return &lbrace;"block": False&rbrace;</code></pre>
+
+    <h3>3. 一个引擎</h3>
+
+    <pre><code>def execute_pre_hooks(tool_name, input_data):
+    registry = json.load(open("registry.json"))
+    for hook in registry.get("preToolUse", []):
+        fn = REGISTERED_ACTIONS.get(hook["action"])
+        if fn:
+            result = fn(tool_name, input_data)
+            if result.get("block"):
+                return result
+    return &lbrace;"block": False&rbrace;</code></pre>
+
+    <p><strong>一个 Hook 就是一个 JSON 条目 + 一个 Python 函数。</strong> 想加新的 Hook，要么在注册表里加一条（已有动作），要么写个新函数再注册。不需要改任何基础设施代码。</p>
+
+    <h2>三、测试结果</h2>
+
+    <table>
+      <tr><th>命令</th><th>结果</th><th>说明</th></tr>
+      <tr><td><code>rm -rf /some/path</code></td><td>⛔ 拦截</td><td>匹配危险模式，阻止执行</td></tr>
+      <tr><td><code>ls -la</code></td><td>✅ 通过</td><td>安全命令，放行</td></tr>
+      <tr><td>写文件到 <code>/etc/passwd</code></td><td>⛔ 拦截</td><td>不在白名单目录</td></tr>
+      <tr><td>写文件到 <code>/home/dou/test.txt</code></td><td>✅ 通过 + 记日志</td><td>白名单内，自动记录</td></tr>
+    </table>
+
+    <p>整个测试过程不到 1 分钟。</p>
+
+    <h2>四、Hook 系统到底解决了什么问题</h2>
+
+    <div class="callout">
+      <strong>Hook 系统把"靠人记住做的事"变成了"系统自动做的事"。</strong>
+    </div>
+
+    <table>
+      <tr><th>场景</th><th>没有 Hook</th><th>有 Hook</th></tr>
+      <tr><td>执行危险命令</td><td>靠模型自觉，或者人反应过来</td><td>PreToolUse 自动拦截，根本到不了执行这一步</td></tr>
+      <tr><td>写文件到系统目录</td><td>写坏了才意识到</td><td>PreToolUse 检查路径白名单，直接拒绝</td></tr>
+      <tr><td>审计工具调用</td><td>想不起来查</td><td>PostToolUse 自动记录，随时可以翻</td></tr>
+    </table>
+
+    <p><strong>这不是功能增强，是模式的转变。</strong> 以前的安全是"弹窗确认"——依赖人的注意力和判断力。现在的安全是"规则拦截"——系统自动判断，人只负责定义规则。</p>
+
+    <h2>五、从今天可以做的三件事</h2>
+
+    <p><strong>1. 先建一个最简单的安全门。</strong> 先写一个检查 <code>rm -rf /</code> 的 PreToolUse。5 分钟就能写出来，跑通后你就知道 Hook 系统是怎么回事了。</p>
+
+    <p><strong>2. 把写代码的时间花在"定义规则"上，而不是"搭框架"上。</strong> Hook 系统的框架永远是几十行代码。真正有价值的是规则本身——你知道哪些操作是危险的、哪些路径不该写。这些是你的经验，机器没有。</p>
+
+    <p><strong>3. 让 PostToolUse 给你积累数据。</strong> 不用一开始就想"连续学习"。先让 PostToolUse 记录每次工具调用。一周后你去翻那个日志文件，你会惊讶地发现自己原来做了这么多重复的事。</p>
+
+  </div>
+</Layout>

@@ -1,0 +1,85 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = 'Agent 落地最大的坑（以及怎么绕过）';
+const description = 'Agent 项目失败率高不是模型不够聪明。真正的问题是：别人已经踩过的坑，你还要再踩一遍。';
+const date = '2026.07.04';
+const tags = ['实战', '经验'];
+---
+
+<Layout title={title} description={description}>
+  <style>
+    .article { max-width: 720px; margin: 0 auto; padding: 60px 24px 80px; }
+    .meta { color: #334155; font-size: 13px; margin-bottom: 8px; }
+    .tags { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+    .tag { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; }
+    h1 { font-size: 32px; font-weight: 700; line-height: 1.3; margin-bottom: 16px; color: #0f172a; }
+    .sub { font-size: 15px; color: #334155; line-height: 1.7; border-left: 3px solid #2563eb; padding-left: 16px; margin-bottom: 40px; }
+    h2 { font-size: 22px; font-weight: 700; margin: 40px 0 16px; color: #0f172a; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; }
+    h3 { font-size: 17px; font-weight: 600; margin: 28px 0 10px; color: #0f172a; }
+    p { font-size: 15px; color: #334155; line-height: 1.8; margin-bottom: 16px; }
+    b { color: #0f172a; }
+    pre { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 20px; font-size: 13px; color: #334155; margin-bottom: 16px; overflow-x: auto; }
+    hr { border: none; border-top: 1px solid #e2e8f0; margin: 40px 0; }
+    ul { color: #334155; font-size: 15px; line-height: 1.8; margin-bottom: 16px; padding-left: 24px; }
+    li { margin-bottom: 4px; }
+    .case-box { background: #f8fafc; border-left: 3px solid #2563eb; border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 16px 0; font-size: 14px; color: #334155; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+    th, td { border: 1px solid #e2e8f0; padding: 8px 12px; text-align: left; }
+    th { background: #f8fafc; color: #334155; font-weight: 600; }
+    td { color: #334155; }
+    @media (max-width: 768px) { .article { padding: 40px 20px 60px; } h1 { font-size: 26px; } }
+  </style>
+  <article class="article">
+    <div class="tags"><span class="tag">实战</span><span class="tag">经验</span></div>
+    <h1>{title}</h1>
+    <div class="meta">{date}</div>
+    <div class="sub">{description}</div>
+    <hr>
+
+    <h2>一、坑1：PoC 很顺，生产翻车</h2>
+    <p><b>症状：</b>Demo 环境一切正常。查天气查订单生成报告全部丝滑。部署到生产后各种奇怪问题：工具超时、返回乱码、Agent 突然答非所问。</p>
+    <p><b>根因：</b>PoC 环境和生产环境的差异被严重低估。</p>
+    <table>
+    <tr><th>维度</th><th>PoC 环境</th><th>生产环境</th></tr>
+    <tr><td>数据量</td><td>几十条</td><td>几百万条</td></tr>
+    <tr><td>输入范围</td><td>你预设的</td><td>用户随意输入</td></tr>
+    <tr><td>工具状态</td><td>一直可用</td><td>可能挂超时限流</td></tr>
+    <tr><td>用户行为</td><td>友善测试</td><td>随意恶意无规律</td></tr>
+    <tr><td>并发</td><td>1个用户</td><td>几十个同时</td></tr>
+    </table>
+    <div class="case-box"><b>案例：</b>某电商公司部署客服 Agent，PoC 时 50 条测试工单 100% 成功。上线第一天，Agent 面对一个用户输入的罕见编码格式时，把订单号错误地传给了退款接口，触发了全自动退款流程。好在人工审核环节截停了。</div>
+    <p><b>绕过：</b>在设计 PoC 时就纳入生产环境的约束。用脱敏后的生产数据测试。PoC 至少覆盖异常路径。</p>
+
+    <h2>二、坑2：没有成本模型就上线</h2>
+    <p><b>症状：</b>月底收到账单才发现一个复杂任务花了十几块钱。上线一个月 API 费用比预想高 5 倍。项目因不可持续的成本被叫停。</p>
+    <p><b>根因：</b>以为 Agent = 一次 API 调用。实际上一个复杂 Agent 任务可能涉及 5-10 次 LLM 调用，每次包含逐步增长的上下文。一个 5 步的 ReAct 循环 Token 消耗是 1 步直答的 8-12 倍。</p>
+    <div class="case-box"><b>案例：</b>以 DeepSeek 的定价（百万 Token 约 1-2 元）计算，单个复杂任务可能几块钱。乘以每天几千次调用，月度成本立刻变得可观。</div>
+    <p><b>绕过：</b>上线前建成本模型。设置 Token 预算上限。用模型路由：简单任务用小模型。加缓存策略减少重复调用。</p>
+
+    <h2>三、坑3：低估了人的问题</h2>
+    <p><b>症状：</b>Agent 做的决策员工不信任。员工绕过 Agent 自己操作。团队抵制 Agent 上线。</p>
+    <p><b>根因：</b>技术落地往往是组织变革问题，不是技术问题。推 Agent 系统改变的是谁做决策、怎么做决策、谁对结果负责。</p>
+    <div class="case-box"><b>案例：</b>一家保险公司上线理赔评估 Agent。技术上表现很好——准确率和人类专家相当，速度是人类的 20 倍。但理赔员不愿意用。原因：绩效考核奖金按案件数算，Agent 处理了简单案件后留给人类的是复杂案件——工作更难了收入没变案件数还下降了。不是教不会的问题，是利益结构没调整。</div>
+    <p><b>绕过：</b>HITL 设计需要业务方参与决策。Agent 落地需要同步调整考核和激励机制。用户培训不是教怎么用而是为什么用对你有好处。</p>
+
+    <h2>四、坑4：没有评估就在迭代</h2>
+    <p><b>症状：</b>改了一个 Prompt，看起来好像变好了又好像没有。某个场景变好了另一个变差了，你不知道。团队在反复修改 Prompt 中消耗大量时间。</p>
+    <p><b>根因：</b>Agent 输出是概率性的。没有评估体系你根本不知道修改效果。传统 QA 方式不足以评估概率系统的质量。</p>
+    <p><b>绕过：</b>建评估集覆盖 50-100 个典型场景并标注标准答案。定核心指标：成功率、准确率、客户费力度。自动化：每次修改跑一次完整评估集。</p>
+
+    <h2>五、坑5：安全是非功能需求</h2>
+    <p><b>症状：</b>上线后发生安全问题才想起当初应该加上。审计日志不够用，事故事后复盘找不到关键信息。</p>
+    <p><b>根因：</b>安全在需求清单上永远排在功能后面。但 Agent 的安全问题不是补丁能解决的，它需要渗透在整个架构中。</p>
+    <div class="case-box"><b>案例：</b>某 SaaS 公司的多租户 Agent 在回答一个用户时，因为上下文中残存了另一个租户的订单数据（多租户隔离实现不当），把 A 客户的内部定价策略透露给了 B 客户。不是模型错了，是架构设计没处理好隔离。</div>
+    <p><b>绕过：</b>安全在第一天就纳入架构设计。三层防护：输入层检测注入、决策层限制工具调用、输出层过滤敏感数据。审计日志 append-only。定期做安全演练。</p>
+
+    <h2>六、总结</h2>
+    <pre><code>坑1：PoC 很顺生产翻车 → 从第一天纳入生产约束
+坑2：没有成本模型就上线 → 建模型设预算加路由
+坑3：低估了人的问题 → 技术落地 = 组织变革
+坑4：没有评估就在迭代 → 建评估集自动化测试
+坑5：安全是非功能需求 → 安全是架构问题不是补丁问题</code></pre>
+    <p>这五个坑有一个共性：<b>把 Agent 当普通软件在开发。</b>Agent 不是 CRUD——它是推理系统、是概率系统、是有行为能力的系统。开发 Agent 需要的不是叠功能的思路，而是建系统的思路。你每绕过其中一个坑就比大多数团队前进了一大截。</p>
+    <hr>
+  </article>
+</Layout>

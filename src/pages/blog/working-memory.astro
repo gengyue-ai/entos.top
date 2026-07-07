@@ -1,0 +1,259 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = '工作记忆管理——不要让 Token 成为瓶颈';
+const desc = '更大的上下文不等于更好的记忆。注意力衰减是硬约束。分层结构、摘要压缩、优先级保留——三种策略组合让 Agent 在有限上下文内记住关键信息。';
+const date = '2026.07.07';
+---
+
+<Layout title={title} description={desc}>
+  <style>
+    .page { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 12px; color: #7c3aed; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+    .label::before { content: '— '; } .label::after { content: ' —'; }
+    h1 { font-size: 32px; font-weight: 700; color: #0f172a; line-height: 1.2; margin-bottom: 12px; }
+    .meta { color: #334155; font-size: 13px; margin-bottom: 8px; }
+    .series { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #f5f3ff; color: #6d28d9; font-weight: 500; margin-bottom: 12px; }
+    .subtitle { color: #334155; font-size: 16px; line-height: 1.7; border-left: 3px solid #7c3aed; padding-left: 16px; margin-bottom: 36px; }
+    h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 1.5px solid #e2e8f0; }
+    h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    p { color: #334155; font-size: 15px; line-height: 1.9; margin-bottom: 16px; }
+    strong { color: #0f172a; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+    th { text-align: left; padding: 10px 14px; background: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #334155; font-weight: 600; }
+    td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 20px; overflow-x: auto; margin: 20px 0; }
+    pre code { background: transparent; color: inherit; padding: 0; font-size: 13px; line-height: 1.6; }
+    ul, ol { color: #334155; font-size: 15px; line-height: 1.9; padding-left: 20px; margin-bottom: 16px; }
+    li { margin-bottom: 4px; }
+    .series-prev { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: #7c3aed; font-weight: 500; margin-bottom: 20px; }
+    .series-prev a { color: #7c3aed; text-decoration: none; }
+    .series-prev a:hover { text-decoration: underline; }
+    .series-next { margin-top: 48px; padding: 20px; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0; }
+    .series-next p { font-size: 13px; color: #334155; margin: 0; }
+    .series-next a { color: #7c3aed; font-weight: 500; text-decoration: none; }
+    .series-next a:hover { text-decoration: underline; }
+    .practice-box { margin: 36px 0; padding: 20px; background: #f0fdfa; border: 1.5px solid #a7f3d0; border-radius: 10px; display: flex; gap: 14px; align-items: flex-start; }
+    .practice-icon { font-size: 20px; flex-shrink: 0; }
+    .practice-content strong { font-size: 13px; color: #0f172a; display: block; margin-bottom: 4px; }
+    .practice-content p { font-size: 13px; color: #334155; margin: 0; line-height: 1.7; }
+    hr { border: none; border-top: 1px solid #e2e8f0; margin: 36px 0; }
+
+    @media (max-width: 768px) { .page { padding: 40px 20px 80px; } h1 { font-size: 26px; } }
+  </style>
+
+  <div class="page">
+    <div class="bread"><a href="/harness">Harness</a> / 记忆系统</div>
+    <div class="label">记忆系统 · 第三篇</div>
+    <span class="series">记忆系统系列</span>
+    <h1>{title}</h1>
+    <div class="meta">{date} · 实践篇</div>
+    <div class="subtitle">{desc}</div>
+
+    <div class="series-prev">← <a href="/blog/three-layer-memory">上一篇：三层记忆模型——工作记忆、情景记忆、语义知识</a></div>
+
+    <h2>一、Token 不是无限的，即使上下文再大</h2>
+
+    <p>2023 年，4K 上下文是主流。2024 年，128K 开始普及。2025-2026 年，1M 甚至更长的上下文窗口出现了。</p>
+
+    <p>上下文窗口在扩大，但一个基本矛盾没变：<strong>窗口越大，注意力越稀薄。</strong></p>
+
+    <p>长上下文的研究表明，LLM 在长上下文中的"有效注意力"集中在开头和结尾，中间部分存在明显的注意力衰减——无论上下文窗口多大，中间部分的信息都容易被忽略。</p>
+
+    <p>这意味着：</p>
+
+    <pre><code>更大的上下文 ≠ 更好的记忆
+更大的上下文 = 更多的 Token 成本 + 更稀释的注意力</code></pre>
+
+    <p>工作记忆管理的核心不是"塞得下更多信息"，而是<strong>"在有限的注意力预算内，让关键信息始终处于有效位置"</strong>。</p>
+
+    <h2>二、Token 预算管理</h2>
+
+    <p>工作记忆管理的第一步是<strong>给 Token 定预算</strong>。</p>
+
+    <h3>一个典型的分层上下文结构</h3>
+
+    <pre><code>┌────────────────────────────────────────────┐
+│  系统指令（System Prompt）       约 500 Tok  │
+│  ── 角色定义、行为边界、输出格式            │
+├────────────────────────────────────────────┤
+│  关键事实（Key Facts）           约 500 Tok  │
+│  ── 用户偏好、当前项目上下文、重要约束      │
+├────────────────────────────────────────────┤
+│  会话历史（Conversation History） 约 2K Tok  │
+│  ── 最近 N 轮对话（摘要压缩后）            │
+├────────────────────────────────────────────┤
+│  当前轮（Current Turn）          约 1K Tok  │
+│  ── 用户的当前输入 + Agent 正在推理的内容   │
+├────────────────────────────────────────────┤
+│  可用余量（Buffer）              约 1K Tok  │
+│  ── 给工具调用结果、检索结果预留的空间      │
+└────────────────────────────────────────────┘
+总预算：约 5K Tok（以 8K 模型为例，预留余量）</code></pre>
+
+    <h3>预算分配原则</h3>
+
+    <table>
+      <thead>
+        <tr><th>原则</th><th>说明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>系统指令不膨胀</td><td>系统提示词一旦稳定就不要频繁加内容。每次加一条规则前，问自己：能不能删一条旧的？</td></tr>
+        <tr><td>关键事实优先级最高</td><td>当 Token 紧张时，优先保护关键事实，而不是对话历史</td></tr>
+        <tr><td>当前轮要留够空间</td><td>Agent 的推理质量取决于为当前轮预留的空间，不要为了塞历史而压缩当前轮的推理能力</td></tr>
+        <tr><td>预留余量应对突发</td><td>工具调用结果、RAG 检索结果可能超出预期，务必预留缓冲</td></tr>
+      </tbody>
+    </table>
+
+    <h2>三、三种压缩策略</h2>
+
+    <p>当对话变长，需要压缩时，有三种主流策略，各有取舍。</p>
+
+    <h3>策略一：滑动窗口</h3>
+
+    <pre><code>保留最近 N 轮对话，丢弃更早的内容
+
+优点：实现最简单，成本可预测，不会引入压缩误差
+缺点：早期信息完全丢失
+
+适用场景：每轮相对独立的场景（如客服对话）</code></pre>
+
+    <h3>策略二：摘要压缩</h3>
+
+    <pre><code>定期将前面的内容压缩为摘要
+
+优点：保留关键信息，Token 节省效果显著
+缺点：摘要可能丢失细节，LLM 生成摘要有成本
+
+适用场景：需要保留长期上下文的复杂对话</code></pre>
+
+    <h3>策略三：优先级保留</h3>
+
+    <pre><code>为每条信息打上优先级标签，低优先级的先被压缩或丢弃
+
+P0 - 关键决策、核心参数（永不压缩）
+P1 - 重要上下文、中间结论（摘要后保留）
+P2 - 过程信息、尝试记录（可丢弃）
+P3 - 低价值信息、闲聊（直接丢弃）
+
+优点：关键信息有保障
+缺点：需要判断"什么重要"
+
+适用场景：复杂的技术工作、多轮决策场景</code></pre>
+
+    <h3>组合推荐</h3>
+
+    <p>在实践中，三种策略可以组合使用：</p>
+
+    <pre><code>分层上下文（框架）+
+摘要压缩（每 N 轮触发）+
+优先级保留（标记关键信息）</code></pre>
+
+    <p>具体做法：</p>
+    <ol>
+      <li>上下文保持分层结构（系统指令 + 关键事实 + 对话历史 + 当前轮）</li>
+      <li>每 5 轮或每 2K Tok，触发一次摘要压缩——把对话历史部分的前半段压缩</li>
+      <li>对话中遇到关键决策时，由 Agent 自动打 P0 标签，存入"关键事实"区</li>
+      <li>Token 水位超过阈值时，先丢弃 P2/P3 信息，再压缩 P1</li>
+    </ol>
+
+    <h2>四、关键事实的识别和持久化</h2>
+
+    <p>工作记忆管理中最重要的技巧之一：<strong>把关键决策从对话历史中"提"出来，放到关键事实区。</strong></p>
+
+    <h3>什么是"关键事实"</h3>
+
+    <table>
+      <thead>
+        <tr><th>类型</th><th>例子</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>技术决策</td><td>"我们决定用方案 A，因为方案 B 有性能问题"</td></tr>
+        <tr><td>约束条件</td><td>"这个项目不用外部向量数据库"</td></tr>
+        <tr><td>用户偏好</td><td>"回复不要太长，直接给结论"</td></tr>
+        <tr><td>当前状态</td><td>"正在 Stage 2，还有 3 个模块没完成"</td></tr>
+        <tr><td>错误结论</td><td>"这个方向试过了，行不通"</td></tr>
+      </tbody>
+    </table>
+
+    <h3>如何识别</h3>
+
+    <p>在 Agent 的推理过程中，用一个轻量的分类器（或者 LLM 自己的判断）识别关键决策点：</p>
+
+    <pre><code>用户说了一段话 → Agent 推理 → 输出结果
+
+同时在输出时检查：
+  - 是否有新的决策被做出？→ 提取为关键事实
+  - 是否有约束条件被确定？→ 提取
+  - 是否有之前方案被否定？→ 提取</code></pre>
+
+    <h3>关键事实区的最佳实践</h3>
+
+    <ul>
+      <li><strong>数量控制：</strong> 关键事实区建议控制在 3-5 条，超过就做合并或淘汰</li>
+      <li><strong>显式更新：</strong> 新决策覆盖旧决策时，在关键事实区做替换而不是追加</li>
+      <li><strong>可追溯：</strong> 每条关键事实标记来源会话 ID，方便回溯</li>
+    </ul>
+
+    <h2>五、工作记忆转存为情景记忆</h2>
+
+    <p>工作记忆是易失性的。会话结束后，它应该被转存为情景记忆，而不是直接丢弃或保留原样。</p>
+
+    <h3>转存时机</h3>
+
+    <table>
+      <thead>
+        <tr><th>时机</th><th>做法</th><th>适用场景</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>会话结束时</td><td>Agent 生成会话摘要，存入情景记忆存储</td><td>每次会话结束</td></tr>
+        <tr><td>达到 Token 阈值时</td><td>中间转存当前关键信息，释放空间</td><td>超长会话</td></tr>
+        <tr><td>用户主动触发</td><td>用户说"记住这个"</td><td>明确需要保留的决策</td></tr>
+      </tbody>
+    </table>
+
+    <h3>转存内容</h3>
+
+    <p>转存到情景记忆的不是原始对话，而是结构化的事件摘要：</p>
+
+    <pre><code>&lbrace;
+  "type": "session_summary",
+  "session_id": "sess_abc123",
+  "timestamp": "2026-07-07T14:30:00",
+  "duration": "45min",
+  "key_decisions": [
+    &lbrace;"topic": "字段映射方案", "decision": "从 field_mapping 表动态读取"&rbrace;
+  ],
+  "entities": ["sync_engine", "field_mapping"],
+  "open_issues": ["API 限流还没处理"],
+  "summary": "调试了同步引擎的字段映射问题，找到了根因并修复。"
+&rbrace;</code></pre>
+
+    <h2>六、你在 Hermes 中能直接做的优化</h2>
+
+    <p>基于当前 Hermes Agent 的能力，几个可以立刻改进的点：</p>
+
+    <ol>
+      <li><strong>改进 session_search 的使用时机。</strong> 新会话启动时，自动执行一次 session_search 检索相关历史，而不是等到 Agent 觉得"需要回忆"时才手动触发。</li>
+      <li><strong>建立"关键事实"区。</strong> 在系统提示词中增加一个"关键事实"区域，让 Agent 在对话过程中主动提取和更新关键决策。当前 Hermes 的 memory 工具已可以做类似的事。</li>
+      <li><strong>使用记忆沉淀流程。</strong> 每次会话结束前，让 Agent 自动生成一个会话摘要和关键决策列表——这就是工作记忆转存情景记忆的雏形。</li>
+    </ol>
+
+    <div class="practice-box">
+      <div class="practice-icon">📌</div>
+      <div class="practice-content">
+        <strong>实践建议</strong>
+        <p>检查你当前 Agent 的系统提示词：有没有给 Token 分配预算？关键事实区有没有超过 5 条？每次会话结束前，是否生成摘要和关键决策列表？从这三方面入手，给工作记忆做一个'减负'检查。</p>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="series-next">
+      <p><strong>上一篇：</strong> <a href="/blog/three-layer-memory">三层记忆模型——工作记忆、情景记忆、语义知识</a></p>
+      <p style="margin-top:8px"><strong>下一篇：</strong> <a href="/blog/episodic-memory">情景记忆——Agent 如何记住自己做过什么</a></p>
+    </div>
+  </div>
+</Layout>

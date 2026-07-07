@@ -1,14 +1,122 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const articles = [
+  { tag: 'Harness', phase: 'Phase 1', level: 'practice', title: '多 Agent 编排模式实战——6 种模式，挑一种现在就上路', slug: 'multi-agent-orchestration-patterns', date: '2026.07.07', status: 'green', statusText: '已发布', desc: '当你手上的 Agent 从 1 个变成 N 个，你用什么方式把它们组织起来？6 种经过了验证的编排模式，从 Supervisor-Worker 到 StateGraph，每种都有对比表和适用场景。' },
+  { tag: 'Harness', phase: 'Phase 1', level: 'core', title: '从作坊到工厂——我的 AI Agent 集群升级四步路线图', slug: 'workshop-to-factory-agent-cluster-upgrade', date: '2026.07.07', status: 'green', statusText: '已发布', desc: 'Agent 流水线跑通了，多 Agent 协作验证了——但架构还是作坊级的。上云、Kanban、质量门、自我进化，四步从作坊到工厂。' },
+  { tag: 'Harness', phase: 'Phase 1', level: 'practice', title: '半小时实现一个 Hook 系统——从理论到落地', slug: 'hook-system-implementation', date: '2026.07.07', status: 'green', statusText: '已发布', desc: '写完了 Hook 的理论文章，然后照着做了一个。结果半小时从零到跑通。Hook 系统核心只有三样东西：注册表 + 动作函数 + 引擎。' },
+  { tag: '架构设计', phase: 'Phase 2', level: 'core', title: 'LangChain 与 LangGraph 的本质区别——同一个公司的两种武器', slug: 'langchain-vs-langgraph-essence', date: '2026.07.07', status: 'green', statusText: '已发布', desc: 'LangChain 和 LangGraph 是竞品吗？都不是。LangChain 官方文档一句话说清了：LangChain 的 Agent 建立在 LangGraph 之上。它们是上下层，不是替代关系。' },
+  { tag: '行业全景', phase: 'Phase 1', level: 'reference', title: '大多数公司只走到了 AI 的 5%——一个 20 年 IT 老兵的真实观察', slug: 'majority-companies-ai-5-percent', date: '2026.07.07', status: 'green', statusText: '已发布', desc: '霍夫曼说大多数公司 AI 落地只到 5%。一个经历了 ERP、大数据、云三次技术浪潮的 IT 老兵告诉你：不是技术买不起，是组织改不动。' },
+  { tag: 'Harness', phase: 'Phase 1', level: 'practice', title: '技能即资产——我们用 2 小时标准化了 20 个 AI Skills', slug: 'skills-as-assets-standardization', date: '2026.07.07', status: 'green', statusText: '已发布', desc: '240 个技能，格式参差不齐。ECC 理论落地第一步：定义标准模板，批量升级 20 个最常用技能。2 小时做了什么、学到了什么。' },
+  { tag: 'Harness', phase: 'Phase 1', level: 'core', title: '从 Session 到 Skill——AI Agent 如何自我进化', slug: 'session-to-skill-continuous-learning', date: '2026.07.07', status: 'green', statusText: '已发布', desc: '每天产生几十条会话数据，除了翻出来看还有什么用？连续学习把"翻历史→找模式→写 skill"自动化——四步管道从 Session 到 Skill，产生复利效应。' },
+  { tag: 'Harness', phase: 'Phase 1', level: 'core', title: 'Hook 系统——工具调用的前与后', slug: 'hook-system', date: '2026.07.07', status: 'green', statusText: '已发布', desc: 'Agent 的本质是工具调用循环。Hook 系统在工具调用前后插一脚——安全检查、自动质检、连续学习，把"靠人记着做"变成"系统自动做"。' },
+  { tag: 'Harness', phase: 'Phase 1', level: 'core', title: 'AI Agent 不只是模型——从 ECC 看 Agent 操作系统的五层架构', slug: 'ai-agent-os-five-layer-architecture', date: '2026.07.07', status: 'green', statusText: '已发布', desc: '一个好的 Agent 不是"模型+提示词"的堆砌，而是一个有五层架构的操作系统。从 ECC 的 22 万 Star 看分层设计的必要性。' },
+  { tag: '架构设计', phase: 'Phase 2', level: 'core', title: '多Agent 协作——Supervisor-Worker 模式的实战经验', slug: 'multi-agent-collaboration', date: '2026.07.07', status: 'green', statusText: '已发布', desc: '什么时候用单Agent，什么时候拆成多个？并行分发、流水线、动态委派三种模式的实际工程经验。' },
+  { tag: 'Harness', phase: 'Phase 1', level: 'core', title: '记忆系统的可观测性与调试', slug: 'memory-observability', date: '2026.07.07', status: 'green', statusText: '已发布', desc: '你不知道 Agent 记得什么，就无法调试它。三个观测维度、Memory Bank 模式、5 步排查流程。' },
+  { tag: 'Harness', phase: 'Phase 1', level: 'core', title: '遗忘的艺术——什么时候该忘记', slug: 'forgetting', date: '2026.07.07', status: 'green', statusText: '已发布', desc: '没有遗忘策略的记忆系统，就是堆满旧物的仓库。TTL、衰减、版本覆盖三种策略，以及不遗忘的三类代价。' },
+  { tag: '学习周记', phase: 'Phase 1', level: 'reference', title: '学习周记 #1 · 记忆系统启动与网站框架重构', slug: 'learning-journal-1', date: '2026.07.07', status: 'green', statusText: '已发布', desc: '网站框架改造完成、记忆系统系列启动中、导航重新设计。一周回顾与下周计划。' },
+  { tag: 'Harness', phase: 'Phase 1', level: 'core', title: '情景记忆——Agent 如何记住自己做过什么', slug: 'episodic-memory', date: '2026.07.07', status: 'green', statusText: '已发布', desc: '跨会话记忆是"断片"的重灾区。存什么、怎么存、怎么取——从结构化设计到与 Hermes 现有工具的对接方案。' },
+  { tag: 'Harness', phase: 'Phase 1', level: 'core', title: '工作记忆管理——不要让 Token 成为瓶颈', slug: 'working-memory', date: '2026.07.07', status: 'green', statusText: '已发布', desc: '更大的上下文不等于更好的记忆。注意力衰减是硬约束。分层结构、摘要压缩、优先级保留——三种策略组合让 Agent 在有限上下文内记住关键信息。' },
+  { tag: 'Harness', phase: 'Phase 1', level: 'core', title: '三层记忆模型——工作记忆、情景记忆、语义知识', slug: 'three-layer-memory', date: '2026.07.07', status: 'green', statusText: '已发布', desc: '工作记忆管当前会话、情景记忆管历史交互、语义知识管长期沉淀。三层对应三种不同的信息生命周期，也意味着三种不同的存储方案和检索策略。' },
+  { tag: 'Harness', phase: 'Phase 1', level: 'core', title: 'Agent 的"失忆症"——为什么 LLM 记不住事', slug: 'agent-amnesia', date: '2026.07.07', status: 'green', statusText: '已发布', desc: '开发过程中 Agent 频繁"断片"——长对话健忘、新会话归零、重复问题。这不是模型不够聪明，是记忆架构没有设计。' },
+  { tag: '案例复盘', phase: 'Phase 1', level: 'practice', title: '可配置化风控告警引擎——不要让规则写在代码里', slug: 'alert-engine-case', date: '2026.07.06', status: 'green', statusText: '已发布', desc: '告警规则写在代码里，改一条规则就要改代码、测试、部署。可配置化之后，新增一条规则只需要 INSERT 一条记录。' },
+  { tag: 'Harness', phase: 'Phase 1', level: 'core', title: '输出约束——让模型说"该说的话"', slug: 'output-constraints', date: '2026.07.06', status: 'green', statusText: '已发布', desc: '模型什么都能说出来，但你要的只是它"该说的那部分"。输出约束就是在模型开口之前，给它的回答画好边界。' },
+  { tag: 'Harness', phase: 'Phase 1', level: 'core', title: '知识沉淀——从对话中提取可复用的资产', slug: 'knowledge-precipitation', date: '2026.07.06', status: 'green', statusText: '已发布', desc: '每一次 Agent 交互都会产生有价值的信息。知识沉淀就是从对话中提取模式、坑点、决策，让经验不随着对话结束而蒸发。' },
+  { tag: 'Harness', phase: 'Phase 1', level: 'core', title: '验证闭环——让模型的每一次输出都经过检验', slug: 'validation-loop', date: '2026.07.06', status: 'green', statusText: '已发布', desc: '模型的输出不可信，这是一个前提，不是一个 bug。验证闭环就是在每一个关键输出后面加一道检查。' },
+  { tag: 'Harness', phase: 'Phase 1', level: 'core', title: '上下文管理——模型的记忆边界在哪里', slug: 'context-management', date: '2026.07.06', status: 'green', statusText: '已发布', desc: '上下文窗口再大也是有限的。好的上下文管理不是"塞更多"，而是"知道该放什么、该扔什么"。' },
+  { tag: '案例复盘', phase: 'Phase 1', level: 'practice', title: '从硬编码到配置化——星辉广告系统的同步引擎 V2 改造实录', slug: 'sync-engine-v2-case', date: '2026.07.06', status: 'green', statusText: '已发布', desc: '一个广告中介平台的同步引擎，从每个上游写一份硬编码逻辑，到零代码配置化接入的完整过程。' },
+  { tag: '工程实践', phase: 'Phase 2', level: 'core', title: '框架选型指南——LangGraph / CrewAI / Dify / AutoGen 横评', slug: 'framework-comparison', date: '2026.07.05', status: 'green', statusText: '已发布', desc: '四个主流框架的设计哲学、适用场景和选型决策方法。没有最好的框架，只有最合适的。' },
+  { tag: '评估与优化', phase: 'Phase 2', level: 'core', title: '成本模型——Agent 不是越强越好', slug: 'cost-model', date: '2026.07.05', status: 'green', statusText: '已发布', desc: 'Token 成本、模型路由、缓存策略、Token 压缩、ROI 计算——五个维度的成本优化方法论。' },
+  { tag: '工程实践', phase: 'Phase 2', level: 'core', title: 'RAG 不是把文档扔进去——检索增强生成工程实战', slug: 'rag-engineering', date: '2026.07.05', status: 'green', statusText: '已发布', desc: 'Chunking、Embedding、检索优化、重排序、生成优化、评估——RAG 是一条完整的工程流水线，不是把文档扔进 Prompt。' },
+  { tag: '工程实践', phase: 'Phase 2', level: 'core', title: 'Agent 可观测性——没有追踪就没有信任', slug: 'agent-observability', date: '2026.07.04', status: 'green', statusText: '已发布', desc: '传统软件能打断点，Agent 出错了你连它刚才想了什么都不知道。' },
+  { tag: '实战', phase: 'Phase 1', level: 'practice', title: 'Agent 落地最大的坑（以及怎么绕过）', slug: 'agent-pitfalls', date: '2026.07.04', status: 'green', statusText: '已发布', desc: 'PoC 翻车、成本失控、人抵制、没评估、安全后置——五个你迟早会遇到的坑。' },
+  { tag: '安全与治理', phase: 'Phase 2', level: 'core', title: 'Agent 安全设计指南', slug: 'agent-security-guide', date: '2026.07.04', status: 'green', statusText: '已发布', desc: '三大威胁、三层防护、HITL 设计、审计链——Agent 上生产的安全必修课。' },
+  { tag: '架构设计', phase: 'Phase 2', level: 'core', title: '三种编排模式与选型决策', slug: 'orchestration-patterns', date: '2026.07.04', status: 'green', statusText: '已发布', desc: '一个 Agent 还是多个 Agent？谁来管？怎么管？三种模式与选型决策。' },
+  { tag: '架构设计', phase: 'Phase 2', level: 'core', title: 'MCP 协议——工具接入的标准化', slug: 'mcp-protocol', date: '2026.07.04', status: 'green', statusText: '已发布', desc: 'Agent 的智能来自模型，但能力来自工具。MCP 如何让工具被标准化地发现和调用。' },
+  { tag: '基础理论', phase: 'Phase 1', level: 'core', title: 'ReAct 范式——Agent 的底层循环', slug: 'react-paradigm', date: '2026.07.04', status: 'green', statusText: '已发布', desc: '所有 Agent 框架本质上都在做同一件事：让 LLM 像人一样想一步做一步看一步。' },
+  { tag: '行业全景', phase: 'Phase 1', level: 'reference', title: '企业级智能体在 2026 年的真实面貌', slug: 'enterprise-agent-2026', date: '2026.07.04', status: 'green', statusText: '已发布', desc: '不谈概念，只讲现实。AI Agent 到底走到了哪一步，以及传统企业应该怎么办。' },
+  { tag: '知识体系', phase: 'Phase 1', level: 'reference', title: '企业级智能体六大知识域总览', slug: 'six-knowledge-domains', date: '2026.07.04', status: 'green', statusText: '已发布', desc: '一张知识地图——这个领域到底有多大、从哪里开始、每一步通向哪里。' },
+];
 ---
 
 <Layout title="文章">
-  <div class="page-wrap">
-    <div style="font-size:12px; color:#2563eb; font-weight:600; letter-spacing:1.5px; margin-bottom:12px;">— Articles —</div>
-    <h1 style="font-size:32px; font-weight:700; margin-bottom:8px;">全部文章</h1>
-    <p style="color:#64748b; font-size:14px; margin-bottom:36px;">以输出倒逼输入——每篇文章都是一个完整的学习闭环。</p>
-    <div style="background:white; border:1.5px solid #e2e8f0; border-radius:10px; padding:40px; text-align:center; color:#94a3b8; font-size:14px;">
-      文章正在策划中，即将发布。<br>敬请期待。
+  <style>
+    .page { max-width: 1100px; margin: 0 auto; padding: 60px 80px; }
+    .label { font-size: 12px; color: #2563eb; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+    .label::before { content: '— '; } .label::after { content: ' —'; }
+    h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; color: #0f172a; }
+    .desc { color: #334155; font-size: 14px; margin-bottom: 40px; max-width: 600px; line-height: 1.7; }
+    .filter-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .filter-btn { padding: 6px 16px; border-radius: 6px; font-size: 12px; font-weight: 500; border: 1.5px solid #e2e8f0; background: #ffffff; color: #334155; cursor: pointer; transition: all .15s; }
+    .filter-btn:hover { border-color: #2563eb; color: #2563eb; }
+    .filter-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
+    .list { display: flex; flex-direction: column; gap: 0; background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+    .item { display: block; padding: 20px 24px; border-bottom: 1px solid #f1f5f9; text-decoration: none; transition: background .15s; }
+    .item:last-child { border-bottom: none; }
+    .item:hover { background: #f8fafc; }
+    .top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+    .tag { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; }
+    .phase-badge { font-size: 10px; padding: 2px 8px; border-radius: 3px; font-weight: 600; }
+    .phase-1 { background: #dcfce7; color: #166534; }
+    .phase-2 { background: #fef3c7; color: #92400e; }
+    .level-badge { font-size: 10px; padding: 2px 6px; border-radius: 3px; color: #334155; background: #f1f5f9; }
+    .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #22c55e; }
+    .date { font-size: 13px; color: #475569; }
+    .item h3 { font-size: 16px; font-weight: 600; color: #0f172a; margin-bottom: 4px; }
+    .item p { font-size: 13px; color: #334155; line-height: 1.6; }
+    .search-box { width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 14px; outline: none; margin-bottom: 16px; background: #ffffff; color: #0f172a; transition: border-color .15s; }
+    .search-box:focus { border-color: #2563eb; }
+    .search-box::placeholder { color: #64748b; }
+    .no-result { font-size: 14px; color: #475569; text-align: center; padding: 40px 0; display: none; }
+    @media (max-width: 768px) { .page { padding: 40px 24px; } }
+  </style>
+  <div class="page">
+    <div class="label">Articles</div>
+    <h1>全部文章</h1>
+    <p class="desc">以输出倒逼输入——每篇文章都是一个完整的学习闭环。</p>
+    <input type="text" class="search-box" id="searchInput" placeholder="搜索文章标题、分类或关键词…" oninput="filterArticles()"/>
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterByPhase('all', this)">全部</button>
+      <button class="filter-btn" onclick="filterByPhase('Phase 1', this)">Phase 1 · 实战者</button>
+      <button class="filter-btn" onclick="filterByPhase('Phase 2', this)">Phase 2 · 架构师</button>
     </div>
+    <div class="list" id="articleList">
+      {articles.map((a, i) => (
+        <a href={`/blog/${a.slug}`} class="item" data-index={i} data-phase={a.phase}>
+          <div class="top">
+            <span class="tag">{a.tag}</span>
+            <span class={"phase-badge phase-" + (a.phase === 'Phase 1' ? '1' : '2')}>{a.phase}</span>
+            <span class="level-badge">{a.level === 'core' ? '核心' : a.level === 'practice' ? '实战' : '参考'}</span>
+            <span class="dot"></span>
+            <span class="date">{a.date}</span>
+          </div>
+          <h3>{a.title}</h3>
+          <p>{a.desc}</p>
+        </a>
+      ))}
+    </div>
+    <div class="no-result" id="noResult">没有找到匹配的文章</div>
   </div>
+  <script is:inline>
+    function filterArticles() {
+      const q = document.getElementById('searchInput').value.toLowerCase().trim();
+      const items = document.querySelectorAll('#articleList .item');
+      let visible = 0;
+      items.forEach(el => {
+        const text = el.textContent.toLowerCase();
+        const match = !q || text.includes(q);
+        const phaseMatch = currentPhase === 'all' || el.dataset.phase === currentPhase;
+        el.style.display = (match && phaseMatch) ? '' : 'none';
+        if (match && phaseMatch) visible++;
+      });
+      document.getElementById('noResult').style.display = visible === 0 ? '' : 'none';
+    }
+    let currentPhase = 'all';
+    function filterByPhase(phase, btn) {
+      currentPhase = phase;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filterArticles();
+    }
+  </script>
 </Layout>

@@ -1,0 +1,210 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = '情景记忆——Agent 如何记住自己做过什么';
+const desc = '跨会话记忆是"断片"的重灾区。存什么、怎么存、怎么取——从结构化设计到与 Hermes 现有工具的对接方案。';
+const date = '2026.07.07';
+---
+
+<Layout title={title} description={desc}>
+  <style>
+    .page { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 12px; color: #7c3aed; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+    .label::before { content: '— '; } .label::after { content: ' —'; }
+    h1 { font-size: 32px; font-weight: 700; color: #0f172a; line-height: 1.2; margin-bottom: 12px; }
+    .meta { color: #334155; font-size: 13px; margin-bottom: 8px; }
+    .series { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #f5f3ff; color: #6d28d9; font-weight: 500; margin-bottom: 12px; }
+    .subtitle { color: #334155; font-size: 16px; line-height: 1.7; border-left: 3px solid #7c3aed; padding-left: 16px; margin-bottom: 36px; }
+    h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 1.5px solid #e2e8f0; }
+    h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    p { color: #334155; font-size: 15px; line-height: 1.9; margin-bottom: 16px; }
+    strong { color: #0f172a; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+    th { text-align: left; padding: 10px 14px; background: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #334155; font-weight: 600; }
+    td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 20px; overflow-x: auto; margin: 20px 0; }
+    pre code { background: transparent; color: inherit; padding: 0; font-size: 13px; line-height: 1.6; }
+    ul, ol { color: #334155; font-size: 15px; line-height: 1.9; padding-left: 20px; margin-bottom: 16px; }
+    li { margin-bottom: 4px; }
+    .series-prev { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: #7c3aed; font-weight: 500; margin-bottom: 20px; }
+    .series-prev a { color: #7c3aed; text-decoration: none; }
+    .series-prev a:hover { text-decoration: underline; }
+    .series-next { margin-top: 48px; padding: 20px; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0; }
+    .series-next p { font-size: 13px; color: #334155; margin: 0; }
+    .series-next a { color: #7c3aed; font-weight: 500; text-decoration: none; }
+    .series-next a:hover { text-decoration: underline; }
+    .practice-box { margin: 36px 0; padding: 20px; background: #f0fdfa; border: 1.5px solid #a7f3d0; border-radius: 10px; display: flex; gap: 14px; align-items: flex-start; }
+    .practice-icon { font-size: 20px; flex-shrink: 0; }
+    .practice-content strong { font-size: 13px; color: #0f172a; display: block; margin-bottom: 4px; }
+    .practice-content p { font-size: 13px; color: #334155; margin: 0; line-height: 1.7; }
+    hr { border: none; border-top: 1px solid #e2e8f0; margin: 36px 0; }
+
+    @media (max-width: 768px) { .page { padding: 40px 20px 80px; } h1 { font-size: 26px; } }
+  </style>
+
+  <div class="page">
+    <div class="bread"><a href="/harness">Harness</a> / 记忆系统</div>
+    <div class="label">记忆系统 · 第四篇</div>
+    <span class="series">记忆系统系列</span>
+    <h1>{title}</h1>
+    <div class="meta">{date} · 核心工程篇</div>
+    <div class="subtitle">{desc}</div>
+
+    <div class="series-prev">← <a href="/blog/working-memory">上一篇：工作记忆管理——不要让 Token 成为瓶颈</a></div>
+
+    <h2>一、为什么情景记忆是"断片"的重灾区</h2>
+
+    <table>
+      <thead>
+        <tr><th>层</th><th>Harness 覆盖</th><th>你的经验</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>工作记忆</td><td>✅ 上下文管理</td><td>有文章，有实践</td></tr>
+        <tr><td><strong>情景记忆</strong></td><td><strong>❌ 未覆盖</strong></td><td><strong>你天天在"断片"</strong></td></tr>
+        <tr><td>语义知识</td><td>✅ 知识沉淀</td><td>有 skill 系统</td></tr>
+      </tbody>
+    </table>
+
+    <p>前两篇我们把工作记忆和语义知识都覆盖了。但<strong>你感受最深的"断片"——新会话一切归零——根源是情景记忆缺失。</strong></p>
+
+    <pre><code>场景 1：早上调试字段映射 → 中午修好 → 下午开新会话继续
+        问题：下午的 Agent 不知道早上发生了什么
+
+场景 2：上周确定了数据库设计方案 → 这周开始编码
+        问题：Agent 不记得设计决策的上下文
+
+场景 3：排查一个复杂 bug → 试了 3 种方案 → 第 2 种方案不行
+        问题：Agent 不记得"方案 B 已经试过了"</code></pre>
+
+    <p>这些场景的共同模式是：<strong>信息产生于会话 A，需要在会话 B 中被使用。</strong> 没有情景记忆，每个新会话都是一张白纸。</p>
+
+    <h2>二、核心设计：存什么、怎么存、怎么取</h2>
+
+    <h3>1. 存什么</h3>
+
+    <p><strong>原则：不要存全部，存结构化的关键信息。</strong></p>
+
+    <table>
+      <thead>
+        <tr><th>该存的</th><th>不该存的</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>关键决策（选 A 不选 B）</td><td>完整的对话日志</td></tr>
+        <tr><td>问题根因和结论</td><td>调试过程的每一步</td></tr>
+        <tr><td>当前工作状态</td><td>中间态的错误信息</td></tr>
+        <tr><td>技术约束和限制</td><td>已经解决的环境问题</td></tr>
+      </tbody>
+    </table>
+
+    <p><strong>一个结构化的情景记忆条目：</strong></p>
+
+    <pre><code>&lbrace;
+  "id": "mem_abc123",
+  "session": "sess_xyz",
+  "timestamp": "2026-07-07T10:30:00",
+  "type": "decision",
+  "domain": "sync_engine",
+  "subject": "字段映射",
+  "context": "上游 API 返回的字段名变了",
+  "decision": "从 field_mapping 表动态读取",
+  "alternatives": ["hardcode 新字段名"],
+  "rationale": "配置化更灵活",
+  "status": "resolved"
+&rbrace;</code></pre>
+
+    <h3>2. 怎么存</h3>
+
+    <p><strong>推荐方案：</strong> 用关系表（或 SQLite）存结构化的字段（时间/类型/领域/状态），再加上关键词标签做简单匹配。先不要上向量库——复杂度高、收益不确定，等检索质量成为瓶颈再升级。</p>
+
+    <h3>3. 怎么取</h3>
+
+    <table>
+      <thead>
+        <tr><th>模式</th><th>触发条件</th><th>例子</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>主动加载</strong></td><td>新会话启动时</td><td>"你上次在调 sync_engine，有个决策没落地"</td></tr>
+        <tr><td>按需检索</td><td>Agent 发现和历史相关</td><td>"字段映射之前怎么处理的？"</td></tr>
+        <tr><td>时间线检索</td><td>用户指定时间范围</td><td>"这周关于数据库的决策有哪些？"</td></tr>
+      </tbody>
+    </table>
+
+    <div class="practice-box" style="margin:24px 0;background:#fef3c7;border-color:#fcd34d">
+      <div class="practice-icon">💡</div>
+      <div class="practice-content">
+        <strong>关键设计决策</strong>
+        <p>主动加载比按需检索重要得多。情景记忆的价值在于 Agent 主动告诉你有东西要继承，而不是等你想起来去搜。</p>
+      </div>
+    </div>
+
+    <h2>三、与你现有工具的对接</h2>
+
+    <p>Hermes 已经有了两个与情景记忆相关的工具：<code>memory</code>（持久化事实）和 <code>session_search</code>（历史会话检索）。但问题在于：<strong>需要用户主动触发，不是自动的。</strong></p>
+
+    <h3>建议的第一步改进</h3>
+
+    <ol>
+      <li><strong>在系统提示词中增加情景记忆指令。</strong> 告诉 Agent：新会话启动时，自动检索相关情景记忆。</li>
+      <li><strong>建立关键决策的记录机制。</strong> 在对话过程中，当 Agent 识别到关键决策被做出时，自动调用 memory 工具记录。</li>
+      <li><strong>会话结束时自动转存。</strong> 每次会话结束前，Agent 生成一个"上下文转存包"，包含关键决策、待办事项和当前状态。</li>
+    </ol>
+
+    <h3>一个简单的实施方案</h3>
+
+    <p>不需要写复杂的后端代码。可以用一个 JSON 文件来实现最简版本的情景记忆：</p>
+
+    <pre><code>// ~/.hermes/memory-bank.json
+[
+  &lbrace;
+    "session_date": "2026-07-07",
+    "domain": "sync_engine",
+    "decisions": ["字段映射改为配置化读取"],
+    "pending": ["API 限流策略未定"],
+    "entities": ["sync_engine", "field_mapping"],
+    "summary": "修复了字段映射问题"
+  &rbrace;
+]</code></pre>
+
+    <p>Agent 在新会话启动时，读取这个文件，自动筛选出 <code>pending</code> 不为空或与当前工作域相关的条目。</p>
+
+    <h2>四、与工作记忆和语义知识的衔接</h2>
+
+    <pre><code>工作记忆（当前会话）→ 自动转存 → 情景记忆（历史记录）
+                                              ↓
+                                   重复模式 → 手动提炼 → 语义知识（固化技能）</code></pre>
+
+    <p><strong>衔接规则：</strong></p>
+    <ol>
+      <li><strong>从工作记忆到情景记忆：自动转存。</strong> 每次会话结束自动生成结构化摘要，设计在 Agent 的会话结束流程中。</li>
+      <li><strong>从情景记忆到语义知识：手动提炼。</strong> 同一个模式的决策反复出现时，才人工判断是否固化为语义知识。</li>
+      <li><strong>从情景记忆到工作记忆：自动加载。</strong> 新会话启动时，加载相关的情景记忆到"关键事实区"。</li>
+    </ol>
+
+    <h2>五、实践建议</h2>
+
+    <p><strong>见效最快的改进——只改系统提示词，不写代码：</strong></p>
+
+    <ol>
+      <li><strong>会话启动时自动检索：</strong> 加一句"在开始回答前，先搜索与当前问题相关的历史会话。"
+      <li><strong>决策时自动记录：</strong> 出现"我们决定…"、"选方案 X 不选 Y 因为…"、"这个方向试过了"时，Agent 自动调 memory 记录。
+      <li><strong>会话结束时生成摘要：</strong> "给这个会话生成一个摘要——关键决策、待办事项、涉及实体。"
+    </ol>
+
+    <div class="practice-box">
+      <div class="practice-icon">📌</div>
+      <div class="practice-content">
+        <strong>实践建议</strong>
+        <p>今天就改你的 Agent 系统提示词：加上会话启动检索指令和会话结束摘要指令。运行两天，看看"断片"的频率有没有降低。</p>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="series-next">
+      <p><strong>上一篇：</strong> <a href="/blog/working-memory">工作记忆管理——不要让 Token 成为瓶颈</a></p>
+      <p style="margin-top:8px"><strong>下一篇：</strong> <a href="/blog/forgetting">遗忘的艺术——什么时候该忘记</a></p>
+    </div>
+  </div>
+</Layout>

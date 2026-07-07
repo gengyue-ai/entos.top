@@ -1,0 +1,126 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const glossary = [
+  { term: 'Agent（智能体）', def: '能够感知环境、做出决策并采取行动自主完成目标的 AI 系统。不同于 Chatbot，Agent 可以调用工具、记住上下文、规划步骤。' },
+  { term: 'ReAct 范式', def: '"思考→行动→观察"的循环模式。模型先推理出需要做什么（Thought），然后执行（Action），再根据结果调整（Observation）。几乎所有 Agent 框架的核心。' },
+  { term: 'RAG（检索增强生成）', def: '在 LLM 生成回答前，先从知识库中检索相关文档作为上下文注入。解决模型知识过时和幻觉问题，但检索质量直接决定系统上限。' },
+  { term: 'MCP（模型上下文协议）', def: 'Anthropic 提出的标准化工具接入协议。将工具抽象为 Resource + Tool + Prompt 三个原语，MCP Server 提供，MCP Client 消费。正在成为行业标准。' },
+  { term: 'A2A（Agent-to-Agent）', def: 'Google 提出的 Agent 间通信标准。解决不同厂商的 Agent 如何发现彼此、协商任务、交换结果的问题。与 MCP 互补（MCP 管工具，A2A 管通信）。' },
+  { term: 'Function Calling', def: 'LLM 在生成文本时输出结构化工具调用参数的能力。模型不直接执行函数，而是输出一个 JSON 格式的调用请求，由系统去执行。' },
+  { term: 'Embedding（向量化）', def: '将文本转换为固定长度的数值向量，语义相近的文本在向量空间中距离更近。用于语义搜索、聚类、分类等任务。' },
+  { term: 'Chunking（分块）', def: '将长文档切分成小段的过程。分块策略（固定大小/语义边界/递归切分）直接影响 RAG 系统的检索精度。' },
+  { term: 'Re-ranking（重排序）', def: '对初步检索结果进行二次精排的过程。常用 Cross-encoder 模型对查询和文档逐对计算相关性分数，精度高于向量检索但速度较慢。' },
+  { term: 'HITL（人在回路）', def: 'Human-in-the-Loop，在 Agent 的关键决策点引入人工审核。常见模式：审批工作流、异常处理、边界案例标注。' },
+  { term: 'Prompt Injection', def: '攻击者通过构造特殊输入，诱导 LLM 忽略系统指令或执行非预期操作。分直接注入（用户输入越狱）和间接注入（外部内容污染）。' },
+  { term: 'Tool Use', def: 'Agent 调用外部工具（API、数据库、搜索引擎等）的能力。核心问题不是"能不能调"，而是"什么时候调、调哪个、结果怎么用"。' },
+  { term: 'Orchestration（编排）', desc: 'Managing how multiple agents or LLM calls coordinate. Three common patterns: centralized (orchestrator), pipelined, and routed.' },
+  { term: 'Token', desc: 'LLM 处理文本的基本单位。一个 Token 大约是 0.75 个英文单词或 0.5 个中文字。Token 消耗直接决定 API 成本和上下文窗口利用率。' },
+  { term: 'RAG 评估指标', desc: '检索质量（Hit Rate、MRR、NDCG）和生成质量（Faithfulness、相关性、完整性）两个维度的指标体系。缺一不可。' },
+];
+
+const readings = [
+  { title: 'Building Effective Agents', author: 'Anthropic', type: '官方指南', link: 'https://docs.anthropic.com/en/docs/build-with-claude/agentic', desc: 'Anthropic 官方 Agent 构建指南。从设计原则到实现模式的系统性文档，是入门 Agent 开发的最佳起点之一。' },
+  { title: 'RAG from Scratch', author: 'LangChain', type: '教程系列', link: 'https://blog.langchain.dev/rag-from-scratch/', desc: 'LangChain 官方的 RAG 系列教程，覆盖从基础分块到高级检索优化的完整技术栈。' },
+  { title: 'A Survey on RAG', author: 'Gao et al.', type: '综述论文', link: 'https://arxiv.org/abs/2312.10997', desc: 'RAG 技术的系统综述，覆盖 Retriever、Generator、Augmentation 三个维度的技术演进。适合建立 RAG 知识体系。' },
+  { title: 'Agent Security Guide', author: 'Anthropic', type: '安全指南', link: 'https://docs.anthropic.com/en/docs/security', desc: 'Agent 系统安全设计的官方指南，覆盖 Prompt 注入防护、数据隔离、权限控制等核心主题。' },
+  { title: 'MCP Specification', author: 'Anthropic', type: '协议规范', link: 'https://spec.modelcontextprotocol.io/', desc: 'MCP 协议官方规范文档。如果你要开发 MCP Server 或 Client，这是最权威的参考资料。' },
+  { title: 'DSPy: Compiling Declarative Language Model Calls', author: 'Khattab et al.', type: '论文', link: 'https://arxiv.org/abs/2310.03714', desc: 'DSPy 框架的核心论文，提出用编译器方法优化 LLM Pipeline，而非手写 Prompt。对理解 Agent 系统的自动化优化有重要启发。' },
+];
+
+const tools = [
+  { name: 'LangGraph', type: '框架', desc: '有状态图编排框架，适合复杂工作流和多步推理场景。', link: '/blog/framework-comparison/' },
+  { name: 'CrewAI', type: '框架', desc: '角色化多 Agent 协作框架，适合团队模拟和内容生产场景。', link: '/blog/framework-comparison/' },
+  { name: 'Dify', type: '平台', desc: '可视化 LLMOps 平台，适合快速原型和非技术团队参与。', link: '/blog/framework-comparison/' },
+  { name: 'AutoGen', type: '框架', desc: '微软对话式多 Agent 框架，适合代码生成与研究实验。', link: '/blog/framework-comparison/' },
+  { name: 'MCP', type: '协议', desc: '标准化工具接入协议，正在成为行业标准。', link: '/blog/mcp-protocol/' },
+  { name: 'DSPy', type: '框架', desc: '声明式 LLM Pipeline 编译器，用优化替代手写 Prompt。', link: '#' },
+  { name: 'LangFuse', type: '可观测性', desc: 'LLM 可观测性平台，支持 Tracing、评估与监控。', link: '#' },
+  { name: 'Chroma', type: '向量库', desc: '开源 Embedding 数据库，适合 RAG 系统的本地部署。', link: '#' },
+  { name: 'Ollama', type: '工具', desc: '本地 LLM 运行工具，适合开发和测试场景。', link: '#' },
+];
+---
+
+<Layout title="资源库" description="术语表、推荐阅读、工具清单——企业级智能体领域的参考资料汇总。">
+  <style>
+    .page { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #475569; margin-bottom: 8px; }
+    .bread a { color: #475569; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 12px; color: #2563eb; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+    .label::before { content: '— '; } .label::after { content: ' —'; }
+
+    h1 { font-size: 32px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
+    .page-desc { color: #334155; font-size: 14px; margin-bottom: 40px; line-height: 1.7; }
+
+    h2 { font-size: 20px; font-weight: 700; color: #0f172a; margin: 40px 0 16px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+    h3 { font-size: 16px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+
+    p { color: #334155; font-size: 15px; line-height: 1.8; margin-bottom: 16px; }
+
+    .glossary-item { padding: 14px 0; border-bottom: 1px solid #f1f5f9; }
+    .glossary-item:last-child { border-bottom: none; }
+    .glossary-item h3 { font-size: 14px; font-weight: 600; color: #0f172a; margin: 0 0 4px; }
+    .glossary-item p { font-size: 13px; color: #334155; margin: 0; line-height: 1.7; }
+
+    .card { background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 20px; margin-bottom: 12px; }
+    .card h3 { font-size: 15px; font-weight: 600; color: #0f172a; margin: 0 0 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .card h3 a { color: #2563eb; text-decoration: none; }
+    .card h3 a:hover { text-decoration: underline; }
+    .card-tag { font-size: 10px; padding: 2px 6px; border-radius: 3px; font-weight: 500; }
+    .card-tag-blue { background: #eef2ff; color: #4338ca; }
+    .card-tag-green { background: #dcfce7; color: #166534; }
+    .card-tag-purple { background: #f5f3ff; color: #6d28d9; }
+    .card-tag-orange { background: #fff7ed; color: #c2410c; }
+    .card .meta { font-size: 12px; color: #475569; margin-bottom: 6px; }
+    .card p { font-size: 13px; color: #334155; margin: 0; line-height: 1.7; }
+
+    .tool-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .tool-card { background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 16px; text-decoration: none; display: block; transition: border-color .15s; }
+    .tool-card:hover { border-color: #2563eb; }
+    .tool-card h3 { font-size: 14px; font-weight: 600; color: #0f172a; margin: 0 0 2px; }
+    .tool-card .type { font-size: 11px; color: #475569; margin-bottom: 6px; }
+    .tool-card p { font-size: 12px; color: #334155; margin: 0; line-height: 1.6; }
+
+    @media (max-width: 768px) { .page { padding: 40px 20px 80px; } .tool-grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+  <div class="page">
+    <div class="label">Resources</div>
+    <h1>资源库</h1>
+    <p class="page-desc">持续积累的知识资产——术语表、推荐阅读、工具清单。帮你快速查找和回顾。</p>
+
+    <h2>术语表</h2>
+    <p>企业级智能体领域的核心术语，简明定义。</p>
+    {glossary.map(g => (
+      <div class="glossary-item">
+        <h3>{g.term}</h3>
+        <p>{g.def}</p>
+      </div>
+    ))}
+
+    <h2>推荐阅读</h2>
+    <p>精选的官方文档、论文和教程——帮你少走弯路。</p>
+    {readings.map(r => (
+      <a class="card" href={r.link} target="_blank" rel="noopener" style="display:block;text-decoration:none;color:inherit">
+        <h3>
+          {r.title}
+          <span class={"card-tag card-tag-" + (r.type === '官方指南' ? 'blue' : r.type === '协议规范' ? 'purple' : r.type === '安全指南' ? 'orange' : 'green')}>{r.type}</span>
+        </h3>
+        <div class="meta">{r.author}</div>
+        <p>{r.desc}</p>
+      </a>
+    ))}
+
+    <h2>工具清单</h2>
+    <p>网站中提到和推荐的主流程架与工具。</p>
+    <div class="tool-grid">
+      {tools.map(t => (
+        <a class="tool-card" href={t.link}>
+          <h3>{t.name}</h3>
+          <div class="type">{t.type}</div>
+          <p>{t.desc}</p>
+        </a>
+      ))}
+    </div>
+  </div>
+</Layout>

@@ -1,0 +1,200 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = 'Agent 的"失忆症"——为什么 LLM 记不住事';
+const desc = '开发过程中 Agent 频繁"断片"——长对话健忘、新会话归零、重复问题。这不是模型不够聪明，是记忆架构没有设计。';
+const date = '2026.07.07';
+---
+
+<Layout title={title} description={desc}>
+  <style>
+    .page { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 12px; color: #7c3aed; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+    .label::before { content: '— '; } .label::after { content: ' —'; }
+    h1 { font-size: 32px; font-weight: 700; color: #0f172a; line-height: 1.2; margin-bottom: 12px; }
+    .meta { color: #334155; font-size: 13px; margin-bottom: 8px; }
+    .series { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #f5f3ff; color: #6d28d9; font-weight: 500; margin-bottom: 12px; }
+    .subtitle { color: #334155; font-size: 16px; line-height: 1.7; border-left: 3px solid #7c3aed; padding-left: 16px; margin-bottom: 36px; }
+    h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 1.5px solid #e2e8f0; }
+    h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    p { color: #334155; font-size: 15px; line-height: 1.9; margin-bottom: 16px; }
+    p em { color: #7c3aed; font-style: normal; font-weight: 500; }
+    strong { color: #0f172a; }
+    .highlight { background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px; padding: 20px; margin: 20px 0; }
+    .highlight p { font-size: 14px; margin: 0; color: #4c1d95; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #334155; }
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 20px; overflow-x: auto; margin: 20px 0; }
+    pre code { background: transparent; color: inherit; padding: 0; font-size: 13px; line-height: 1.6; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+    th { text-align: left; padding: 10px 14px; background: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #334155; font-weight: 600; }
+    td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+    .series-next { margin-top: 48px; padding: 20px; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0; }
+    .series-next p { font-size: 13px; color: #334155; margin: 0; }
+    .series-next a { color: #7c3aed; font-weight: 500; text-decoration: none; }
+    .series-next a:hover { text-decoration: underline; }
+    .practice-box { margin: 36px 0; padding: 20px; background: #f0fdfa; border: 1.5px solid #a7f3d0; border-radius: 10px; display: flex; gap: 14px; align-items: flex-start; }
+    .practice-icon { font-size: 20px; flex-shrink: 0; }
+    .practice-content strong { font-size: 13px; color: #0f172a; display: block; margin-bottom: 4px; }
+    .practice-content p { font-size: 13px; color: #334155; margin: 0; line-height: 1.7; }
+    hr { border: none; border-top: 1px solid #e2e8f0; margin: 36px 0; }
+
+    @media (max-width: 768px) { .page { padding: 40px 20px 80px; } h1 { font-size: 26px; } }
+  </style>
+
+  <div class="page">
+    <div class="bread"><a href="/harness">Harness</a> / 记忆系统</div>
+    <div class="label">记忆系统 · 第一篇</div>
+    <span class="series">记忆系统系列</span>
+    <h1>{title}</h1>
+    <div class="meta">{date} · 诊断篇</div>
+    <div class="subtitle">{desc}</div>
+
+    <h2>一、从一个真实场景开始</h2>
+
+    <p>先问一个问题：你在开发过程中，"断片"过多少次？</p>
+
+    <p>我有过一次印象深刻的。那天下午我在调试一个数据同步的问题——上游 API 返回的字段跟数据库结构对不上，sync 引擎报了错。我花了 40 分钟排查，定位到问题，改好了代码，部署了修复。</p>
+
+    <p>第二天上午，同一套流程重新开始。我打开一个新的终端会话，开始写一个新的调试任务。然后我突然想不起来：昨天那个字段映射的问题，我最后是怎么解决的？</p>
+
+    <p>我翻日志。翻代码提交记录。翻了五分钟才找到答案。</p>
+
+    <p>这个场景，做过开发的人都不陌生。但有意思的是：<strong>"断片"的不是我，是我的 AI Agent。</strong></p>
+
+    <p>因为每次我开启新会话，Agent 都不记得上一轮和上几轮我们讨论过什么。它知道全局的偏好和配置，能搜索历史会话，但它不会主动想起："等等，上次我们花了 40 分钟修了一个字段映射问题，那个结论你别忘了。"</p>
+
+    <p>这不是模型不够聪明。这是<strong>记忆架构没有设计</strong>。</p>
+
+    <h2>二、"断片"的三种表现</h2>
+
+    <p>在实际开发中，我总结了三种最常见的"断片"现象：</p>
+
+    <h3>1. 记不住上一轮说了什么（工作记忆失效）</h3>
+
+    <p>在一个长对话中，Agent 越来越"健忘"。前面的推理结果、中间做出的决策，后面就被忽略了。</p>
+
+    <p><strong>场景：</strong> "刚才我们不是确认了用方案 A 吗？为什么你现在又建议用方案 B？"</p>
+
+    <p><strong>根因：</strong> 上下文窗口满了，早期信息被挤出。模型并不是"故意忘记"，而是注意力被新内容稀释了。</p>
+
+    <h3>2. 新会话一切归零（情景记忆缺失）</h3>
+
+    <p>每次打开新会话，Agent 都是"初次见面"的状态。它不知道你是谁、之前讨论过什么、做过什么决策。</p>
+
+    <p><strong>场景：</strong> 昨天修了一个 bug，今天想继续深入，但 Agent 完全想不起来，你得重新描述一遍。</p>
+
+    <p><strong>根因：</strong> 会话结束后的状态没有持久化。Agent 没有"跨会话记忆"，每次都是从零开始。</p>
+
+    <h3>3. 同样的问题反复出现（语义知识未固化）</h3>
+
+    <p>一些问题明明已经解决过，方案已经验证过，但每次遇到类似情况，Agent 还是要从头推理，而不是调取已有的经验。</p>
+
+    <p><strong>场景：</strong> 每次做数据库字段扩展，都要重新讨论一遍"怎么加列、怎么改 struct、怎么更新 SQL"的流程。</p>
+
+    <p><strong>根因：</strong> 正确的操作路径没有被固化为可复用的知识。经验随会话结束蒸发了，没有被沉淀下来。</p>
+
+    <h2>三、LLM 天生就是"失忆"的</h2>
+
+    <p>要解决"断片"，先要理解它为什么会发生。</p>
+
+    <p>LLM 的设计从根上是<strong>无状态</strong>的：</p>
+
+    <pre><code>用户输入 → LLM 推理 → 输出
+          ↑
+      上下文窗口（仅本次请求）</code></pre>
+
+    <p>每一次 API 调用，模型都是独立推理。它不"记得"前一次调用了什么、输出了什么。你觉得它在"对话"，实际上它在每轮都在回答一个包含了完整历史的新问题。</p>
+
+    <pre><code>你感觉的对话：
+  Round 1: "帮我查一下订单 A" → "订单 A 的状态是已发货"
+  Round 2: "那订单 B 呢？"     → "订单 B 的状态是待支付"
+
+实际发生的事：
+  Round 1: "帮我查一下订单 A" → LLM 返回结果
+  Round 2: "帮我查一下订单 A，它的状态是已发货。那订单 B 呢？" → LLM 返回结果
+          ↑ 上下文里包含了上一轮的对话历史</code></pre>
+
+    <p>这种设计有一个好处——实现简单。但有一个巨大的代价：<strong>记忆不是模型的固有属性，而是需要工程手段来实现的附加系统。</strong></p>
+
+    <p>这就是记忆系统存在的根本原因。</p>
+
+    <h2>四、给"断片"拍个 X 光：三层记忆模型</h2>
+
+    <p>要诊断断片，先理解 Agent 应该有什么样的记忆架构。业界最广泛接受的框架是<strong>三层记忆模型</strong>，它来自认知科学，被 MemGPT、LangGraph、CrewAI 等主流框架以不同方式实现：</p>
+
+    <pre><code>┌─────────────────────────────────────────┐
+│    语义记忆（Semantic）                   │
+│    长期知识：业务规则、领域常识、技能模板   │
+│    → 固化为可复用的模式库                 │
+├─────────────────────────────────────────┤
+│    情景记忆（Episodic）                    │
+│    历史记录：过去的会话、决策链、中间结果   │
+│    → 跨会话检索关键信息                   │
+├─────────────────────────────────────────┤
+│    工作记忆（Working Memory）              │
+│    当前上下文：本轮对话的推理链、临时变量   │
+│    → 会话内的注意力管理                   │
+└─────────────────────────────────────────┘</code></pre>
+
+    <p>把前面三种"断片"放进去对应：</p>
+
+    <table>
+      <thead>
+        <tr><th>断片表现</th><th>对应层级</th><th>本质问题</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>长对话健忘</td><td>工作记忆</td><td>上下文窗口超出 Token 预算</td></tr>
+        <tr><td>新会话归零</td><td>情景记忆</td><td>跨会话状态没有持久化</td></tr>
+        <tr><td>重复问题</td><td>语义知识</td><td>经验没有固化为可复用资产</td></tr>
+      </tbody>
+    </table>
+
+    <h2>五、Harness 已经做了哪些？还缺什么？</h2>
+
+    <p>好消息是，Harness 方法论中，我们已经覆盖了部分记忆问题：</p>
+
+    <table>
+      <thead>
+        <tr><th>Harness 模块</th><th>覆盖的记忆层</th><th>核心思路</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>上下文管理</td><td>工作记忆</td><td>会话窗口放什么、扔什么、压缩什么</td></tr>
+        <tr><td>知识沉淀</td><td>语义知识</td><td>从对话中提取可复用的技能模板</td></tr>
+      </tbody>
+    </table>
+
+    <p>但还有两个大缺口：</p>
+    <ul style="color:#475569;font-size:15px;line-height:1.9;padding-left:20px">
+      <li><strong>情景记忆</strong>完全没有覆盖——跨会话的状态持久化和检索，这是"断片"最频繁的领域</li>
+      <li><strong>三层模型的系统性框架</strong>没有建立——目前是点状解决方案，不是体系化设计</li>
+    </ul>
+
+    <h2>六、写在最后：这不是模型的错</h2>
+
+    <p>当你的 Agent "断片"时，很容易觉得："这个模型不够聪明"。</p>
+
+    <p>但真相是：<strong>LLM 就是设计成这样的。</strong>一个无状态的推理引擎，每次调用独立运行，不记得任何过往。这不是 bug，这是设计约束。</p>
+
+    <p>把"断片"归咎于模型不够强，就像抱怨计算器不会记住你上次算的结果。这不是计算器的职责——它负责算，你负责记。</p>
+
+    <p>但 Agent 不同。Agent 被期望像人一样工作：有上下文、有记忆、能复用经验。这就要求我们把<strong>记忆系统作为 Agent 架构的一等公民来设计</strong>——不是"加个 RAG 就行"，而是从架构层面把三层记忆模型内建到 Agent 系统中。</p>
+
+    <p>下一篇，我们将深入三层记忆模型，看看每一层的设计目标、技术选型和工程取舍。</p>
+
+    <div class="practice-box">
+      <div class="practice-icon">📌</div>
+      <div class="practice-content">
+        <strong>实践建议</strong>
+        <p>记录一次开发中 Agent "断片"的经历。是什么场景、丢失了什么信息、属于三层（工作记忆/情景记忆/语义知识）中的哪一层？从今天开始做一个"断片日志"。</p>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="series-next">
+      <p><strong>下一篇：</strong> <a href="/blog/three-layer-memory">三层记忆模型：工作记忆、情景记忆、语义知识</a></p>
+    </div>
+  </div>
+</Layout>

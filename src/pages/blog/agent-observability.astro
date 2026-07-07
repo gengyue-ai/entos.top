@@ -1,0 +1,96 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = 'Agent 可观测性——没有追踪就没有信任';
+const description = '传统软件出问题了你能复现能打断点能看日志。Agent 出错了你连它刚才想了什么都不知道。';
+const date = '2026.07.04';
+const tags = ['工程实践', '可观测性'];
+---
+
+<Layout title={title} description={description}>
+  <style>
+    .article { max-width: 720px; margin: 0 auto; padding: 60px 24px 80px; }
+    .meta { color: #334155; font-size: 13px; margin-bottom: 8px; }
+    .tags { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+    .tag { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; }
+    h1 { font-size: 32px; font-weight: 700; line-height: 1.3; margin-bottom: 16px; color: #0f172a; }
+    .sub { font-size: 15px; color: #334155; line-height: 1.7; border-left: 3px solid #2563eb; padding-left: 16px; margin-bottom: 40px; }
+    h2 { font-size: 22px; font-weight: 700; margin: 40px 0 16px; color: #0f172a; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; }
+    h3 { font-size: 17px; font-weight: 600; margin: 28px 0 10px; color: #0f172a; }
+    p { font-size: 15px; color: #334155; line-height: 1.8; margin-bottom: 16px; }
+    b { color: #0f172a; }
+    pre { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 20px; font-size: 13px; color: #334155; margin-bottom: 16px; overflow-x: auto; }
+    hr { border: none; border-top: 1px solid #e2e8f0; margin: 40px 0; }
+    ul { color: #334155; font-size: 15px; line-height: 1.8; margin-bottom: 16px; padding-left: 24px; }
+    li { margin-bottom: 4px; }
+    .box { background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 24px; margin: 24px 0; }
+    .box svg { width: 100%; max-width: 500px; display: block; margin: 0 auto; }
+    blockquote { border-left: 3px solid #2563eb; padding: 12px 16px; margin: 24px 0; background: #f8fafc; border-radius: 0 8px 8px 0; color: #334155; font-size: 14px; }
+    @media (max-width: 768px) { .article { padding: 40px 20px 60px; } h1 { font-size: 26px; } }
+  </style>
+  <article class="article">
+    <div class="tags"><span class="tag">架构设计</span><span class="tag">MCP</span></div>
+    <h1>{title}</h1>
+    <div class="meta">{date}</div>
+    <div class="sub">{description}</div>
+    <hr>
+
+    <h2>一、为什么可观测性是 Agent 的刚需</h2>
+    <p>传统软件出问题了你有完整的调试工具链：打断点、看堆栈、查日志。你能定位到出错的那一行代码。</p>
+    <p>Agent 不一样。Agent 的输出不是代码写死的，是模型想出来的。出错了你不能在 LLM 的神经网络里打断点。你不知道它为什么会选这个工具、为什么会输出那段话。这是 Agent 生产化的最大障碍之一。没有可观测性每一次 Agent 的意外行为都是一个谜。</p>
+
+    <h2>二、可观测性 vs 监控 vs 评估</h2>
+    <p>这三者经常被混为一谈但职责完全不同。</p>
+    <p><b>监控：</b>系统还活着吗？Agent 响应时间、错误率、调用量。告诉你出问题了。</p>
+    <p><b>评估：</b>系统做得好不好？正确率、成功率、用户满意度。告诉你质量够不够。</p>
+    <p><b>可观测性：</b>系统到底是怎么做的？每次请求的完整链路、每个决策的上下文。告诉你为什么出问题。</p>
+    <p>监控告诉你今天 Agent 的错误率从 2% 升到了 15%。可观测性让你点开一个错误请求看到 Agent 在第 3 轮循环时误用了工具 B。评估告诉你上周的改版让整体正确率提升了 3%。少任何一个你都只能盲人摸象。</p>
+
+    <h2>三、核心：Tracing（链路追踪）</h2>
+    <p>Tracing 是 Agent 可观测性的核心。一个 Trace 是一条请求的完整处理过程。一个 Span 是一个步骤（一次 LLM 调用、一次工具调用）。</p>
+    <pre><code>Trace（用户请求：查我的订单状态）
+  Span 1: LLM 调用（系统 Prompt + 用户输入）
+    输出：需要查订单数据
+  Span 2: 工具调用 lookup_order
+    参数：order_id="ORD-2024-12345"
+    返回：&lbrace;"status": "shipped"&rbrace;
+    耗时：320ms
+  Span 3: LLM 调用（上下文 + 工具结果）
+    输出：生成最终回复
+  Span 4: 输出后处理
+    结果：回复 + 敏感数据检查</code></pre>
+    <p>每个 Span 包含开始和结束时间、输入和输出、元数据（模型名称、Token 数、状态码）。</p>
+
+    <h2>四、需要追踪什么</h2>
+    <p><b>输入层：</b>用户输入的原始内容、系统 Prompt 的最终版本、输入的预处理结果。</p>
+    <p><b>推理层：</b>每次 LLM 调用的完整 Prompt、LLM 的原始回复（Thought + Action）、模型选择和切换记录、Token 消耗、耗时。</p>
+    <p><b>工具层：</b>工具名称和参数、工具的原始返回值、执行状态（成功/失败/超时）、耗时。</p>
+    <p><b>输出层：</b>最终回复内容、敏感数据检查结果、审计标记。</p>
+    <p>关键原则：记录原始数据而不是你理解后的数据。LLM 返回的原始 JSON、工具的原始响应——这些在调试时比处理过的数据更有价值。</p>
+
+    <h2>五、落地建议</h2>
+    <p>不要在系统稳定后才考虑可观测性。Agent 的调试复杂度远高于传统软件，没有 Tracing 你几乎无法定位问题。</p>
+    <p><b>最小可行方案：结构化日志 + 唯一 Request ID</b></p>
+    <pre><code>&lbrace;
+  "request_id": "req_abc123",
+  "timestamp": "2026-07-04T10:30:00Z",
+  "span_type": "tool_call",
+  "span_name": "lookup_order",
+  "input": &lbrace;"order_id": "ORD-2024-12345"&rbrace;,
+  "output": &lbrace;"status": "shipped"&rbrace;,
+  "duration_ms": 320,
+  "status": "success",
+  "token_count": &lbrace;"prompt": 450, "completion": 120&rbrace;
+&rbrace;</code></pre>
+    <p>每条日志包含 request_id 方便串联，span_type 方便过滤，输入和输出方便定位。主流工具：<b>LangFuse</b>（专向 LLM 可观测）、<b>Arize Phoenix</b>（开源）、<b>LangSmith</b>（LangChain 生态）。选择原则：优先选支持 OpenTelemetry 标准的工具。</p>
+
+    <h2>六、小结</h2>
+    <pre><code>可观测性：系统到底是怎么做的 → 定位问题根因
+监控：系统还活着吗 → 发现问题
+评估：系统做得好不好 → 衡量质量
+
+核心：Tracing（链路追踪）
+每一层都要追踪：输入 → 推理 → 工具 → 输出
+从第一天就加上，最小可行是结构化日志加 Request ID</code></pre>
+    <hr>
+  </article>
+</Layout>

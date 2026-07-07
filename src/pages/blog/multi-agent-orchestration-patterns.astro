@@ -1,0 +1,553 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = '多 Agent 编排模式实战——6 种模式，挑一种现在就上路';
+const desc = '当你手上的 Agent 从 1 个变成 N 个，你用什么方式把它们组织起来？6 种经过了验证的编排模式，从 Supervisor-Worker 到 StateGraph，每种都有对比表和适用场景。';
+const date = '2026.07.07';
+---
+
+<Layout title={title} description={desc}>
+  <style>
+    .article { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; display: inline-block; margin-bottom: 12px; }
+    h1 { font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.25; letter-spacing: -0.3px; }
+    .meta { color: #334155; font-size: 13px; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1.5px solid #e2e8f0; }
+    h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 1.5px solid #f1f5f9; }
+    h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    p { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; }
+    strong { color: #0f172a; }
+    ul, ol { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; padding-left: 24px; }
+    li { margin-bottom: 6px; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #0f172a; }
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 20px; overflow-x: auto; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
+    pre code { background: transparent; padding: 0; color: inherit; font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+    th { background: #f8fafc; color: #0f172a; font-weight: 600; padding: 10px 14px; border: 1px solid #e2e8f0; text-align: left; }
+    td { padding: 10px 14px; border: 1px solid #e2e8f0; color: #334155; }
+    .callout { background: #f8fafc; border-left: 3px solid #2563eb; border-radius: 0 8px 8px 0; padding: 16px 20px; margin-bottom: 20px; font-size: 14px; color: #334155; }
+    .callout strong { color: #2563eb; }
+    hr { border: none; border-top: 1.5px solid #e2e8f0; margin: 40px 0; }
+    blockquote { border-left: 3px solid #cbd5e1; padding: 0 0 0 20px; margin: 0 0 16px; color: #475569; font-size: 14px; line-height: 1.8; }
+    blockquote p { color: #475569; font-size: 14px; }
+    @media (max-width: 768px) { .article { padding: 40px 20px 80px; } h1 { font-size: 24px; } }
+  </style>
+  <div class="article">
+    <div class="bread"><a href="/blog">文章</a> / {title}</div>
+    <span class="label">Harness</span>
+    <h1>{title}</h1>
+    <div class="meta">{date} · 约 7000 字</div>
+
+    <blockquote>
+      <p>目标读者：正在用 Agent 做日常开发，想从单 Agent 升级到多 Agent 但不知道怎么组织的开发者</p>
+    </blockquote>
+
+    <h2>一、我们先拆了内容流水线</h2>
+
+    <p>我们刚把内容生产流水线拆成了四个 Agent：</p>
+
+    <ul>
+      <li><strong>研究 Agent</strong>：搜资料、读文档、提取关键模式</li>
+      <li><strong>写作 Agent</strong>：笔记 → 文章初稿</li>
+      <li><strong>审计 Agent</strong>：检查文章深度、事实准确性</li>
+      <li><strong>发布 Agent</strong>：建页面、构建、部署、验证</li>
+    </ul>
+
+    <p>四个 Agent 由我（Supervisor）统一协调。我定选题、拆任务、分派、聚合结果。</p>
+
+    <p>做了这件事之后，网站从 17 篇涨到 25 篇，我的总投入从"写一篇半天"降到了"定方向 5 分钟 + 审核 5 分钟"。</p>
+
+    <p>但这不是重点。重点是在拆的过程中，我开始认真思考一个问题：</p>
+
+    <p><strong>当你手上的 Agent 从 1 个变成 N 个，你用什么方式把它们组织起来？</strong></p>
+
+    <p>组织方式选错，Agent 越多越乱。选对，3 个 Agent 能干 10 个人的活。</p>
+
+    <p>这就像搭积木——搭法决定了你搭的是塔还是废墟。下面这 6 种搭法，是目前业界经过验证的主流方案。</p>
+
+    <hr>
+
+    <h2>二、6 种编排模式速览</h2>
+
+    <p>先拉一张总表，心里有个全局：</p>
+
+    <table>
+      <tr><th>模式</th><th>一句话</th><th>控制方式</th><th>状态管理</th><th>Agent 数量</th><th>适合场景</th></tr>
+      <tr><td><strong>Supervisor-Worker</strong></td><td>一个老板拆活大家干</td><td>集中调度</td><td>老板持有</td><td>1+N</td><td>确定性任务分解</td></tr>
+      <tr><td><strong>Pipeline</strong></td><td>上一人做完交给下一人</td><td>流水线</td><td>沿管道传递</td><td>链式串联</td><td>有明确工序的任务</td></tr>
+      <tr><td><strong>Debate</strong></td><td>几个专家各说各的再投票</td><td>辩论规则</td><td>共享议题</td><td>3-5</td><td>需要多视角分析的决策</td></tr>
+      <tr><td><strong>Swarm</strong></td><td>每人干自己的，谁有空谁接</td><td>无中心</td><td>分布式</td><td>动态弹性</td><td>不确定任务量的场景</td></tr>
+      <tr><td><strong>Hierarchical</strong></td><td>大老板下面有小老板，小老板下面有员工</td><td>树状递归</td><td>分层持有</td><td>树形多级</td><td>大规模复杂任务分解</td></tr>
+      <tr><td><strong>StateGraph</strong></td><td>你画一张图，Agent 按图走</td><td>有向图</td><td>全局状态</td><td>按图定义</td><td>需要精确控制执行流程</td></tr>
+    </table>
+
+    <p>下面一个一个拆开看。</p>
+
+    <hr>
+
+    <h2>三、Supervisor-Worker——最直接、最常用</h2>
+
+    <h3>怎么用</h3>
+
+    <pre><code>用户：「写一篇关于 LangGraph 的文章」
+    ↓
+Supervisor（你当前用的 Hermes 主会话）
+    ├── 研究 Agent：查 LangGraph 资料 → 整理关键点
+    ├── 写作 Agent：根据研究结果写初稿
+    ├── 审计 Agent：检查事实准确性和结构完整性
+    └── 发布 Agent：构建页面 → 部署上线</code></pre>
+
+    <h3>做了什么</h3>
+
+    <p>Supervisor 是唯一的决策中心。它负责：</p>
+    <ul>
+      <li>理解任务（用户到底想要什么）</li>
+      <li>拆解子任务（这件事需要几步）</li>
+      <li>选 Worker（每个步骤交给谁做）</li>
+      <li>管理生命周期（超时怎么办、失败怎么重试）</li>
+      <li>聚合结果（把各 Worker 的产出拼成最终交付物）</li>
+    </ul>
+
+    <p>Worker 之间<strong>不直接通信</strong>。一切通过 Supervisor 中转。</p>
+
+    <h3>Key Design Dimensions</h3>
+
+    <table>
+      <tr><th>维度</th><th>我们的做法</th><th>优缺点</th></tr>
+      <tr><td><strong>通信方式</strong></td><td>Supervisor 中转</td><td>✅ 简单可靠，❌ 决策中心成为瓶颈</td></tr>
+      <tr><td><strong>控制流</strong></td><td>集中调度</td><td>✅ 清晰可控，❌ Supervisor 需处理所有细节</td></tr>
+      <tr><td><strong>状态管理</strong></td><td>Supervisor 持有</td><td>✅ 单一真相来源</td></tr>
+      <tr><td><strong>Agent 数量</strong></td><td>1 Supervisor + N Workers</td><td>N 受限于 Supervisor 的上下文窗口</td></tr>
+      <tr><td><strong>终止条件</strong></td><td>Supervisor 判断任务是否完成</td><td>✅ 人工可随时介入</td></tr>
+    </table>
+
+    <h3>最成功的案例：Klarna</h3>
+
+    <p>Klarna 用 Supervisor-Worker 模式部署了 35 个 Agent，处理了 <strong>230 万次对话</strong>。</p>
+
+    <p>数据很具体：</p>
+    <ul>
+      <li>35 个 Agent 覆盖客服、退款、订单查询等场景</li>
+      <li>每个 Agent 是一个专门的 Worker</li>
+      <li>Supervisor 角色由路由层承担——识别意图后交给对应 Agent</li>
+      <li>2 个月处理 230 万次，相当于 700 名全职客服的工作量</li>
+    </ul>
+
+    <p>这证明了 Supervisor-Worker 在<strong>确定性任务</strong>场景下的可扩展性——35 个 Agent 不是上限，只是一个实际跑通了的数字。路由和调度做得好，几百个 Worker 也是可能的。</p>
+
+    <h3>Hermes 的实现方式</h3>
+
+    <p>在 Hermes 里就是 <strong>delegate_task</strong>：</p>
+
+    <pre><code>Supervisor 会话（当前对话）
+    │  delegate_task("研究 RAG 的最新进展")
+    ▼
+Worker 子会话（独立终端）
+    │  跑 web_search、读论文、写摘要
+    ▼
+返回结构化结果给 Supervisor</code></pre>
+
+    <p>不需要额外的框架、不需要画图、不需要安装任何东西。就是在你的工具链里加一句 delegate_task 调用。</p>
+
+    <hr>
+
+    <h2>四、Pipeline——流水线拆得越细越快</h2>
+
+    <h3>什么时候用</h3>
+
+    <p>Pipeline 和 Supervisor-Worker 的区别很简单：</p>
+
+    <ul>
+      <li><strong>Supervisor-Worker</strong>：多个 Agent 做<strong>不同的事</strong>，结果拼在一起</li>
+      <li><strong>Pipeline</strong>：多个 Agent 做<strong>同一个过程的多个环节</strong>，结果传递</li>
+    </ul>
+
+    <p>最典型的例子就是我们的内容生产流水线：</p>
+
+    <pre><code>研究 → 写作 → 审计 → 发布</code></pre>
+
+    <p>这不只是概念上的流水线——它就是我们的实际工作流。研究 Agent 产出素材，写作 Agent 接收素材产出初稿，审计 Agent 检查质量，发布 Agent 上线。</p>
+
+    <h3>对比 Supervisor-Worker</h3>
+
+    <table>
+      <tr><th>对比维度</th><th>Supervisor-Worker</th><th>Pipeline</th></tr>
+      <tr><td>任务性质</td><td>并行/独立子任务</td><td>串行/递进工序</td></tr>
+      <tr><td>数据流</td><td>各 Worker 返回 Supervisor</td><td>前一步输出是下一步输入</td></tr>
+      <tr><td>失败影响</td><td>只影响一个 Worker</td><td>后面全部卡住</td></tr>
+      <tr><td>并行度</td><td>高（各 Worker 独立跑）</td><td>低（必须等前一步）</td></tr>
+      <tr><td>适用复杂度</td><td>中高</td><td>中</td></tr>
+    </table>
+
+    <h3>两种变体</h3>
+
+    <p><strong>1. 严格流水线：</strong> 上一步处理完数据→传递给下一步。像工厂传送带，每个环节完成后再移动到下一站。适用于数据加工、文档审批等场景。</p>
+
+    <p><strong>2. 并行流水线：</strong> 上一步完成后，同时通知多个下游 Agent 执行不同的任务。像广播——研究完成后，写作和审计同时开始（但审计审的是初稿，所以一般还是写作先完成）。</p>
+
+    <h3>陷阱</h3>
+
+    <p>Pipeline 的最大问题是<strong>效率取决于最慢的一环</strong>。如果审计 Agent 写一篇审一篇，而写作 Agent 写两篇审才审一篇，那流水线就堵在审计这里。</p>
+
+    <p>解决方案：<strong>批处理缓冲</strong>——写作 Agent 产出多篇后，审计 Agent 一次性审完。</p>
+
+    <hr>
+
+    <h2>五、Debate——让 Agent 吵起来</h2>
+
+    <h3>什么时候用</h3>
+
+    <p>当你面对一个决策，自己拿不准的时候。</p>
+
+    <p>比如判断"这个方案应该选 A 还是 B"，你让多个 Agent 分别站在不同立场分析：</p>
+
+    <pre><code>Agent 1（保守派）：
+    "选 A，因为风险可控，已有成熟方案。"
+
+Agent 2（激进派）：
+    "选 B，因为虽然风险大，但长期收益是 10 倍。"
+
+Agent 3（成本派）：
+    "选 A，B 的前期投入太大，我们的资源不够。"
+
+Agent 4（机会派）：
+    "选 B，A 的市场窗口已经过了，不创新就是等死。"</code></pre>
+
+    <p>你（或者一个判官 Agent）听完四个立场，再做决策。</p>
+
+    <h3>使用前提</h3>
+
+    <p>Debate 模式有效的条件是：<strong>Agent 有自己的角度和判断标准</strong>。如果四个 Agent 看问题的方式都一样，辩论就变成了"同一个观点的四遍复述"。</p>
+
+    <p>所以好的 Debate 模式会给每个 Agent 分配不同的角色和 prompt。不是问"你怎么看"，而是说"你是一个生存优先的创业者，你怎么选"。</p>
+
+    <h3>对比其他模式</h3>
+
+    <table>
+      <tr><th>对比维度</th><th>Debate</th><th>其他模式</th></tr>
+      <tr><td>输出</td><td>一个决策/判断</td><td>一个产物/行动</td></tr>
+      <tr><td>成功条件</td><td>Agent 有差异化角度</td><td>Agent 准确完成任务</td></tr>
+      <tr><td>失败模式</td><td>四个 Agent 看法一样 → 没意义</td><td>单个出错导致全链失败</td></tr>
+      <tr><td>典型 Agent 数</td><td>3-5 个</td><td>1-N 个</td></tr>
+    </table>
+
+    <h3>不适合做什么</h3>
+
+    <p>Debate 不适合产出型任务——让三个 Agent 辩论"第一段怎么写"，大概率写出四不像。它适合的是判断型任务：风险评估、方案选型、策略决策。</p>
+
+    <hr>
+
+    <h2>六、Swarm——去中心化的蚂蚁</h2>
+
+    <h3>什么时候用</h3>
+
+    <p>当任务量不确定、任务类型不可预测的时候。</p>
+
+    <p>Swarm 没有 Supervisor。每个 Agent 独立运行，各有各的技能。有任务来了，谁有空谁认领。</p>
+
+    <pre><code>任务队列
+    ├── Agent A（擅长搜索）→ 在空闲中，认领搜索任务
+    ├── Agent B（擅长写作）→ 忙，跳过
+    ├── Agent C（擅长审计）→ 空闲，认领审计任务
+    └── Agent D（擅长搜索）→ 空闲，认领另一个搜索任务</code></pre>
+
+    <h3>和 Supervisor-Worker 的区别</h3>
+
+    <table>
+      <tr><th>对比维度</th><th>Supervisor-Worker</th><th>Swarm</th></tr>
+      <tr><td>调度中心</td><td>有</td><td>无</td></tr>
+      <tr><td>Agent 角色</td><td>预分配</td><td>动态认领</td></tr>
+      <tr><td>扩展性</td><td>受限于 Supervisor 能力</td><td>理论无限扩展</td></tr>
+      <tr><td>可观测性</td><td>高（所有决策可追溯）</td><td>低（谁做了什么难追踪）</td></tr>
+      <tr><td>实现复杂度</td><td>低</td><td>高</td></tr>
+    </table>
+
+    <h3>真实案例</h3>
+
+    <p>Google 的 Agent2Agent (A2A) 协议就是为 Swarm 模式设计的——Agent 之间通过标准协议发现彼此、协商任务、交换结果。每个 Agent 都是独立的个体，没有中心调度。</p>
+
+    <p>但坦率说，Swarm 模式在<strong>企业落地场景里是最少见的</strong>。它适合：</p>
+    <ul>
+      <li>大规模爬虫/监控集群</li>
+      <li>客服机器人池（谁空闲谁接单）</li>
+      <li>社区驱动的插件生态系统</li>
+    </ul>
+
+    <p>如果是 10 个以内的 Agent 团队，Supervisor-Worker 或 Pipeline 通常就够了。Swarm 多出来的复杂度，10 个 Agent 以下体会不到好处。</p>
+
+    <hr>
+
+    <h2>七、Hierarchical——递归套娃</h2>
+
+    <h3>什么时候用</h3>
+
+    <p>当你的任务大到连 Supervisor 都管不过来的时候。</p>
+
+    <p>Hierarchical 模式就是把 Supervisor 递归化：</p>
+
+    <pre><code>CEO Agent
+    ├── 部门经理 Agent A
+    │   ├── 员工 Agent A1
+    │   └── 员工 Agent A2
+    ├── 部门经理 Agent B
+    │   ├── 员工 Agent B1
+    │   └── 员工 Agent B2
+    └── 部门经理 Agent C
+        └── 员工 Agent C1</code></pre>
+
+    <p>CEO 只跟部门经理对话。每个部门经理管理自己的 Worker 团队。</p>
+
+    <h3>什么时候真的需要</h3>
+
+    <p>不是任务大了就需要分层。判断标准很简单：</p>
+
+    <p><strong>如果 Supervisor 的上下文窗口已经被 N 个 Worker 撑爆了，就需要分层。</strong></p>
+
+    <p>Hermes 的 delegate_task 已经在帮我们做这件事了——每个 Worker 是一个独立的会话，有自己的上下文窗口。但如果你有几十个 Worker 同时跑，Supervisor 光看结果摘要就会被撑爆。这时候就需要中间层 Manager Agent 来聚合。</p>
+
+    <h3>模式和复杂度</h3>
+
+    <p>Hierarchical 和 Supervisor-Worker 不是互斥的。Hierarchical 是在 Supervisor-Worker 上再包一层，形成一个<strong>树状结构</strong>。</p>
+
+    <table>
+      <tr><th>层级</th><th>模式</th><th>复杂度</th></tr>
+      <tr><td>1 层</td><td>Supervisor-Worker</td><td>几行 delegate_task</td></tr>
+      <tr><td>2 层</td><td>部门经理 + 团队</td><td>需要 Manager Agent 逻辑</td></tr>
+      <tr><td>3 层</td><td>区域性层级</td><td>每个区域有自己的 Manager</td></tr>
+      <tr><td>N 层</td><td>理论无上限</td><td>每多一层，通信和状态管理复杂度指数级上升</td></tr>
+    </table>
+
+    <p>2 层以上请三思——不是做不了，而是你需要回答"我是不是真的需要这么多层"。</p>
+
+    <hr>
+
+    <h2>八、StateGraph——把流程画成图</h2>
+
+    <h3>什么时候用</h3>
+
+    <p>当你的 Agent 流程不是线性的，而是<strong>充满条件分支和循环</strong>的时候。</p>
+
+    <pre><code>        用户输入
+            ↓
+     ┌────────────┐
+     │  信息分析   │
+     └─────┬──────┘
+           │
+      信息足够吗？
+      ┌──┴──┐
+    是│     │否
+      ▼     ▼
+  ┌──────┐ ┌────────┐
+  │ 生成  │ │ 补充查询│
+  │ 回答  │ └───┬────┘
+  └──┬───┘     │
+     │         │
+     └────┬────┘
+          ▼
+      ┌────────┐
+      │ 输出   │
+      └────────┘</code></pre>
+
+    <p>这是 LangGraph 的核心模型——StateGraph（状态图）。</p>
+
+    <h3>StateGraph 三要素</h3>
+
+    <p>LangGraph 的 StateGraph 由三部分组成：</p>
+
+    <p><strong>1. State（状态）</strong>——全局共享的数据对象</p>
+    <pre><code>&lbrace;
+    "messages": [...],        // 消息历史
+    "current_input": "...",   // 当前输入
+    "intermediate_results": &lbrace;...&rbrace;,  // 中间结果
+    "status": "running"       // 状态标志
+&rbrace;</code></pre>
+
+    <p>State 在节点间传递，可以被任何节点读取和修改。</p>
+
+    <p><strong>2. Node（节点）</strong>——执行一个函数</p>
+    <pre><code>Node("analyze", analyze_function)
+Node("search", search_function)
+Node("generate", generate_function)</code></pre>
+
+    <p>每个节点是 Agent 的一步操作——查资料、做分析、写回答。</p>
+
+    <p><strong>3. Edge（边）</strong>——控制流向</p>
+    <pre><code>Edge("analyze", "search", condition=information_missing)
+Edge("analyze", "generate", condition=information_sufficient)</code></pre>
+
+    <p>边可以是有条件的（条件边）——"如果信息不够，就跳到搜索，否则直接生成"。</p>
+
+    <h3>和传统流程图的关系</h3>
+
+    <p>StateGraph 本质上就是一个<strong>有向图</strong>：</p>
+
+    <ul>
+      <li>流程图里的<strong>方框</strong> = StateGraph 的 <strong>Node</strong></li>
+      <li>流程图里的<strong>箭头</strong> = StateGraph 的 <strong>Edge</strong></li>
+      <li>流程图里的<strong>决策菱形</strong> = StateGraph 的<strong>条件边</strong></li>
+    </ul>
+
+    <p>核心区别只有一个：图是可以<strong>持久化和恢复</strong>的——节点跑了一半系统崩了，重启后从上次中断的地方继续，不需要全部重来。</p>
+
+    <h3>和其他模式的映射</h3>
+
+    <p>读到这里你会发现：前面讲的 5 种模式，其实<strong>都可以用 StateGraph 表达</strong>。</p>
+
+    <table>
+      <tr><th>模式</th><th>在 StateGraph 里的表达</th></tr>
+      <tr><td>Supervisor-Worker</td><td>1 个路由 Node → N 个 Worker Node → 1 个聚合 Node</td></tr>
+      <tr><td>Pipeline</td><td>按顺序连接的 Node 链</td></tr>
+      <tr><td>Debate</td><td>N 个并行 Node → 1 个决策 Node</td></tr>
+      <tr><td>Swarm</td><td>动态添加/删除 Node</td></tr>
+      <tr><td>Hierarchical</td><td>子图嵌套（一个 Node 内部是另一个 StateGraph）</td></tr>
+    </table>
+
+    <p>StateGraph 不是第 6 种模式，而是<strong>所有模式的底层建模工具</strong>。</p>
+
+    <h3>LangGraph 和我们的关系</h3>
+
+    <p>回到现实：我们用 LangGraph 吗？</p>
+
+    <p><strong>目前不用。</strong> 我们用 Hermes 的 delegate_task 就能实现同样的效果：</p>
+
+    <table>
+      <tr><th>我们的做法</th><th>对应 StateGraph 概念</th></tr>
+      <tr><td>Supervisor</td><td>StateGraph（持有全局状态）</td></tr>
+      <tr><td>delegate_task</td><td>Node（执行一个子任务）</td></tr>
+      <tr><td>顺序写代码</td><td>Edge（定义执行顺序）</td></tr>
+      <tr><td>if-then-else 分支</td><td>条件边</td></tr>
+      <tr><td>回调结果检查</td><td>条件判断 + 重试</td></tr>
+    </table>
+
+    <p>LangGraph 的价值在于：</p>
+    <ul>
+      <li><strong>状态持久化</strong>——进程重启后恢复执行</li>
+      <li><strong>人机回路</strong>——在任意节点插入人工审核</li>
+      <li><strong>可视化</strong>——LangSmith 可以展示图执行情况</li>
+    </ul>
+
+    <p>这些在企业级场景（运行几小时甚至几天的长流程）中很有价值。但对我们当前的场景——一篇文章 15 分钟就能写完——delegate_task 已经足够了。</p>
+
+    <hr>
+
+    <h2>九、关键设计维度</h2>
+
+    <p>不管选哪种模式，都要考虑五个维度：</p>
+
+    <h3>1. 通信方式</h3>
+
+    <table>
+      <tr><th>方式</th><th>描述</th><th>适用场景</th></tr>
+      <tr><td><strong>Supervisor 中转</strong></td><td>全部通过中心 Agent 转发</td><td>5 个以下 Agent</td></tr>
+      <tr><td><strong>共享存储</strong></td><td>Agent 读写同一份状态</td><td>需要全局上下文</td></tr>
+      <tr><td><strong>消息队列</strong></td><td>异步发布/订阅</td><td>Swarm 模式</td></tr>
+      <tr><td><strong>协议通信</strong></td><td>A2A/MCP 标准协议</td><td>跨系统协作</td></tr>
+    </table>
+
+    <p><strong>经验：</strong> 5 个 Agent 以内，Supervisor 中转足够了。消息队列和协议通信增加的复杂度，小场景根本用不上。</p>
+
+    <h3>2. 控制流</h3>
+
+    <table>
+      <tr><th>方式</th><th>描述</th><th>典型模式</th></tr>
+      <tr><td>集中调度</td><td>一个中心控制执行顺序</td><td>Supervisor-Worker</td></tr>
+      <tr><td>流水线</td><td>固定的执行链</td><td>Pipeline</td></tr>
+      <tr><td>条件分支</td><td>根据中间结果动态选择路径</td><td>StateGraph</td></tr>
+      <tr><td>无中心</td><td>每个 Agent 自主决策</td><td>Swarm</td></tr>
+    </table>
+
+    <h3>3. 状态管理</h3>
+
+    <p>这是<strong>最容易犯错的维度</strong>。状态放在哪里、怎么传递、出错后怎么恢复，决定了你的多 Agent 系统是稳定的还是脆弱的。</p>
+
+    <table>
+      <tr><th>方式</th><th>风险</th><th>推荐场景</th></tr>
+      <tr><td>Agent 各自持有</td><td>数据不一致</td><td>小规模探索</td></tr>
+      <tr><td>中心持有</td><td>单点故障</td><td>大多数场景</td></tr>
+      <tr><td>数据库持久化</td><td>需要运维</td><td>生产环境</td></tr>
+      <tr><td>事件日志重放</td><td>实现复杂</td><td>金融/合规场景</td></tr>
+    </table>
+
+    <h3>4. Agent 数量</h3>
+
+    <ul>
+      <li><strong>1-3 个</strong>：简单的 Supervisor-Worker 或 Pipeline</li>
+      <li><strong>3-10 个</strong>：需要明确的状态管理，考虑引入路由</li>
+      <li><strong>10-50 个</strong>：分层或专用调度器</li>
+      <li><strong>50+</strong>：消息队列 + 弹性扩容，参考 Klarna 模式</li>
+    </ul>
+
+    <h3>5. 终止条件</h3>
+
+    <p>不是所有 Agent 任务都能明确结束。你需要定义：</p>
+
+    <ul>
+      <li>什么时候任务算"完成"？（Supervisor 判断所有子任务返回结果）</li>
+      <li>什么时候算"失败"？（超时/N 次重试后）</li>
+      <li>什么时候需要人工介入？（关键决策/不确定情况）</li>
+    </ul>
+
+    <hr>
+
+    <h2>十、从今天可以做的三件事</h2>
+
+    <p>读完全文，你不需要学会所有 6 种模式。从这三件事开始就行：</p>
+
+    <h3>1. 把你的一个手工行为拆成两个 Agent</h3>
+
+    <p>不要一开始就想搞 5 个 Agent。拿出你今天最常做的一件事（比如写文章、修 bug、做调研），<strong>拆成两步</strong>：</p>
+
+    <pre><code>改之前：做调研 + 写总结（你自己干完）
+改之后：
+├── Agent 1：做调研（搜资料、整理观点）
+└── Agent 2：根据调研写总结（写好你审）</code></pre>
+
+    <p>你只多了一个 Agent，但做了最关键的改变——<strong>让研究和写作解耦</strong>。这看起来简单，但这是从单 Agent 到多 Agent 最重要的一步。</p>
+
+    <h3>2. 明确你的通信方式</h3>
+
+    <p>无论你选哪种编排模式，<strong>先把通信规则定下来</strong>：</p>
+
+    <pre><code>规则 1：Worker 之间不直接通信
+规则 2：所有结果回到 Supervisor
+规则 3：Supervisor 只做拆解和聚合，不做执行</code></pre>
+
+    <p>三个规则足够覆盖 80% 的场景。等你遇到规则不够用的时候，你已经不是初学者了。</p>
+
+    <h3>3. 拒绝架构溢出</h3>
+
+    <p>这句话我写给自己，也写给你：</p>
+
+    <p><strong>不要因为你听说过 LangGraph 就去用 LangGraph，而是因为用 delegate_task 搞不定才去学 LangGraph。</strong></p>
+
+    <p>Klarna 用 Supervisor-Worker 跑了 35 个 Agent 处理 230 万次对话。如果 35 个 Agent 都能用最"朴素"的模式跑通，那你的 3 个 Agent 需要的可能只是几行 delegate_task。</p>
+
+    <hr>
+
+    <h2>十一、最后说两句</h2>
+
+    <p>我把 6 种模式全写出来了，不是因为你要全部掌握。</p>
+
+    <p>是因为：</p>
+
+    <p><strong>你知道有 6 种选项，和只知道 1 种（甚至不知道这是在做选择），做出的系统是完全不同的。</strong></p>
+
+    <ul>
+      <li>知道 Pipeline 模式的人，把内容流水线拆成 Agent 链路只花了 10 分钟思考。</li>
+      <li>知道 Swarm 模式的人，能判断"我的场景需不需要消息队列"。</li>
+      <li>知道 StateGraph 模式的人，能用 delegate_task 做出类似的效果而不引入新框架。</li>
+    </ul>
+
+    <p>多 Agent 编排不在乎你会多少框架。在乎你选择模式的时候，心里清楚"为什么是它，而不是别的"。</p>
+
+    <hr>
+
+    <h2>参考</h2>
+
+    <ul>
+      <li><a href="https://langchain-ai.github.io/langgraph/" target="_blank" rel="noopener noreferrer">LangGraph 官方文档</a></li>
+    </ul>
+
+  </div>
+</Layout>

@@ -1,28 +1,132 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const years = [
+  { phase: '第一年', period: '实战者', desc: '以真实项目为靶场，掌握 Agent 系统从设计到上线的全流程能力。建立工程规范、沉淀可复用的模式库和坑点库。', items: ['完成星辉广告系统的 Agent 化改造','输出 20+ 篇工程实践文章','建立可复用的故障排查方法论','形成稳定的 Agent 驱动开发工作流'] },
+  { phase: '第二年', period: '架构师', desc: '从单一系统扩展到多场景、多行业。具备独立设计企业级 Agent 架构的能力，能帮团队做出正确的技术选型和架构决策。', items: ['覆盖 RAG/成本/评估等深度工程域','完成 3-5 个跨行业案例深度复盘','建立完整的 Agent 评估框架','形成体系化的架构决策方法论'] },
+  { phase: '第三年', period: '顾问', desc: '从执行者转型为咨询者。能帮企业做可行性评估、ROI 计算、技术选型、团队搭建。成为企业数字化转型中可信赖的技术顾问。', items: ['形成成熟的咨询方法论','建立可落地的 ROI 计算模型','积累行业级案例库和最佳实践','具备带领团队从 0 到 1 落地的能力'] },
+  { phase: '第四年', period: '思想领袖', desc: '输出行业级观点和标准。通过文章、演讲、咨询影响行业方向，成为中文世界企业级智能体领域公认的实践派专家。', items: ['形成独特的体系化方法论','影响行业最佳实践标准','建立专业社区和影响力','持续推动行业认知进步'] },
+];
 ---
 
-<Layout title="关于">
-  <div class="page-wrap">
-    <div style="font-size:12px; color:#2563eb; font-weight:600; letter-spacing:1.5px; margin-bottom:12px;">— About —</div>
-    <h1 style="font-size:32px; font-weight:700; margin-bottom:16px;">关于 entos.top</h1>
-    <div style="max-width:640px;">
-      <p style="color:#475569; font-size:15px; line-height:1.8; margin-bottom:20px;">
-        <strong>entos.top</strong> 是一个专注于企业级智能体（Enterprise AI Agent）工程实践的
-        中文知识站点。由 AI Agent 驱动，围绕模型控制、架构设计、工具集成与安全治理
-        四个核心维度，系统性地输出工程化方法论。
-      </p>
-      <p style="color:#64748b; font-size:14px; line-height:1.8; margin-bottom:20px;">
-        这里的每一篇文章都遵循"输出倒逼输入"的原则——不是为了写而写，而是为了学而写。
-        知识点经过学习、实践、验证、总结四步闭环后，才会沉淀为文章。
-      </p>
-      <div style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:10px; padding:20px; margin-top:24px;">
-        <div style="font-weight:600; font-size:14px; margin-bottom:8px;">联系</div>
-        <div style="font-size:13px; color:#64748b; line-height:1.8;">
-          GitHub: gengyue-ai<br>
-          本网站源码开源，托管在 GitHub
+<Layout title="关于" description="由 AI Agent 驱动的企业级智能体知识站点，以输出倒逼输入，从实战者到思想领袖的四年成长计划。">
+  <style>
+    .page { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #475569; margin-bottom: 8px; }
+    .bread a { color: #475569; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 12px; color: #2563eb; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+    .label::before { content: '— '; } .label::after { content: ' —'; }
+
+    h1 { font-size: 32px; font-weight: 700; margin-bottom: 16px; color: #0f172a; }
+    h2 { font-size: 20px; font-weight: 700; color: #0f172a; margin: 48px 0 16px; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; }
+    h3 { font-size: 16px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    .highlight { color: #2563eb; font-weight: 500; }
+
+    p { color: #334155; font-size: 15px; line-height: 1.8; margin-bottom: 16px; }
+    .lead { font-size: 17px; color: #334155; line-height: 1.9; margin-bottom: 24px; }
+
+    .principle { background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 20px; margin-bottom: 12px; }
+    .principle-label { font-size: 11px; color: #2563eb; font-weight: 600; letter-spacing: 1px; margin-bottom: 4px; }
+    .principle h3 { font-size: 15px; font-weight: 600; margin: 0 0 6px; color: #0f172a; }
+    .principle p { font-size: 13px; color: #334155; margin: 0; line-height: 1.7; }
+
+    .card { background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 24px; margin-bottom: 20px; }
+    .card-top { display: flex; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+    .phase-tag { font-size: 13px; font-weight: 700; color: #2563eb; background: #eef2ff; padding: 2px 10px; border-radius: 4px; }
+    .period-tag { font-size: 12px; color: #334155; }
+    .card p { font-size: 13px; color: #334155; line-height: 1.7; margin-bottom: 12px; }
+    .card ul { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .card li { font-size: 12px; color: #334155; padding: 4px 0; }
+    .card li::before { content: '→ '; color: #2563eb; font-weight: 600; }
+
+    .box { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 24px; margin-top: 32px; }
+    .box-title { font-weight: 600; font-size: 14px; color: #0f172a; margin-bottom: 10px; }
+    .box p { font-size: 13px; color: #334155; line-height: 1.8; margin-bottom: 0; }
+
+    .stack { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 16px 0; }
+    .stack-item { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; text-align: center; }
+    .stack-item .name { font-size: 14px; font-weight: 600; color: #0f172a; }
+    .stack-item .role { font-size: 11px; color: #475569; margin-top: 2px; }
+
+    @media (max-width: 768px) { .page { padding: 40px 20px 80px; } h1 { font-size: 26px; } .card ul { grid-template-columns: 1fr; } .stack { grid-template-columns: repeat(2, 1fr); } .stats-box { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+  <div class="page">
+    <div class="bread"><a href="/">首页</a> / 关于</div>
+    <h1>关于 entos.top</h1>
+
+    <p class="lead">
+      <span class="highlight">entos.top</span> 是一个由 AI Agent 驱动、以输出倒逼输入的企业级智能体工程实践知识站点。
+      这里没有泛泛的概念，只有从真实项目中提炼的方法论、踩坑记录和架构决策。
+    </p>
+
+    <!-- 理念 -->
+    <h2>理念</h2>
+    <p>这个网站不是一本教科书，而是一个学习引擎。每一篇文章的诞生都遵循一个闭环：</p>
+
+    <div class="principle">
+      <div class="principle-label">CORE 01</div>
+      <h3>输出倒逼输入（费曼学习法）</h3>
+      <p>学一个东西最好的方式，就是把它讲清楚。每写一篇文章 = 攻克一个知识领域。如果写不出来，说明还没真正理解。</p>
+    </div>
+    <div class="principle">
+      <div class="principle-label">CORE 02</div>
+      <h3>从实战中来，到实战中去</h3>
+      <p>所有方法论必须来自真实生产系统的经验验证。不搬运书本知识，不写无法落地的方案。每篇文章背后的素材，都是在一行行代码、一次次故障排查中积累的。</p>
+    </div>
+    <div class="principle">
+      <div class="principle-label">CORE 03</div>
+      <h3>先搭骨架，再填血肉</h3>
+      <p>先完成控制层（双支柱：Harness + 记忆系统）→ Agent 能力 → 架构模式 → 应用场景的骨架搭建，再逐层填充细节。框架立住了，内容往里填就不会偏。</p>
+    </div>
+    <div class="principle">
+      <div class="principle-label">CORE 04</div>
+      <h3>质量 > 数量</h3>
+      <p>宁缺毋滥。一篇真正有用的文章，胜过十篇泛泛而谈。每个知识点必须经过学习、验证、总结三步才沉淀为文章。</p>
+    </div>
+
+    <!-- 远景 -->
+    <h2>远景</h2>
+    <p>
+      <span class="highlight">未来四年，从实战者到思想领袖。</span>
+      这是一个以四年为周期的成长计划。不是空谈理想，而是每一阶段都有清晰的产出目标和能力里程碑。
+    </p>
+
+    {years.map(y => (
+      <div class="card">
+        <div class="card-top">
+          <span class="phase-tag">{y.phase}</span>
+          <span class="period-tag">{y.period}</span>
         </div>
+        <p>{y.desc}</p>
+        <ul>
+          {y.items.map(item => <li>{item}</li>)}
+        </ul>
       </div>
+    ))}
+
+    <!-- 技术实现 -->
+    <h2>技术实现</h2>
+    <p>这个网站本身就是一个多 Agent 系统的实践产物：</p>
+    <div class="stack">
+      <div class="stack-item"><div class="name">Astro 6</div><div class="role">前端框架</div></div>
+      <div class="stack-item"><div class="name">Hermes Agent</div><div class="role">内容引擎</div></div>
+      <div class="stack-item"><div class="name">Obsidian</div><div class="role">知识管理</div></div>
+      <div class="stack-item"><div class="name">Nginx</div><div class="role">部署</div></div>
+      <div class="stack-item"><div class="name">GitHub</div><div class="role">源码管理</div></div>
+      <div class="stack-item"><div class="name">DeepSeek</div><div class="role">AI 模型</div></div>
+    </div>
+    <p style="font-size:13px;color:#475569;margin-top:-8px;">
+      内容生产流程：Hermes Agent 完成研究、写作、审计、构建、部署全流程，决策者只做审核和决策。
+    </p>
+
+    <div class="box">
+      <div class="box-title">联系与源码</div>
+      <p>
+        GitHub: gengyue-ai<br>
+        本网站源代码完全开源，欢迎 Star 和 Issue。<br>
+        内容采用「输出倒逼输入」的费曼学习法驱动，由 AI Agent 系统全流程支撑。
+      </p>
     </div>
   </div>
 </Layout>

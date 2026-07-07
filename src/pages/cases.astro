@@ -1,18 +1,127 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const cases = [
+  {
+    tag: '星辉广告系统',
+    tagClass: 'purple',
+    title: '同步引擎 V2——从硬编码到配置化',
+    desc: '广告系统原有的同步引擎每个上游供应商一套硬编码逻辑，新增一个 API 就要改代码。V2 版本将同步流程抽象为 supplier_sync_config → sync_endpoint → sync_field_mapping 三级配置，新增供应商只需配表，零代码改动。',
+    status: '已上线',
+    statusClass: 'green',
+    slug: 'sync-engine-v2-case',
+  },
+  {
+    tag: '星辉广告系统',
+    tagClass: 'purple',
+    title: '自动化数据审计与巡检',
+    desc: '每天手动检查上游数据是否同步到位、数据清洗是否准确、各维度报表是否一致？Phase 1/2 实现了自动化巡检：定时检查同步健康度、校验数据完整性、检测异常波动。异常自动告警，不再靠人工翻日志。',
+    status: '已上线',
+    statusClass: 'green',
+    slug: null,
+  },
+  {
+    tag: '星辉广告系统',
+    tagClass: 'purple',
+    title: '可配置化风控告警引擎',
+    desc: '风控规则从代码硬编码改为 alert_rule 表配置——每条规则独立定义阈值、检测范围和检查频率。规则引擎支持按链接/渠道/账号/域名/公司多维度检测，新增规则只需 INSERT 一条记录，无需改代码部署。',
+    status: '已上线',
+    statusClass: 'green',
+    slug: 'alert-engine-case',
+  },
+  {
+    tag: '星辉广告系统',
+    tagClass: 'purple',
+    title: '数据管线全链路故障排查',
+    desc: '广告数据流经上游 API → 同步 → 清洗 → 聚合 → 报表五层。当出现数据对不上的问题时，系统化排查流程覆盖五类典型断裂模式：API 切换、字段丢失、维度硬编码、写入覆盖、数据累积偏差。',
+    status: '撰写中',
+    statusClass: 'yellow',
+    slug: null,
+  },
+  {
+    tag: '星辉广告系统',
+    tagClass: 'purple',
+    title: '客户面板重构——展示清洗后数据',
+    desc: '客户看到的数据曾经是原始数据，导致结算对不上。重构后客户面板切换到清洗后的事实表（fact_ad_stats），同时增加了下游分成计算、域名级权限控制、开放 API 查询层。',
+    status: '已上线',
+    statusClass: 'green',
+    slug: null,
+  },
+  {
+    tag: '工程实践',
+    tagClass: 'blue',
+    title: 'AI Agent 驱动的开发工作流',
+    desc: 'Hermes Agent 作为总设计师+总执行，决策者只做审核决策。从方案设计、代码生成、测试验证到部署上线，全流程由 Agent 自主完成。这套工作流本身就是在用 Agent 做 Agent——dogfooding 的最佳实践。',
+    status: '进行中',
+    statusClass: 'green',
+    slug: null,
+  },
+  {
+    tag: '工程实践',
+    tagClass: 'blue',
+    title: '知识网站 entos.top——输出倒逼输入',
+    desc: '用 Astro 搭建的企业级智能体知识站点，由 AI Agent 系统驱动内容生产。每篇文章遵循「学习→大纲→初稿→审核→修改→发布→复盘」七步闭环——这本身就是在实践 Harness 的验证闭环理念。',
+    status: '已上线',
+    statusClass: 'green',
+    slug: null,
+  },
+];
 ---
 
-<Layout title="案例">
-  <div class="page-wrap">
-    <div style="font-size:12px; color:#2563eb; font-weight:600; letter-spacing:1.5px; margin-bottom:12px;">— Cases —</div>
-    <h1 style="font-size:32px; font-weight:700; margin-bottom:8px;">案例与实践</h1>
-    <p style="color:#64748b; font-size:14px; margin-bottom:36px; max-width:600px;">真实业务场景中的 Agent 落地复盘——决策过程、踩坑记录、架构演进。</p>
+<Layout title="案例与实践" description="真实业务场景中的 AI Agent 落地复盘——星辉广告系统的同步引擎改造、自动化巡检、风控告警。">
+  <style>
+    .page { max-width: 1100px; margin: 0 auto; padding: 60px 80px; }
+    .label { font-size: 12px; color: #2563eb; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+    .label::before { content: '— '; } .label::after { content: ' —'; }
+    h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; color: #0f172a; }
+    .desc { color: #334155; font-size: 14px; margin-bottom: 40px; max-width: 600px; line-height: 1.7; }
+    .card { background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 24px; margin-bottom: 16px; display: block; text-decoration: none; color: inherit; transition: border-color .15s, transform .15s; }
+    .card:hover { border-color: #2563eb; transform: translateY(-1px); }
+    .card-top { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+    .tag { font-size: 11px; padding: 3px 10px; border-radius: 4px; font-weight: 500; display: inline-block; }
+    .tag-purple { background: #f5f3ff; color: #6d28d9; }
+    .tag-blue { background: #eef2ff; color: #4338ca; }
+    .badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-yellow { background: #fef3c7; color: #92400e; }
+    .card h3 { font-size: 16px; font-weight: 600; color: #0f172a; margin-bottom: 6px; }
+    .card p { font-size: 13px; color: #334155; line-height: 1.7; }
+    .section-title { font-size: 18px; font-weight: 600; color: #0f172a; margin: 36px 0 16px; padding-bottom: 8px; border-bottom: 1.5px solid #e2e8f0; }
+    .section-title:first-of-type { margin-top: 0; }
+    .section-desc { font-size: 13px; color: #475569; margin: -8px 0 20px; }
+    @media (max-width: 768px) { .page { padding: 40px 24px; } }
+  </style>
+  <div class="page">
+    <div class="label">Cases</div>
+    <h1>案例与实践</h1>
+    <p class="desc">真实业务场景中的 Agent 落地复盘——决策过程、踩坑记录、架构演进。所有案例均来自实际生产系统。</p>
 
-    <div style="background:white; border:1.5px solid #e2e8f0; border-radius:10px; padding:24px; margin-bottom:16px;">
-      <div style="font-size:11px; padding:3px 10px; border-radius:4px; background:#eef2ff; color:#4338ca; font-weight:500; display:inline-block; margin-bottom:10px;">五洲广告系统</div>
-      <h3 style="font-size:16px; font-weight:600;">五洲广告系统的 Agent 落地实录</h3>
-      <p style="font-size:13px; color:#64748b; margin-top:6px;">一个真实商用的广告中介平台，如何逐步引入 Agent 实现自动化运维、数据审计与异常告警。</p>
-      <div style="font-size:12px; color:#eab308; margin-top:12px;">🟡 撰写中</div>
-    </div>
+    <div class="section-title">星辉广告系统</div>
+    <div class="section-desc">一个日处理千万级广告流量的中介平台，从传统开发到 Agent 驱动运维的演进实录。</div>
+
+    {cases.filter(c => c.tag === '星辉广告系统').map(c => (
+      <a class="card" href={c.slug ? `/blog/${c.slug}` : '#'} style={c.slug ? '' : 'cursor:default'}>
+        <div class="card-top">
+          <span class={"tag tag-" + c.tagClass}>{c.tag}</span>
+          <span class={"badge badge-" + c.statusClass}>{c.status}</span>
+        </div>
+        <h3>{c.title}</h3>
+        <p>{c.desc}</p>
+      </a>
+    ))}
+
+    <div class="section-title">工程实践</div>
+    <div class="section-desc">在构建 entos.top 和日常开发中沉淀的方法论和实践模式。</div>
+
+    {cases.filter(c => c.tag === '工程实践').map(c => (
+      <a class="card" href={c.slug ? `/blog/${c.slug}` : '#'} style={c.slug ? '' : 'cursor:default'}>
+        <div class="card-top">
+          <span class={"tag tag-" + c.tagClass}>{c.tag}</span>
+          <span class={"badge badge-" + c.statusClass}>{c.status}</span>
+        </div>
+        <h3>{c.title}</h3>
+        <p>{c.desc}</p>
+      </a>
+    ))}
   </div>
 </Layout>

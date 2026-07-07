@@ -1,0 +1,204 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = '验证闭环——让模型的每一次输出都经过检验';
+const desc = '模型的输出不可信，这是一个前提，不是一个 bug。验证闭环就是在每一个关键输出后面加一道检查。';
+const date = '2026.07.06';
+---
+
+<Layout title={title} description={desc}>
+  <style>
+    .article { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; display: inline-block; margin-bottom: 12px; }
+    h1 { font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.25; letter-spacing: -0.3px; }
+    .meta { color: #334155; font-size: 13px; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1.5px solid #e2e8f0; }
+    h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 1.5px solid #f1f5f9; }
+    h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    p { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; }
+    strong { color: #0f172a; }
+    ul, ol { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; padding-left: 24px; }
+    li { margin-bottom: 6px; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #0f172a; }
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 20px; overflow-x: auto; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
+    pre code { background: transparent; padding: 0; color: inherit; font-size: 13px; }
+    .callout { background: #f8fafc; border-left: 3px solid #2563eb; border-radius: 0 8px 8px 0; padding: 16px 20px; margin-bottom: 20px; font-size: 14px; color: #334155; }
+    .callout strong { color: #2563eb; }
+    .callout-warn { border-left-color: #f59e0b; }
+    .callout-warn strong { color: #d97706; }
+    .callout-danger { border-left-color: #ef4444; }
+    .callout-danger strong { color: #dc2626; }
+    @media (max-width: 768px) { .article { padding: 40px 20px 80px; } h1 { font-size: 24px; } }
+  </style>
+  <div class="article">
+    <div class="bread"><a href="/blog">文章</a> / {title}</div>
+    <span class="label">Harness</span>
+    <h1>{title}</h1>
+    <div class="meta">{date} · 约 2800 字</div>
+
+    <p>
+      如果你问一个做过生产级 Agent 的人"最重要的一课是什么"，大概率回答是：<strong>永远不要相信模型的输出</strong>。
+    </p>
+    <p>
+      这不是说模型不可靠。而是说模型在统计意义上"大部分时候正确"跟"每一次都正确"之间有巨大的鸿沟。在传统软件里，一个函数要么返回正确结果，要么抛异常。但在 Agent 系统里，模型可能返回结构正确的 JSON 但语义完全错误，或者格式正确但参数值不合理。
+    </p>
+    <p>
+      <strong>验证闭环（Validation Loop）</strong>就是 Harness 的第二根缰绳——在模型的每一次关键输出后面加一道检查，检查不通过就走修正路径，而不是直接向下游传递错误。
+    </p>
+
+    <div class="callout callout-danger">
+      <strong>核心原则：</strong> 验证不是测试，验证是每一轮对话的实时防护。测试在部署前发现问题，验证在运行时防止问题扩散。
+    </div>
+
+    <h2>一、验证什么</h2>
+    <p>Agent 的输出有很多层，每一层都需要不同类型的验证：</p>
+
+    <h3>格式验证</h3>
+    <p>模型输出的 JSON 是否符合 Schema 要求？字段类型是否正确？必填字段是否缺失？这是最基础的验证，但也是最容易被忽略的。</p>
+    <pre><code>// 工具调用参数的格式验证
+function validateToolCall(toolCall):
+    schema = getToolSchema(toolCall.name)
+    
+    // 1. 参数是否完整
+    for field in schema.required:
+        if field not in toolCall.arguments:
+            return reject("缺少必填参数: " + field)
+    
+    // 2. 参数类型是否正确
+    for key, value in toolCall.arguments:
+        expectedType = schema.properties[key].type
+        if typeof(value) != expectedType:
+            return reject("参数类型不匹配: " + key)
+    
+    // 3. 参数值是否在合理范围内
+    if schema.properties[key].minimum &amp;&amp; value &lt; schema.properties[key].minimum:
+        return reject("参数超出范围: " + key)
+    
+    return accept()</code></pre>
+
+    <h3>语义验证</h3>
+    <p>格式正确不代表语义正确。比如模型调用了"查询用户"工具，传入了 user_id=12345——格式正确，但这个用户是否存在？模型是否应该先确认用户权限？</p>
+    <p>语义验证需要额外的上下文来判断。常见做法：</p>
+    <ul>
+      <li><strong>前置条件检查：</strong>调用某个工具前，先检查前置条件是否满足（如用户是否有权限、数据是否存在）</li>
+      <li><strong>交叉验证：</strong>用模型 B 验证模型 A 的输出是否合理，或者用同模型的二次调用来自我校验</li>
+      <li><strong>规则引擎：</strong>对常见错误模式编写硬编码规则（如"金额不能为负数"、"删除操作需要二次确认"）</li>
+    </ul>
+
+    <h3>安全验证</h3>
+    <p>模型是否试图执行危险操作？参数中是否包含注入攻击？输出中是否含有敏感信息？</p>
+    <ul>
+      <li><strong>参数注入检查：</strong>工具参数中是否包含 SQL 注入、命令注入或 Prompt 注入尝试</li>
+      <li><strong>权限边界检查：</strong>模型是否在调用它不应该访问的工具或数据</li>
+      <li><strong>输出脱敏检查：</strong>模型回复中是否泄漏了 API Key、密码或个人身份信息</li>
+      <li><strong>操作确认：</strong>破坏性操作（删除、修改、写入）是否需要人工审批</li>
+    </ul>
+
+    <h2>二、验证失败怎么办</h2>
+    <p>验证的目的是"发现错误"，但真正改变系统行为的是"发现错误后做什么"。</p>
+
+    <pre><code>三种修正路径：
+
+路径 A：自动修正（格式问题）
+  发现问题 → 自动修正 → 记录日志 → 继续执行
+  适用：格式错误、类型不匹配、参数名拼写错误
+
+路径 B：重试（模型输出质量问题）
+  发现问题 → 重新调用 LLM（带上错误信息） → 重试
+  适用：语义错误、推理不完整、选择了错误的工具
+  注意：需要设定最大重试次数，防止无限循环
+
+路径 C：人工介入（安全/高风险问题）
+  发现问题 → 暂停执行 → 通知人工 → 等待审批
+  适用：删除操作、大额交易、权限变更、敏感数据访问</code></pre>
+
+    <div class="callout callout-warn">
+      <strong>关键设计：</strong> 重试时必须把错误信息注入到 Prompt 中。仅仅"再试一次"不会改变结果，但告诉模型"你刚才犯了什么错"可以显著提高下一次的正确率。这是 Agent 自我修正的核心机制。
+    </div>
+
+    <h2>三、闭环的工作流程</h2>
+    <p>把验证和修正组合起来，就形成了完整的验证闭环：</p>
+
+    <pre><code>每一轮工具调用的验证闭环：
+
+LLM 输出工具调用请求
+    ↓
+Step 1: 格式验证
+    ├─ 通过 → 继续
+    └─ 失败 → 自动修正 → 修正成功？→ 继续 / 重试
+    ↓
+Step 2: 语义验证
+    ├─ 通过 → 继续
+    └─ 失败 → 重试（带上错误信息）
+    ↓
+Step 3: 安全验证
+    ├─ 通过 → 继续
+    └─ 失败（高风险）→ 暂停 + 人工审批
+    ↓
+Step 4: 执行工具
+    ├─ 成功 → 结果注入上下文，进入下一轮
+    └─ 失败 → 错误注入上下文，LLM 决定下一步
+    ↓
+Step 5: 结果验证
+    ├─ 通过 → 最终输出
+    └─ 失败 → 重试或回退</code></pre>
+
+    <p>这个闭环不是理论设计，是生产系统的必需品。以实际数据为例：一个未加验证闭环的 Agent 系统，工具调用出错率约 5-8%。加上格式验证 + 语义验证 + 安全验证后，可以将出错率降至 1% 以下。</p>
+
+    <h2>四、验证的代价</h2>
+    <p>验证不是免费的——每一次验证都有计算成本和时间成本。关键是在覆盖率和成本之间找到平衡。</p>
+
+    <table>
+      <tr><th>验证类型</th><th>成本</th><th>延迟影响</th><th>建议策略</th></tr>
+      <tr><td>格式验证（代码）</td><td>极低</td><td>&lt;1ms</td><td>全部开启</td></tr>
+      <tr><td>规则验证（代码）</td><td>低</td><td>1-5ms</td><td>核心路径全开，非核心选开</td></tr>
+      <tr><td>语义验证（LLM）</td><td>高</td><td>500ms-3s</td><td>仅用于高风险操作</td></tr>
+      <tr><td>交叉验证（双 LLM）</td><td>极高</td><td>+1次 LLM 调用</td><td>仅用于关键决策点</td></tr>
+      <tr><td>人工审批</td><td>最高</td><td>分钟级</td><td>仅用于不可逆操作</td></tr>
+    </table>
+
+    <p>一个实用的分层策略：<strong>低成本验证放行 99% 的调用，高成本验证只拦截最后的 1%</strong>。不要试图用 LLM 去验证每一个 JSON 字段——用代码做格式验证，把 LLM 验证留给真正需要理解语义的场景。</p>
+
+    <h2>五、从验证到闭环</h2>
+    <p>验证是一次性的检查。闭环是持续的改进。两者结合才能形成真正的 Harness：</p>
+
+    <ul>
+      <li><strong>验证结果记录：</strong>每一次验证失败（包括自动修正成功的情况）都应该被记录到日志中</li>
+      <li><strong>模式发现：</strong>定期分析验证日志，找出高频失败模式——这是 Prompt 优化和系统改进的重要输入</li>
+      <li><strong>Prompt 迭代：</strong>如果某种错误高频出现（如"忘记调用必填参数"），说明 Prompt 中应该更明确地提示模型该参数必须填写</li>
+      <li><strong>验证规则演进：</strong>新的错误模式被发现后，应该及时更新验证规则库，防止同类错误再次发生</li>
+    </ul>
+
+    <pre><code>验证闭环的飞轮效应：
+
+发现错误 → 记录日志 → 分析模式 → 更新验证规则
+    ↑                                  │
+    └──────────────────────────────────┘
+        每次迭代让系统越来越健壮</code></pre>
+
+    <h2>六、小结</h2>
+    <pre><code>验证闭环的三层结构：
+
+第一层：格式验证（代码实现，零成本）
+  检查 JSON Schema、参数类型、必填字段
+  → 拦截 60% 的格式问题
+
+第二层：语义验证（规则+轻量 LLM）
+  检查前置条件、参数合理性、权限边界
+  → 拦截 30% 的语义错误
+
+第三层：安全验证（规则+人工）
+  检查敏感操作、权限越界、数据泄露
+  → 拦截最后 10% 的高风险问题
+
+修正路径：自动修正 → 重试 → 人工审批
+
+记住：验证的目的是防护，不是惩罚。
+每一次验证失败都是系统改进的机会。</code></pre>
+
+    <p>
+      加验证闭环不会让你的 Agent 更聪明，但会让你的 Agent <strong>更可靠</strong>。在生产环境中，可靠性比聪明重要得多——一个偶尔出错的"聪明"Agent 比一个稳定但略笨的 Agent 更难维护，因为你不知道它下一次会在哪里出错。验证闭环就是告诉你"它会在这里出错，而且我们已经挡住了"。
+    </p>
+  </div>
+</Layout>

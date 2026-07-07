@@ -1,14 +1,84 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+
+const title = '安全与治理';
+const icon = '🛡️';
+const desc = 'Agent 生产化不可回避的一环——权限控制、数据保护、审计追溯、人工审核机制。';
+
+const topics = [
+  { name: 'Prompt 注入防护', desc: '直接注入、间接注入、越狱攻击——攻击面分析与多层防御策略。', status: 'planned' },
+  { name: '数据隐私与合规', desc: '敏感数据识别、脱敏处理、GDPR/个保法合规要求。', status: 'planned' },
+  { name: '审计链与可追溯性', desc: '每次决策的完整记录——谁、什么时间、基于什么上下文、做了什么决定。', status: 'published', slug: 'agent-security-guide' },
+  { name: 'Human-in-the-loop 设计', desc: '什么场景需要人工介入、HITL 的实现模式、审批流设计。', status: 'planned' },
+  { name: '权限与访问控制', desc: '工具权限的最小化原则、Agent 身份管理、操作授权边界。', status: 'planned' },
+  { name: '安全评估与红队测试', desc: 'Agent 系统的安全评估方法论、攻防演练、持续监控。', status: 'planned' },
+];
+
+const articles = [
+  { title: 'Agent 安全设计指南', slug: 'agent-security-guide', tag: '安全与治理' },
+];
 ---
 
-<Layout title="安全与治理">
-  <div class="page-wrap">
-    <div style="font-size:12px; color:#2563eb; font-weight:600; letter-spacing:1.5px; margin-bottom:12px;">
-      <a href="/knowledge" style="color:#94a3b8;">知识体系</a> / 安全与治理
+<Layout title={title}>
+  <style>
+    .page { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .head-icon { font-size: 32px; margin-bottom: 12px; }
+    h1 { font-size: 28px; font-weight: 700; color: #0f172a; margin-bottom: 12px; }
+    .subtitle { font-size: 15px; color: #334155; line-height: 1.7; border-left: 3px solid #ea580c; padding-left: 16px; margin-bottom: 40px; }
+    h2 { font-size: 18px; font-weight: 600; color: #0f172a; margin-bottom: 16px; margin-top: 0; }
+    .stat-line { font-size: 12px; color: #334155; margin-bottom: 16px; }
+    .grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 48px; }
+    .card { background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 20px; transition: border-color .15s; }
+    .card:hover { border-color: #ea580c; }
+    .card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .card h3 { font-size: 15px; font-weight: 600; color: #0f172a; margin: 0; }
+    .badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-gray { background: #f1f5f9; color: #334155; }
+    .card p { font-size: 13px; color: #334155; line-height: 1.6; margin: 0; }
+    .card-link { display: inline-block; margin-top: 10px; font-size: 12px; color: #ea580c; font-weight: 500; text-decoration: none; }
+    .card-link:hover { text-decoration: underline; }
+    .related { border-top: 1px solid #e2e8f0; padding-top: 24px; }
+    .related h2 { font-size: 16px; }
+    .rel-item { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+    .rel-item:last-child { border-bottom: none; }
+    .rel-tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: #fff7ed; color: #c2410c; font-weight: 500; }
+    .rel-item a { font-size: 14px; color: #ea580c; text-decoration: none; }
+    .rel-item a:hover { text-decoration: underline; }
+    @media (max-width: 768px) { .page { padding: 40px 20px 80px; } h1 { font-size: 24px; } }
+  </style>
+  <div class="page">
+    <div class="bread"><a href="/knowledge">知识体系</a> / 安全与治理</div>
+    <div class="head-icon">{icon}</div>
+    <h1>{title}</h1>
+    <div class="subtitle">{desc}</div>
+
+    <h2>子话题</h2>
+    <div class="stat-line">已发布 1 / 共 6</div>
+    <div class="grid">
+      {topics.filter(t => t.status === 'published').map(t => (
+        <div class="card">
+          <div class="card-top">
+            <h3>{t.name}</h3>
+            <span class="badge badge-green">已发布</span>
+          </div>
+          <p>{t.desc}</p>
+          {t.slug && <a href={`/blog/${t.slug}`} class="card-link">阅读文章 →</a>}
+        </div>
+      ))}
     </div>
-    <h1 style="font-size:32px; font-weight:700; margin-bottom:8px;">🛡️ 安全与治理</h1>
-    <p style="color:#64748b; font-size:14px; margin-bottom:36px; max-width:600px;">Prompt 注入防护、数据隐私合规、审计链设计、Human-in-the-loop 实践模式。</p>
-    <div style="background:white; border:1.5px solid #e2e8f0; border-radius:10px; padding:40px; text-align:center; color:#94a3b8; font-size:14px;">该分类下的文章正在策划中。</div>
+
+    <div class="related">
+      <h2>关联文章</h2>
+      {articles.map(a => (
+        <div class="rel-item">
+          <span class="rel-tag">{a.tag}</span>
+          <a href={`/blog/${a.slug}`}>{a.title}</a>
+        </div>
+      ))}
+    </div>
   </div>
 </Layout>

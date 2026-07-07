@@ -1,0 +1,255 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const p1Articles = [
+  { slug: 'multi-agent-orchestration-patterns', title: '多 Agent 编排模式实战', tag: '实战' },
+  { slug: 'workshop-to-factory-agent-cluster-upgrade', title: '从作坊到工厂', tag: '核心' },
+  { slug: 'majority-companies-ai-5-percent', title: '大多数公司只走到了AI的5%', tag: '参考' },
+  { slug: 'hook-system-implementation', title: 'Hook 系统落地', tag: '实战' },
+  { slug: 'skills-as-assets-standardization', title: '技能即资产', tag: '实战' },
+  { slug: 'session-to-skill-continuous-learning', title: '从 Session 到 Skill', tag: '核心' },
+  { slug: 'hook-system', title: 'Hook 系统', tag: '核心' },
+  { slug: 'ai-agent-os-five-layer-architecture', title: 'Agent 操作系统的五层架构', tag: '核心' },
+  { slug: 'react-paradigm', title: 'ReAct 范式', tag: '核心' },
+  { slug: 'output-constraints', title: '输出约束', tag: '核心' },
+  { slug: 'context-management', title: '上下文管理', tag: '核心' },
+  { slug: 'validation-loop', title: '验证闭环', tag: '核心' },
+  { slug: 'knowledge-precipitation', title: '知识沉淀', tag: '核心' },
+  { slug: 'agent-amnesia', title: 'Agent 的"失忆症"', tag: '核心' },
+  { slug: 'three-layer-memory', title: '三层记忆模型', tag: '核心' },
+  { slug: 'working-memory', title: '工作记忆管理', tag: '核心' },
+  { slug: 'sync-engine-v2-case', title: '同步引擎 V2 改造', tag: '实战' },
+  { slug: 'alert-engine-case', title: '风控告警引擎', tag: '实战' },
+  { slug: 'agent-pitfalls', title: 'Agent 落地最大的坑', tag: '实战' },
+  { slug: 'enterprise-agent-2026', title: '企业级智能体 2026', tag: '参考' },
+  { slug: 'six-knowledge-domains', title: '六大知识域总览', tag: '参考' },
+];
+
+const p2Articles = [
+  { slug: 'langchain-vs-langgraph-essence', title: 'LangChain vs LangGraph', tag: '核心' },
+  { slug: 'mcp-protocol', title: 'MCP 协议', tag: '核心' },
+  { slug: 'orchestration-patterns', title: '三种编排模式', tag: '核心' },
+  { slug: 'framework-comparison', title: '框架选型指南', tag: '核心' },
+  { slug: 'rag-engineering', title: 'RAG 工程实战', tag: '核心' },
+  { slug: 'agent-observability', title: 'Agent 可观测性', tag: '核心' },
+  { slug: 'cost-model', title: '成本模型', tag: '核心' },
+  { slug: 'agent-security-guide', title: '安全设计指南', tag: '核心' },
+];
+
+const p3Planned = ['场景识别框架', 'ROI 计算模型', '企业 Agent 落地五步法'];
+const p4Planned = ['待规划'];
+
+const phases = [
+  {
+    num: 1,
+    phase: '实战者',
+    period: '第 1–3 月',
+    status: '进行中',
+    statusClass: 'live',
+    tasks: [
+      '完成控制层建设（Harness + 记忆系统）',
+      '优化上下文管理和记忆策略',
+      '在学习中持续输出文章',
+    ],
+    count: '20 篇文章',
+    links: [
+      { href: '/harness', label: 'Harness 方法论' },
+      { href: '/memory', label: '记忆系统' },
+    ],
+    articles: [{ slug: 'episodic-memory', title: '情景记忆', tag: '核心' }, ...p1Articles],
+  },
+  {
+    num: 2,
+    phase: '架构师',
+    period: '第 4–6 月',
+    status: '规划中',
+    statusClass: 'planned',
+    tasks: [
+      '深入研究主流 Agent 框架（LangGraph/CrewAI/Dify/AutoGen）',
+      '掌握企业级安全架构与可观测性',
+      '完成一个非星辉的跨领域案例',
+    ],
+    count: '8 篇文章',
+    links: [
+      { href: '/knowledge/03-engineering', label: '工程实践' },
+    ],
+    articles: p2Articles,
+  },
+  {
+    num: 3,
+    phase: '顾问',
+    period: '第 7–12 月',
+    status: '规划中',
+    statusClass: 'planned',
+    tasks: [
+      '建立咨询方法论（诊断→方案→实施→验收）',
+      '完成 1–2 个外部项目',
+      '建立业务与战略知识体系',
+    ],
+    count: '3 篇待写',
+    links: [
+      { href: '/knowledge/06-strategy', label: '业务与战略' },
+    ],
+    articles: [],
+    planned: p3Planned,
+  },
+  {
+    num: 4,
+    phase: '思想领袖',
+    period: '第 12–18 月',
+    status: '规划中',
+    statusClass: 'planned',
+    tasks: [
+      '形成完整方法论体系',
+      '持续输出高质量内容',
+      '建立行业影响力',
+    ],
+    count: '待启动',
+    articles: [],
+    planned: p4Planned,
+    links: [],
+  },
+];
+---
+
+<Layout title="学习路径" description="12-18个月的四阶段学习路线图——从实战者到企业级智能体解决方案专家。">
+  <style>
+    .page { max-width: 900px; margin: 0 auto; padding: 60px 24px 100px; }
+    .label { font-size: 12px; color: #2563eb; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+    .label::before { content: '— '; } .label::after { content: ' —'; }
+    h1 { font-size: 28px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
+    .page-desc { color: #334155; font-size: 14px; line-height: 1.7; margin-bottom: 40px; }
+
+    .phase-card { background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 32px; margin-bottom: 24px; transition: border-color .15s; }
+    .phase-card:hover { border-color: #2563eb; }
+    .card-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .phase-num { font-size: 28px; font-weight: 800; color: #2563eb; line-height: 1; }
+    .phase-name { font-size: 20px; font-weight: 700; color: #0f172a; }
+    .phase-period { font-size: 13px; color: #334155; }
+    .status-badge { font-size: 11px; padding: 3px 12px; border-radius: 12px; font-weight: 600; margin-left: auto; }
+    .badge-live { background: #dcfce7; color: #166534; }
+    .badge-planned { background: #f1f5f9; color: #334155; }
+
+    .tasks { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .task-item { font-size: 13px; color: #334155; padding: 4px 12px; background: #f8fafc; border-radius: 6px; }
+    .task-item::before { content: '→ '; color: #2563eb; font-weight: 600; }
+
+    .article-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .article-link { font-size: 12px; padding: 4px 12px; border-radius: 4px; background: #eef2ff; color: #4338ca; text-decoration: none; transition: all .15s; display: inline-flex; align-items: center; gap: 4px; }
+    .article-link:hover { background: #2563eb; color: white; }
+    .article-tag { font-size: 9px; padding: 1px 5px; border-radius: 2px; font-weight: 600; background: rgba(255,255,255,0.6); }
+    .article-tag.core { color: #4338ca; }
+    .article-tag.practice { color: #166534; }
+    .article-tag.ref { color: #92400e; }
+    .article-link:hover .article-tag { background: rgba(255,255,255,0.3); }
+
+    .planned-list { font-size: 12px; color: #475569; margin-bottom: 16px; }
+    .planned-list span { display: inline-block; padding: 3px 10px; background: #f1f5f9; border-radius: 4px; margin: 3px 4px 3px 0; color: #334155; }
+
+    .count { font-size: 12px; color: #475569; margin-bottom: 4px; }
+    .links { display: flex; gap: 8px; flex-wrap: wrap; }
+    .link-btn { font-size: 12px; padding: 6px 16px; border-radius: 6px; font-weight: 500; text-decoration: none; background: #f8fafc; color: #334155; border: 1px solid #e2e8f0; transition: all .15s; }
+    .link-btn:hover { border-color: #2563eb; color: #2563eb; }
+
+    /* Journal placeholder */
+    .journal-box { margin-top: 32px; padding: 24px; background: #f8fafc; border: 1.5px dashed #e2e8f0; border-radius: 10px; text-align: center; }
+    .journal-box h3 { font-size: 16px; font-weight: 600; color: #0f172a; margin-bottom: 6px; }
+    .journal-box p { font-size: 13px; color: #475569; }
+
+    /* Current Focus */
+    .focus { background: linear-gradient(135deg, #fef3c7, #fffbeb); border: 1.5px solid #fcd34d; border-radius: 12px; padding: 24px 28px; margin-bottom: 32px; display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: start; }
+    .focus-label { font-size: 11px; color: #92400e; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .focus-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #ef4444; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .focus h3 { font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
+    .focus p { font-size: 13px; color: #475569; line-height: 1.6; margin-bottom: 12px; }
+    .focus-progress { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .focus-bar { flex: 1; height: 8px; background: #fde68a; border-radius: 4px; overflow: hidden; }
+    .focus-bar-fill { height: 100%; width: 33%; background: #f59e0b; border-radius: 4px; }
+    .focus-pct { font-size: 12px; font-weight: 600; color: #92400e; }
+    .focus-links { display: flex; gap: 8px; flex-wrap: wrap; }
+    .focus-link { font-size: 12px; padding: 5px 14px; border-radius: 6px; font-weight: 500; text-decoration: none; }
+    .focus-link-primary { background: #f59e0b; color: white; }
+    .focus-link-primary:hover { background: #d97706; }
+    .focus-link-ghost { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+    .focus-link-ghost:hover { background: #fde68a; }
+    .focus-steps { display: flex; gap: 6px; }
+    .focus-step { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+    .focus-step-done { background: #10b981; color: white; }
+    .focus-step-cur { background: #f59e0b; color: white; }
+    .focus-step-pending { background: #f1f5f9; color: #94a3b8; }
+
+    @media (max-width: 768px) { .page { padding: 40px 20px 80px; } .phase-card { padding: 24px; } .phase-num { font-size: 22px; } }
+  </style>
+
+  <div class="page">
+    <div class="label">Learning Path</div>
+    <h1>学习路径 · 从实战者到解决方案专家</h1>
+    <p class="page-desc">12-18 个月的四阶段成长路线图。每篇文章标注了所属阶段和类型（核心/实战/参考），帮你知道自己在哪里、下一站去哪。</p>
+
+    <!-- Current Focus -->
+    <div class="focus">
+      <div>
+        <div class="focus-label"><span class="focus-dot"></span> 当前聚焦</div>
+        <h3>框架广度补全 — LangGraph 实战</h3>
+        <p>用 LangGraph 搭建一个文档知识库检索 Agent，获得跨框架的第一手经验。<br>Day 1：搭建核心管线 → Day 2：多步推理与工具调用 → Day 3：对比总结</p>
+        <div class="focus-progress">
+          <div class="focus-bar"><div class="focus-bar-fill"></div></div>
+          <span class="focus-pct">Day 1 / 3</span>
+        </div>
+        <div class="focus-steps">
+          <span class="focus-step focus-step-done">1</span>
+          <span class="focus-step focus-step-cur">2</span>
+          <span class="focus-step focus-step-pending">3</span>
+        </div>
+      </div>
+      <div class="focus-links" style="align-self:center">
+        <a href="/blog/framework-comparison" class="focus-link focus-link-ghost">框架选型 →</a>
+      </div>
+    </div>
+
+    {phases.map(p => (
+      <div class="phase-card">
+        <div class="card-header">
+          <span class="phase-num">Phase {p.num}</span>
+          <span class="phase-name">{p.phase}</span>
+          <span class="phase-period">{p.period}</span>
+          <span class={"status-badge badge-" + p.statusClass}>{p.status}</span>
+        </div>
+
+        <div class="tasks">
+          {p.tasks.map(t => <span class="task-item">{t}</span>)}
+        </div>
+
+        {p.articles && p.articles.length > 0 && (
+          <div>
+            <div class="count">{p.count}</div>
+            <div class="article-grid">
+              {p.articles.map(a => (
+                <a href={`/blog/${a.slug}`} class="article-link">
+                  {a.title}
+                  <span class={"article-tag " + (a.tag === '核心' ? 'core' : a.tag === '实战' ? 'practice' : 'ref')}>{a.tag}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {p.planned && p.planned.length > 0 && (
+          <div class="planned-list">
+            规划中：{p.planned.map(t => <span>{t}</span>)}
+          </div>
+        )}
+
+        <div class="links">
+          {p.links.map(l => <a href={l.href} class="link-btn">{l.label} →</a>)}
+        </div>
+      </div>
+    ))}
+
+    <a href="/blog/learning-journal-1" class="journal-box" style="text-decoration:none;color:inherit;display:block">
+      <h3>📝 学习周记 #1</h3>
+      <p>记忆系统启动、网站框架改造、导航迭代、踩坑记录。发布于 2026.07.07 →</p>
+    </a>
+  </div>
+</Layout>

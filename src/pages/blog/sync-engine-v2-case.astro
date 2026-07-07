@@ -1,0 +1,233 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = '从硬编码到配置化——星辉广告系统的同步引擎 V2 改造实录';
+const desc = '一个广告中介平台的同步引擎，从每个上游写一份硬编码逻辑，到零代码配置化接入。这中间经历了什么。';
+const date = '2026.07.06';
+---
+
+<Layout title={title} description={desc}>
+  <style>
+    .article { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; display: inline-block; margin-bottom: 12px; }
+    h1 { font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.25; letter-spacing: -0.3px; }
+    .meta { color: #334155; font-size: 13px; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1.5px solid #e2e8f0; }
+    h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 1.5px solid #f1f5f9; }
+    h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    p { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; }
+    strong { color: #0f172a; }
+    ul, ol { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; padding-left: 24px; }
+    li { margin-bottom: 6px; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #0f172a; }
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 20px; overflow-x: auto; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
+    pre code { background: transparent; padding: 0; color: inherit; font-size: 13px; }
+    .callout { background: #f8fafc; border-left: 3px solid #2563eb; border-radius: 0 8px 8px 0; padding: 16px 20px; margin-bottom: 20px; font-size: 14px; color: #334155; }
+    .callout strong { color: #2563eb; }
+    .callout-warn { border-left-color: #f59e0b; }
+    .callout-warn strong { color: #d97706; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+    th { background: #f8fafc; text-align: left; padding: 10px 14px; font-weight: 600; color: #0f172a; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+    tr:last-child td { border-bottom: none; }
+    @media (max-width: 768px) { .article { padding: 40px 20px 80px; } h1 { font-size: 24px; } }
+  </style>
+  <div class="article">
+    <div class="bread"><a href="/blog">文章</a> / {title}</div>
+    <span class="label">案例复盘</span>
+    <h1>{title}</h1>
+    <div class="meta">{date} · 约 2800 字</div>
+
+    <p>
+      2025 年底，星辉广告系统的同步引擎到了必须重构的临界点。原因是每个上游供应商的 API 都需要一份独立的适配代码——新增一个供应商，就要写一遍 HTTP 请求、参数拼装、鉴权、分页、字段映射、写入逻辑。当时系统接了 5 家上游，对应的同步代码已经膨胀到 3000 多行，每接一家新供应商，开发周期至少两到三周。
+    </p>
+    <p>
+      而业务那边又在催：下个月要再接入两家。
+    </p>
+    <p>
+      这不是一个技术难题，这是一个架构问题——我们把应该配置化的东西写死在了代码里。
+    </p>
+
+    <h2>一、V1 的问题</h2>
+    <p>先看清楚 V1 为什么撑不下去了：</p>
+
+    <h3>硬编码的代价</h3>
+    <p>V1 的同步代码大致长这样——每个供应商一个文件，每个文件里重复着 80% 相似的逻辑：</p>
+    <pre><code>// 供应商 A 的同步代码
+func SyncSupplierA() error &lbrace;
+    url := "https://api.supplier-a.com/v1/report"
+    headers := map[string]string&lbrace;
+        "Authorization": "Bearer " + cfg.APIKeyA,
+    &rbrace;
+    params := buildParams(date, "daily")
+    resp, _ := httpGet(url, headers, params)
+    rows := parseResponseA(resp)  // 每个供应商的解析逻辑不同
+    for _, row := range rows &lbrace;
+        db.Exec("INSERT INTO stats ...", row)
+    &rbrace;
+&rbrace;
+
+// 供应商 B：同样的结构，不同的 URL、鉴权、解析
+func SyncSupplierB() error &lbrace; ... &rbrace;</code></pre>
+    <p>这种模式的问题很明显：</p>
+    <ul>
+      <li><strong>重复代码爆炸：</strong>每多一个供应商，多 300-500 行几乎一样的代码</li>
+      <li><strong>耦合太深：</strong>同步逻辑和业务逻辑混在一起，改一个供应商可能影响其他</li>
+      <li><strong>新接入慢：</strong>每次都要走完整的开发→测试→部署流程</li>
+      <li><strong>稳定性风险：</strong>每段代码都有自己处理错误的方式，时区、分页、限流的处理各不一致</li>
+    </ul>
+
+    <h2>二、V2 的设计——三级配置化</h2>
+    <p>重构的核心思路很简单：<strong>把变化的抽成配置，把不变的固化成引擎</strong>。</p>
+    <p>经过几轮迭代，最终确定了三级配置结构：</p>
+
+    <pre><code>V2 同步引擎架构：
+
+┌─────────────────────────────────────────────┐
+│             同步引擎（通用逻辑）              │
+│  HTTP 请求 / 鉴权 / 分页 / 重试 / 错误处理   │
+│  字段映射 / 数据清洗 / 写入                  │
+└──────────────────┬──────────────────────────┘
+                   │
+        读取配置   │
+                   ▼
+┌─────────────────────────────────────────────┐
+│  一级：供应商配置（supplier_sync_config）      │
+│  └─ base_url、鉴权方式、请求频率              │
+│                                              │
+│  二级：端点配置（sync_endpoint）              │
+│  └─ API路径、参数风格、分页方式               │
+│                                              │
+│  三级：字段映射（sync_field_mapping）         │
+│  └─ 上游字段名 → 系统字段名、类型转换         │
+└─────────────────────────────────────────────┘</code></pre>
+
+    <h3>一级：供应商配置</h3>
+    <p>定义"怎么连"——每个上游 API 的基本连接信息：</p>
+    <pre><code>// 供应商级配置表（简化）
+supplier_sync_config &lbrace;
+    id          INT PRIMARY KEY,
+    name        VARCHAR(64),        // 供应商名称
+    base_url    VARCHAR(255),       // API 基础地址
+    auth_type   ENUM('none','header_auth','query_key'),
+    auth_key    VARCHAR(128),       // 鉴权字段名
+    auth_value  VARCHAR(256),       // 鉴权密钥（加密存储）
+    interval_m  INT,                // 同步间隔（分钟）
+    enabled     TINYINT(1),
+&rbrace;</code></pre>
+
+    <h3>二级：端点配置</h3>
+    <p>定义"请求什么"——数据在哪个 API 路径、怎么分页：</p>
+    <pre><code>// 端点级配置表（简化）
+sync_endpoint &lbrace;
+    id              INT PRIMARY KEY,
+    supplier_id     INT,            // 关联供应商
+    name            VARCHAR(64),    // 端点名称（daily/unit/hourly...）
+    path            VARCHAR(255),   // API 路径
+    param_style     ENUM('query','json_body'),
+    page_param      VARCHAR(64),    // 分页参数名
+    page_size       INT,            // 每页大小
+    date_param      VARCHAR(64),    // 日期参数名
+    date_format     VARCHAR(32),    // 日期格式
+&rbrace;</code></pre>
+
+    <h3>三级：字段映射</h3>
+    <p>定义"字段怎么对"——上游返回的 JSON 字段名映射到系统字段：</p>
+    <pre><code>// 字段映射配置表（简化）
+sync_field_mapping &lbrace;
+    id          INT PRIMARY KEY,
+    endpoint_id INT,                // 关联端点
+    source_key  VARCHAR(128),       // 上游 JSON 中的字段名
+    target_key  VARCHAR(128),       // 系统数据库字段名
+    data_type   ENUM('string','int','float','date'),
+    transform   VARCHAR(64),        // 可选：转换函数名
+    required    TINYINT(1),         // 是否必填
+&rbrace;</code></pre>
+
+    <h2>三、引擎的核心逻辑</h2>
+    <p>配置建好了，引擎要做的就是通用的"读取配置 → 组装请求 → 调用 API → 解析响应 → 映射字段 → 写入库"：</p>
+
+    <pre><code>// V2 引擎核心流程（简化伪代码）
+func SyncByHTTPAPIV2(endpointID int) error:
+    // 1. 读取三级配置
+    supplier  = loadSupplierConfig(endpointID)
+    endpoint  = loadEndpointConfig(endpointID)
+    mappings  = loadFieldMappings(endpointID)
+
+    // 2. 按日期范围分批执行
+    for each day in dateRange:
+        // 3. 组装请求参数
+        params = buildParams(endpoint, day)
+
+        // 4. 发送 HTTP 请求
+        resp = httpGet(supplier.baseURL + endpoint.path,
+            auth=supplier.auth,
+            params=params)
+
+        // 5. 解析响应（通用 JSON 解析）
+        rows = parseResponse(resp)
+
+        // 6. 字段映射
+        for each row in rows:
+            mapped = applyMappings(row, mappings)
+
+            // 7. 清洗 + 写入
+            cleaned = clean(mapped)
+            writeToDB(cleaned)
+
+    // 8. 记录同步状态
+    saveSyncLog(endpointID, date, status)</code></pre>
+
+    <p>这里面每一步都是通用的——API 响应格式不同的场景，通过 <strong>动态 JSON 解析器</strong>来兼容：引擎自动识别响应是列表还是嵌套结构，根据字段映射配置提取数据。</p>
+
+    <div class="callout">
+      <strong>关键设计：</strong> 引擎本身不做任何"供应商特定"的决策。新增一个供应商 = 在配置表里 INSERT 三条记录（供应商 + 端点 + 字段映射）。零代码改动，零部署。
+    </div>
+
+    <h2>四、改造的效果</h2>
+    <p>V2 上线后的变化是立竿见影的：</p>
+
+    <table>
+      <tr><th>指标</th><th>V1</th><th>V2</th></tr>
+      <tr><td>新增供应商周期</td><td>2-3 周</td><td>1-2 天</td></tr>
+      <tr><td>供应商相关代码行数</td><td>~3000 行（5 家）</td><td>~200 行引擎 + 配置表数据</td></tr>
+      <tr><td>新增供应商修改文件数</td><td>4-6 个</td><td>0 个（只需 INSERT）</td></tr>
+      <tr><td>同步失败率</td><td>~5%（各供应商处理不一致）</td><td>&lt;1%（统一错误处理+重试）</td></tr>
+    </table>
+
+    <p>更重要的是，<strong>配置化带来的是能力边界的变化</strong>。V1 时代，新增供应商是一个开发任务——要排期、要测试、要部署。V2 时代，新增供应商是一个运营任务——运营同学在管理后台配好表就能上线。这彻底改变了团队的协作模式。</p>
+
+    <h2>五、踩过的坑</h2>
+    <p>这次改造并非一帆风顺。记录几个关键的教训：</p>
+
+    <ul>
+      <li><strong>字段映射表设计太僵化：</strong>第一版只支持"一对一"映射，但很多上游返回嵌套 JSON（如 <code>data.stats.impressions</code>）。后来加上了 <code>source_key</code> 支持点号路径。</li>
+      <li><strong>分页方式各有不同：</strong>有的上游用 <code>page</code> 参数，有的用 <code>offset</code>，有的用游标。最终方案是在 <code>sync_endpoint</code> 表加了一个 <code>page_style</code> 字段来区分。</li>
+      <li><strong>类型转换陷阱：</strong>上游返回的 <code>"1,234"</code>（带逗号的字符串）和 <code>"N/A"</code> 在类型转换时频繁报错。最终加了一层"清洗函数"作为可配置的转换管道。</li>
+      <li><strong>日期同步的时区问题：</strong>不同上游使用不同时区的"今天"。需要在供应商配置里固定时区偏移，确保同一天的数据对得上。</li>
+    </ul>
+
+    <div class="callout callout-warn">
+      <strong>最大教训：</strong> 不要追求"一次设计到位"。V2 的第一个版本只覆盖了 80% 的场景，剩下的 20% 通过后续迭代逐步补齐。如果一开始就想覆盖所有场景，V2 可能到现在还没上线。
+    </div>
+
+    <h2>六、总结</h2>
+    <pre><code>从 V1 到 V2 的核心变化：
+
+   硬编码                   → 配置化
+   每个供应商一个文件        → 三级配置表
+   新增 = 开发任务           → 新增 = 运营任务
+   3000 行供应商代码         → 200 行通用引擎
+   2-3 周接入周期            → 1-2 天
+
+三条经验：
+1. 把变化的抽成配置，把不变的固化成引擎
+2. 先做 80%，剩下的迭代补齐
+3. 配置化改变的不只是代码结构，还有协作模式</code></pre>
+
+    <p>
+      这次改造最大的收获不是代码量减少了，而是<strong>系统能力的边界扩展了</strong>。当一个之前需要两到三周才能完成的事情变成一两天就能搞定，你的业务选择空间也随之变大。这大概就是架构设计的价值——它不直接产生功能，但它决定了你能以多快的速度产生功能。
+    </p>
+  </div>
+</Layout>

@@ -1,0 +1,131 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = '从作坊到工厂——我的 AI Agent 集群升级四步路线图';
+const desc = 'Agent 流水线跑通了，多 Agent 协作验证了——但架构还是作坊级的。上云、Kanban、质量门、自我进化，四步从作坊到工厂。';
+const date = '2026.07.07';
+---
+
+<Layout title={title} description={desc}>
+  <style>
+    .article { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; display: inline-block; margin-bottom: 12px; }
+    h1 { font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.25; letter-spacing: -0.3px; }
+    .meta { color: #334155; font-size: 13px; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1.5px solid #e2e8f0; }
+    h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 1.5px solid #f1f5f9; }
+    h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    p { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; }
+    strong { color: #0f172a; }
+    ul, ol { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; padding-left: 24px; }
+    li { margin-bottom: 6px; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #0f172a; }
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 20px; overflow-x: auto; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
+    pre code { background: transparent; padding: 0; color: inherit; font-size: 13px; }
+    .callout { background: #f8fafc; border-left: 3px solid #2563eb; border-radius: 0 8px 8px 0; padding: 16px 20px; margin-bottom: 20px; font-size: 14px; color: #334155; }
+    .callout strong { color: #2563eb; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+    th { background: #f8fafc; color: #0f172a; font-weight: 600; padding: 10px 14px; border: 1px solid #e2e8f0; text-align: left; }
+    td { padding: 10px 14px; border: 1px solid #e2e8f0; color: #334155; }
+    .practice-box { margin: 36px 0; padding: 20px; background: #f0fdfa; border: 1.5px solid #a7f3d0; border-radius: 10px; display: flex; gap: 14px; align-items: flex-start; }
+    .practice-icon { font-size: 20px; flex-shrink: 0; }
+    .practice-content strong { font-size: 13px; color: #0f172a; display: block; margin-bottom: 4px; }
+    .practice-content p { font-size: 13px; color: #475569; margin: 0; line-height: 1.7; }
+    @media (max-width: 768px) { .article { padding: 40px 20px 80px; } h1 { font-size: 24px; } }
+  </style>
+  <div class="article">
+    <div class="bread"><a href="/blog">文章</a> / {title}</div>
+    <span class="label">Harness</span>
+    <h1>{title}</h1>
+    <div class="meta">{date} · 约 3800 字</div>
+
+    <h2>一、我遇到了什么问题</h2>
+
+    <p>我的 Agent 系统已经跑了一段时间。内容流水线跑通了、多 Agent 协作验证了、安全引擎上线了。看起来进展不错。</p>
+
+    <p>但我知道一个事实：<strong>当前的架构撑不过三个月。</strong></p>
+
+    <p><strong>问题一：Agent 跑在我的笔记本电脑上。</strong> 关机就断，出差就断。内容产出的越多，数据越值钱，本地跑的风险越大。</p>
+
+    <p><strong>问题二：子 Agent 依赖父进程。</strong> 我用 <code>delegate_task</code> 派研究 Agent 去干活，如果我这边中断了，研究的成果就丢了。父进程崩溃，子任务静默死亡。</p>
+
+    <p><strong>问题三：所有 Agent 共享一套配置和记忆。</strong> 总控节点随时可以越权去抢执行者的活——不是制度问题，是架构问题。</p>
+
+    <p><strong>问题四：没有质量门。</strong> 每篇文章的质量标准全在我脑子里。没有系统级保障。</p>
+
+    <p><strong>问题五：知识沉淀靠手动。</strong> 每次踩坑记一条记忆，但记忆只是一条文本。不能检索，不能跨 Agent 共享，不能自动提炼为 Skill。</p>
+
+    <div class="callout">
+      <strong>五个问题指向同一个结论：</strong> 我的系统还停留在"作坊"阶段，但已经用它做"工厂"级别的事了。
+    </div>
+
+    <h2>二、作坊和工厂的区别在哪</h2>
+
+    <table>
+      <tr><th>维度</th><th>作坊模式</th><th>工厂模式</th></tr>
+      <tr><td>运行</td><td>本地电脑，关机就停</td><td>云端 7x24</td></tr>
+      <tr><td>任务</td><td>进程内，父崩子亡</td><td>SQLite 持久化看板，崩溃后接管</td></tr>
+      <tr><td>角色</td><td>一个 Agent 什么都能干</td><td>专业 Profile，工具隔离</td></tr>
+      <tr><td>质量</td><td>靠人审</td><td>系统级三道质量门</td></tr>
+      <tr><td>知识</td><td>手动记一条文本</td><td>自动分析执行轨迹，提炼 Skill</td></tr>
+      <tr><td>安全</td><td>靠 Agent 自觉</td><td>物理工具白名单，想越权也没工具</td></tr>
+    </table>
+
+    <p><strong>这不是"更好的做法"，是"不同量级的做法"。</strong> 作坊做到 10 篇文章没问题，做到 100 篇就会出问题。工厂从第一天就是为 1000 篇设计的。</p>
+
+    <h2>三、四步升级路线</h2>
+
+    <p>我不可能一夜之间从作坊变成工厂。四个阶段，每个独立交付。</p>
+
+    <h3>第一阶段：上云（1-2 周）</h3>
+    <p>Hermes 从本地搬到云服务器，systemd 守护，Docker 隔离。7x24 在线，关电脑也不断。</p>
+
+    <h3>第二阶段：Kanban + Profile（2-4 周）</h3>
+    <p>引入 Hermes 内置的 Kanban 看板（SQLite 持久化，无需开发）。创建研究员/写手/审计员/发布员 4 个 Profile，每个只有自己需要的工具。总控只保留 <code>kanban</code> 工具，物理上没法越权。</p>
+
+    <pre><code>你发消息 → 总控 kanban_create 四个任务（带依赖）
+    ├── 研究员（只有搜索+阅读工具）
+    ├── 写手（只有文件读写工具）
+    ├── 审计员（只有只读工具）
+    └── 发布员（只有构建部署工具）
+    ↓ 调度器依次拉起 → 完成 → 通知你</code></pre>
+
+    <p><strong>进程崩溃任务不丢，每个 Agent 各司其职，总控想抢活也没工具。</strong></p>
+
+    <h3>第三阶段：CADVP 质量体系（5-6 周）</h3>
+    <p>三道质量门：L1 自验证（输出检查）→ L2 证据验证（哈希校验）→ L3 交叉评审（独立评分）。</p>
+
+    <h3>第四阶段：自我进化（7-12 周）</h3>
+    <p>Kanban 执行轨迹 → 自动分析高频模式 → 生成 Skill 候选 → 你审批 → 注册。越用越强。</p>
+
+    <h2>四、为什么用这个顺序</h2>
+
+    <table>
+      <tr><th>先做</th><th>原因</th></tr>
+      <tr><td><strong>上云</strong></td><td>信任问题。系统关个电脑就没了，你敢放心用吗？</td></tr>
+      <tr><td><strong>Kanban</strong></td><td>可靠性问题。进程崩溃任务丢失，产出越多损失越大</td></tr>
+      <tr><td><strong>质量</strong></td><td>规模问题。10 篇文章可以手审，100 篇审不过来</td></tr>
+      <tr><td><strong>进化</strong></td><td>效率问题。手动维护 Skill 是当前最轻的负担</td></tr>
+    </table>
+
+    <p><strong>第一阶段做完解决"信任问题"。</strong> 有了信任，才能放心地把更多事交给系统。</p>
+
+    <h2>五、从今天可以做的三件事</h2>
+
+    <p><strong>1. 诊断你的架构在哪个阶段。</strong> 你的 Agent 跑在哪？任务崩溃了会丢吗？如果答案是"本地"和"会丢"，你也在作坊阶段。知道自己在哪才能知道往哪走。</p>
+
+    <p><strong>2. 从"上云"开始。</strong> 别从"多 Agent"或"质量门"开始。先让系统 7x24 在线，再加功能。顺序错了，功能越多风险越大。</p>
+
+    <p><strong>3. 了解你手上的工具已经有什么能力。</strong> 我要承认一个错误：我写方案的时候以为 Kanban 是要自己开发的。后来才发现它已经在我的 Hermes Agent 里装好了，连数据库都已经存在。少走弯路最快的方式，是先搞清楚工具已经给了你什么。</p>
+
+    <div class="practice-box">
+      <div class="practice-icon">📌</div>
+      <div class="practice-content">
+        <strong>实践建议</strong>
+        <p>打开你的终端，运行 <code>hermes kanban stats</code> —— 看看你的 Agent 是否已经支持持久化任务看板。你可能会发现，你离工厂只差一个配置的距离。</p>
+      </div>
+    </div>
+
+  </div>
+</Layout>

@@ -1,14 +1,80 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+
+const title = '业务与战略';
+const icon = '🎯';
+const desc = 'Agent 不是技术问题，是业务问题——场景识别、ROI 计算、组织采纳路径。';
+
+const topics = [
+  { name: '场景识别框架', desc: '什么场景适合 Agent、什么不适合、怎么判断 ROI 是否为正。', status: 'planned' },
+  { name: 'ROI 计算模型', desc: 'Agent 投入的成本结构、收益量化方法、投资回报周期的估算。', status: 'planned' },
+  { name: '组织采纳路径', desc: '从个人实验到团队试点到全公司推广——组织变革的分阶段策略。', status: 'planned' },
+  { name: '行业案例库', desc: '各行业 Agent 落地案例的深度复盘——成功经验和踩坑记录。', status: 'planned' },
+  { name: '供应商评估', desc: '如何评估和选择 Agent 平台/框架供应商，避免锁定和过度承诺。', status: 'planned' },
+  { name: '风险与合规策略', desc: 'Agent 引入的法律风险、合规考量、责任界定与保险策略。', status: 'planned' },
+];
+
+const articles = [
+  { title: '企业级智能体在 2026 年的真实面貌', slug: 'enterprise-agent-2026', tag: '行业全景' },
+  { title: 'Agent 落地最大的坑（以及怎么绕过）', slug: 'agent-pitfalls', tag: '实战' },
+];
 ---
 
-<Layout title="业务与战略">
-  <div class="page-wrap">
-    <div style="font-size:12px; color:#2563eb; font-weight:600; letter-spacing:1.5px; margin-bottom:12px;">
-      <a href="/knowledge" style="color:#94a3b8;">知识体系</a> / 业务与战略
+<Layout title={title}>
+  <style>
+    .page { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .head-icon { font-size: 32px; margin-bottom: 12px; }
+    h1 { font-size: 28px; font-weight: 700; color: #0f172a; margin-bottom: 12px; }
+    .subtitle { font-size: 15px; color: #334155; line-height: 1.7; border-left: 3px solid #7c3aed; padding-left: 16px; margin-bottom: 40px; }
+    h2 { font-size: 18px; font-weight: 600; color: #0f172a; margin-bottom: 16px; margin-top: 0; }
+    .stat-line { font-size: 12px; color: #334155; margin-bottom: 16px; }
+    .grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 48px; }
+    .card { background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 20px; transition: border-color .15s; }
+    .card:hover { border-color: #7c3aed; }
+    .card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .card h3 { font-size: 15px; font-weight: 600; color: #0f172a; margin: 0; }
+    .badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+    .badge-gray { background: #f1f5f9; color: #334155; }
+    .card p { font-size: 13px; color: #334155; line-height: 1.6; margin: 0; }
+    .related { border-top: 1px solid #e2e8f0; padding-top: 24px; }
+    .related h2 { font-size: 16px; }
+    .rel-item { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+    .rel-item:last-child { border-bottom: none; }
+    .rel-tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: #f5f3ff; color: #6d28d9; font-weight: 500; }
+    .rel-item a { font-size: 14px; color: #7c3aed; text-decoration: none; }
+    .rel-item a:hover { text-decoration: underline; }
+    @media (max-width: 768px) { .page { padding: 40px 20px 80px; } h1 { font-size: 24px; } }
+  </style>
+  <div class="page">
+    <div class="bread"><a href="/knowledge">知识体系</a> / 业务与战略</div>
+    <div class="head-icon">{icon}</div>
+    <h1>{title}</h1>
+    <div class="subtitle">{desc}</div>
+
+    <h2>规划中的子话题</h2>
+    <div class="stat-line">共 6 个方向，后续逐步展开</div>
+    <div class="grid">
+      {topics.map(t => (
+        <div class="card" style="border-style:dashed;opacity:0.7">
+          <div class="card-top">
+            <h3>{t.name}</h3>
+          </div>
+          <p>{t.desc}</p>
+        </div>
+      ))}
     </div>
-    <h1 style="font-size:32px; font-weight:700; margin-bottom:8px;">🎯 业务与战略</h1>
-    <p style="color:#64748b; font-size:14px; margin-bottom:36px; max-width:600px;">场景识别框架、ROI 计算模型、组织采纳路径、行业案例库与最佳实践。</p>
-    <div style="background:white; border:1.5px solid #e2e8f0; border-radius:10px; padding:40px; text-align:center; color:#94a3b8; font-size:14px;">该分类下的文章正在策划中。</div>
+
+    <div class="related">
+      <h2>关联文章</h2>
+      {articles.map(a => (
+        <div class="rel-item">
+          <span class="rel-tag">{a.tag}</span>
+          <a href={`/blog/${a.slug}`}>{a.title}</a>
+        </div>
+      ))}
+    </div>
   </div>
 </Layout>

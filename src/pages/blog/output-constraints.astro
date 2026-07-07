@@ -1,0 +1,224 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = '输出约束——让模型说"该说的话"';
+const desc = '模型什么都能说出来，但你要的只是它"该说的那部分"。输出约束就是在模型开口之前，给它的回答画好边界。';
+const date = '2026.07.06';
+---
+
+<Layout title={title} description={desc}>
+  <style>
+    .article { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; display: inline-block; margin-bottom: 12px; }
+    h1 { font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.25; letter-spacing: -0.3px; }
+    .meta { color: #334155; font-size: 13px; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1.5px solid #e2e8f0; }
+    h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 1.5px solid #f1f5f9; }
+    h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    p { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; }
+    strong { color: #0f172a; }
+    ul, ol { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; padding-left: 24px; }
+    li { margin-bottom: 6px; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #0f172a; }
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 20px; overflow-x: auto; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
+    pre code { background: transparent; padding: 0; color: inherit; font-size: 13px; }
+    .callout { background: #f8fafc; border-left: 3px solid #2563eb; border-radius: 0 8px 8px 0; padding: 16px 20px; margin-bottom: 20px; font-size: 14px; color: #334155; }
+    .callout strong { color: #2563eb; }
+    .callout-warn { border-left-color: #f59e0b; }
+    .callout-warn strong { color: #d97706; }
+    @media (max-width: 768px) { .article { padding: 40px 20px 80px; } h1 { font-size: 24px; } }
+  </style>
+  <div class="article">
+    <div class="bread"><a href="/blog">文章</a> / {title}</div>
+    <span class="label">Harness</span>
+    <h1>{title}</h1>
+    <div class="meta">{date} · 约 2800 字</div>
+
+    <p>
+      前面三根缰绳管的是"模型能看到什么"（上下文管理）、"输出是否可信"（验证闭环）、"经验能否复用"（知识沉淀）。第四根缰绳回答的问题最简单，也最容易被忽略：<strong>模型的输出格式对吗？</strong>
+    </p>
+    <p>
+      在一个生产级 Agent 系统中，模型的输出往往不是给最终用户看的自然语言，而是给下游系统吃的结构化数据——JSON、函数调用参数、数据库查询语句、API 请求体。这些输出如果不符合预期格式，下游系统就会报错，甚至静默地做错事。
+    </p>
+
+    <div class="callout">
+      <strong>核心命题：</strong> 输出约束不是"限制模型的能力"，而是"把模型的能力对准系统的接口"。格式不对的输出，内容再正确也没有用。
+    </div>
+
+    <h2>一、输出约束的三个层次</h2>
+    <p>输出约束不是单一的技术，而是从 Prompt 到代码的三层防线：</p>
+
+    <h3>第一层：Prompt 约束</h3>
+    <p>在 Prompt 中明确告诉模型输出的格式要求。这是最基础也最重要的约束：</p>
+    <pre><code>// 弱约束："请以 JSON 格式返回"
+// 强约束：
+"你的回答必须是一个 JSON 对象，格式如下：
+&lbrace;
+    \"action\": \"工具名称\",       // 必填，从可用工具列表中选择
+    \"params\": &lbrace;             // 必填，根据所选工具的参数 Schema
+        \"param1\": \"值\"          // 每个参数必须符合类型要求
+    &rbrace;,
+    \"reasoning\": \"选择理由\"     // 必填，不超过 100 字
+&rbrace;
+
+请确保：
+1. 输出是合法的 JSON
+2. 所有必填字段都已填写
+3. 参数类型与 Schema 一致
+4. 不需要 Markdown 包裹（直接输出 JSON）"</code></pre>
+
+    <p>Prompt 约束的关键原则：<strong>越具体越好</strong>。"返回 JSON"不如"返回一个包含 id、name、status 三个字段的 JSON 对象"。"不要添加 Markdown"不如"直接输出纯 JSON，不要用 ```json 包裹"。</p>
+
+    <h3>第二层：Schema 约束</h3>
+    <p>Prompt 约束靠模型的"理解"，Schema 约束靠系统的"强制"。当 API 支持结构化输出（Structured Output / JSON Mode）时，优先使用：</p>
+    <pre><code>// 用 JSON Schema 约束模型输出（以 OpenAI API 为例）
+const response = await openai.chat.completions.create(&lbrace;
+    model: "gpt-4o",
+    messages: [/* ... */],
+    response_format: &lbrace;
+        type: "json_schema",
+        json_schema: &lbrace;
+            name: "tool_call",
+            strict: true,
+            schema: &lbrace;
+                type: "object",
+                properties: &lbrace;
+                    action: &lbrace; type: "string", enum: ["query", "update", "delete"] &rbrace;,
+                    params: &lbrace; type: "object" &rbrace;,
+                    reasoning: &lbrace; type: "string", maxLength: 100 &rbrace;
+                &rbrace;,
+                required: ["action", "params", "reasoning"],
+                additionalProperties: false
+            &rbrace;
+        &rbrace;
+    &rbrace;
+&rbrace;);</code></pre>
+
+    <p>Schema 约束的优势：模型输出的 JSON <strong>保证</strong>符合 Schema。如果模型生成的 JSON 不符合 Schema，API 会自动重试或报错，不会把非法输出传递到下游。</p>
+
+    <h3>第三层：代码约束</h3>
+    <p>即使有了 Prompt 约束和 Schema 约束，代码层面仍然需要做最终的兜底：</p>
+    <ul>
+      <li><strong>JSON 解析保护：</strong>用 try-catch 包裹所有 JSON.parse 调用，解析失败时走降级路径</li>
+      <li><strong>字段存在性检查：</strong>访问每个字段前检查其是否存在，不存在时赋予默认值</li>
+      <li><strong>类型强制转换：</strong>确保字符串类型的参数真的被当作字符串处理，而不是被注入执行</li>
+      <li><strong>值范围校验：</strong>枚举值是否在允许范围内，数值是否在合理区间</li>
+      <li><strong>降级输出：</strong>约束全部失效时，至少返回一个安全的默认值，而不是让下游崩溃</li>
+    </ul>
+
+    <div class="callout callout-warn">
+      <strong>关键认知：</strong> 三层约束不是"选一个"，而是"叠三层"。Prompt 约束管大部分情况，Schema 约束管格式合规，代码约束管最后的异常。每一层都在弥补上一层的盲区。
+    </div>
+
+    <h2>二、不只是 JSON——输出约束的更多场景</h2>
+    <p>输出约束不只是让模型输出合法的 JSON。在更多场景中，约束的含义更广泛：</p>
+
+    <h3>长度约束</h3>
+    <p>模型可能生成过长的回复。在某些场景下（如 Tool 描述的返回、摘要生成），需要限制输出长度：</p>
+    <ul>
+      <li><strong>绝对长度：</strong>"不超过 200 个 Token"</li>
+      <li><strong>相对长度：</strong>"用一句话概括，不要超过 3 行"</li>
+      <li><strong>层级限制：</strong>"只给出结论，不要推理过程"（对下游系统）vs "给出推理过程"（对审计日志）</li>
+    </ul>
+
+    <h3>风格约束</h3>
+    <p>模型回复的语气和风格应该与应用场景匹配：</p>
+    <ul>
+      <li><strong>客服场景：</strong>礼貌、简洁、解决方案优先</li>
+      <li><strong>技术文档：</strong>精确、结构化、可验证</li>
+      <li><strong>内部告警：</strong>简洁、包含关键指标、可操作</li>
+      <li><strong>禁止项：</strong>不道歉如果没错、不猜测如果没有依据、不承诺如果做不到</li>
+    </ul>
+
+    <h3>安全约束</h3>
+    <p>最严格的约束——模型不能说的内容：</p>
+    <ul>
+      <li><strong>信息边界：</strong>不能透露系统架构、内部 IP、数据库结构</li>
+      <li><strong>身份边界：</strong>不能冒充人类、不能承诺超出权限范围的事情</li>
+      <li><strong>行为边界：</strong>不能同意违反法律法规的请求、不能执行需要更高权限的操作</li>
+      <li><strong>内容边界：</strong>不能生成有害、歧视、违法的内容</li>
+    </ul>
+
+    <h2>三、约束与创造力的平衡</h2>
+    <p>输出约束最常受到的批评是"限制了模型的创造力"。这个批评本身没错——约束确实限制了模型"能说的范围"。但问题不在于"是否限制"，而在于<strong>"在什么地方限制"</strong>：</p>
+
+    <pre><code>在不同场景下，约束的强度不同：
+
+┌────────────────────────────────────────────┐
+│  松约束区域（创造力优先）                    │
+│  ├─ 面向用户的对话回复                      │
+│  ├─ 创意内容生成                            │
+│  └─ 探索性分析                              │
+│  策略：风格约束为主，格式约束为辅             │
+├────────────────────────────────────────────┤
+│  紧约束区域（精确性优先）                    │
+│  ├─ 工具调用参数                            │
+│  ├─ API 请求构建                            │
+│  ├─ 数据库查询生成                          │
+│  └─ 数据格式转换                            │
+│  策略：Prompt + Schema + 代码三层全开        │
+├────────────────────────────────────────────┤
+│  零容忍区域（安全优先）                      │
+│  ├─ 权限相关操作                            │
+│  ├─ 财务/法律相关输出                       │
+│  └─ 涉及用户隐私的回复                       │
+│  策略：代码层面的强制约束 + 人工审批          │
+└────────────────────────────────────────────┘</code></pre>
+
+    <p>关键是在同一个 Agent 系统中，根据不同的输出类型动态调整约束强度。一个写客服回复的 Agent 和一个写 SQL 查询的 Agent，不应该使用相同的约束策略。</p>
+
+    <h2>四、约束的工程实现</h2>
+    <p>输出约束在工程上需要与 Agent 的框架深度集成：</p>
+
+    <pre><code>// 输出约束管理器的核心结构
+class OutputConstraintManager:
+    def getConstraints(self, context):
+        # 根据输出目标选择约束策略
+        if context.target == "tool_call":
+            return ToolCallConstraints(context.tool)
+        elif context.target == "user_reply":
+            return ReplyConstraints(context.scenario)
+        elif context.target == "data_extraction":
+            return SchemaConstraints(context.schema)
+    
+    def apply(self, output, constraints):
+        # 应用约束（Prompt + Schema 已在 API 层面处理）
+        # 代码层面做最终校验
+        if constraints.validate(output):
+            return output
+        else:
+            return constraints.fallback()  // 降级输出</code></pre>
+
+    <h2>五、Harness 的四根缰绳</h2>
+    <p>到此，Harness 的四根缰绳全部到位：</p>
+
+    <pre><code>Harness —— 控制大模型的第一根缰绳
+
+┌────────────────────────────────────────────┐
+│  ① 上下文管理                              │
+│  问题：模型能看到什么                       │
+│  答案：分层管理，把最重要的信息放在最前面     │
+├────────────────────────────────────────────┤
+│  ② 验证闭环                                │
+│  问题：模型的输出是否可信                    │
+│  答案：格式→语义→安全三层验证，失败走修正路径  │
+├────────────────────────────────────────────┤
+│  ③ 知识沉淀                                │
+│  问题：经验能否复用                         │
+│  答案：捕获→结构化→存储→索引→复用           │
+├────────────────────────────────────────────┤
+│  ④ 输出约束                                │
+│  问题：输出格式对吗                         │
+│  答案：Prompt→Schema→代码三层约束，兜底降级  │
+└────────────────────────────────────────────┘
+
+四根缰绳合在一起，不是为了"控制"模型，
+而是为了让人与模型协作时，
+系统是可预测、可维护、可改进的。</code></pre>
+
+    <p>
+      Harness 不是框架，不是工具库，是一套方法论。它的核心不是"阻止模型做错"，而是<strong>让正确的行为更容易发生</strong>。四根缰绳分别管了模型的输入、处理、输出、成长——它们不是技术债，而是 Agent 系统走向生产环境的必修课。
+    </p>
+  </div>
+</Layout>

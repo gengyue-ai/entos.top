@@ -1,14 +1,87 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+
+const title = '工程实践';
+const icon = '⚙️';
+const desc = '把 Agent 从概念变成可运行系统的工程技术——框架选型、RAG、可观测性、部署运维。';
+
+const topics = [
+  { name: '主流框架对比', desc: 'LangGraph、CrewAI、Dify、AutoGen 等框架的横向对比与选型决策树。', status: 'published', slug: 'framework-comparison' },
+  { name: 'MCP Server 开发', desc: '从零开发一个 MCP Server，工具接入的完整工程流程。', status: 'planned' },
+  { name: 'RAG 工程实战', desc: 'Chunking 策略、Embedding 选型、检索重排序——RAG 不是把文档扔进去。', status: 'published', slug: 'rag-engineering' },
+  { name: 'Agent 可观测性', desc: 'Tracing、日志、指标、评估——没有可观测性，你无法调试 Agent。', status: 'published', slug: 'agent-observability' },
+  { name: '知识沉淀方法论', desc: '从对话中提取模式、坑点和决策，让经验可复用而非随对话蒸发。', status: 'published', slug: 'knowledge-precipitation' },
+  { name: 'CI/CD 与部署', desc: 'Agent 应用的测试、持续集成、灰度发布与生产运维。', status: 'planned' },
+  { name: '性能优化', desc: '延迟优化、Token 压缩、缓存策略、并发控制。', status: 'planned' },
+];
+
+const articles = [
+  { title: '框架选型指南——LangGraph / CrewAI / Dify / AutoGen 横评', slug: 'framework-comparison', tag: '工程实践' },
+  { title: 'RAG 不是把文档扔进去——检索增强生成工程实战', slug: 'rag-engineering', tag: '工程实践' },
+  { title: 'Agent 可观测性——没有追踪就没有信任', slug: 'agent-observability', tag: '工程实践' },
+];
 ---
 
-<Layout title="工程实践">
-  <div class="page-wrap">
-    <div style="font-size:12px; color:#2563eb; font-weight:600; letter-spacing:1.5px; margin-bottom:12px;">
-      <a href="/knowledge" style="color:#94a3b8;">知识体系</a> / 工程实践
+<Layout title={title}>
+  <style>
+    .page { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .head-icon { font-size: 32px; margin-bottom: 12px; }
+    h1 { font-size: 28px; font-weight: 700; color: #0f172a; margin-bottom: 12px; }
+    .subtitle { font-size: 15px; color: #334155; line-height: 1.7; border-left: 3px solid #0d9488; padding-left: 16px; margin-bottom: 40px; }
+    h2 { font-size: 18px; font-weight: 600; color: #0f172a; margin-bottom: 16px; margin-top: 0; }
+    .stat-line { font-size: 12px; color: #334155; margin-bottom: 16px; }
+    .grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 48px; }
+    .card { background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 20px; transition: border-color .15s; }
+    .card:hover { border-color: #0d9488; }
+    .card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .card h3 { font-size: 15px; font-weight: 600; color: #0f172a; margin: 0; }
+    .badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-gray { background: #f1f5f9; color: #334155; }
+    .card p { font-size: 13px; color: #334155; line-height: 1.6; margin: 0; }
+    .card-link { display: inline-block; margin-top: 10px; font-size: 12px; color: #0d9488; font-weight: 500; text-decoration: none; }
+    .card-link:hover { text-decoration: underline; }
+    .related { border-top: 1px solid #e2e8f0; padding-top: 24px; }
+    .related h2 { font-size: 16px; }
+    .rel-item { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+    .rel-item:last-child { border-bottom: none; }
+    .rel-tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: #f0fdfa; color: #0f766e; font-weight: 500; }
+    .rel-item a { font-size: 14px; color: #0d9488; text-decoration: none; }
+    .rel-item a:hover { text-decoration: underline; }
+    @media (max-width: 768px) { .page { padding: 40px 20px 80px; } h1 { font-size: 24px; } }
+  </style>
+  <div class="page">
+    <div class="bread"><a href="/knowledge">知识体系</a> / 工程实践</div>
+    <div class="head-icon">{icon}</div>
+    <h1>{title}</h1>
+    <div class="subtitle">{desc}</div>
+
+    <h2>子话题</h2>
+    <div class="stat-line">已发布 4 / 共 7</div>
+    <div class="grid">
+      {topics.filter(t => t.status === 'published').map(t => (
+        <div class="card">
+          <div class="card-top">
+            <h3>{t.name}</h3>
+            <span class="badge badge-green">已发布</span>
+          </div>
+          <p>{t.desc}</p>
+          {t.slug && <a href={`/blog/${t.slug}`} class="card-link">阅读文章 →</a>}
+        </div>
+      ))}
     </div>
-    <h1 style="font-size:32px; font-weight:700; margin-bottom:8px;">⚙️ 工程实践</h1>
-    <p style="color:#64748b; font-size:14px; margin-bottom:36px; max-width:600px;">主流框架对比、MCP Server 开发、RAG 工程、可观测性、CI/CD 与部署流水线。</p>
-    <div style="background:white; border:1.5px solid #e2e8f0; border-radius:10px; padding:40px; text-align:center; color:#94a3b8; font-size:14px;">该分类下的文章正在策划中。</div>
+
+    <div class="related">
+      <h2>关联文章</h2>
+      {articles.map(a => (
+        <div class="rel-item">
+          <span class="rel-tag">{a.tag}</span>
+          <a href={`/blog/${a.slug}`}>{a.title}</a>
+        </div>
+      ))}
+    </div>
   </div>
 </Layout>

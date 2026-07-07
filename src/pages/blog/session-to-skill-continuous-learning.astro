@@ -1,0 +1,212 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = '从 Session 到 Skill——AI Agent 如何自我进化';
+const desc = '每天产生几十条会话数据，除了翻出来看还有什么用？连续学习把"翻历史→找模式→写 skill"自动化——四步管道从 Session 到 Skill，产生复利效应。';
+const date = '2026.07.07';
+---
+
+<Layout title={title} description={desc}>
+  <style>
+    .article { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #334155; margin-bottom: 8px; }
+    .bread a { color: #334155; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; display: inline-block; margin-bottom: 12px; }
+    h1 { font-size: 30px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.25; letter-spacing: -0.3px; }
+    .meta { color: #334155; font-size: 13px; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1.5px solid #e2e8f0; }
+    h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 1.5px solid #f1f5f9; }
+    h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    p { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; }
+    strong { color: #0f172a; }
+    ul, ol { color: #334155; font-size: 15px; line-height: 1.85; margin-bottom: 16px; padding-left: 24px; }
+    li { margin-bottom: 6px; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #0f172a; }
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 20px; overflow-x: auto; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
+    pre code { background: transparent; padding: 0; color: inherit; font-size: 13px; }
+    .callout { background: #f8fafc; border-left: 3px solid #2563eb; border-radius: 0 8px 8px 0; padding: 16px 20px; margin-bottom: 20px; font-size: 14px; color: #334155; }
+    .callout strong { color: #2563eb; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+    th { background: #f8fafc; color: #0f172a; font-weight: 600; padding: 10px 14px; border: 1px solid #e2e8f0; text-align: left; }
+    td { padding: 10px 14px; border: 1px solid #e2e8f0; color: #334155; }
+    .practice-box { margin: 36px 0; padding: 20px; background: #f0fdfa; border: 1.5px solid #a7f3d0; border-radius: 10px; display: flex; gap: 14px; align-items: flex-start; }
+    .practice-icon { font-size: 20px; flex-shrink: 0; }
+    .practice-content strong { font-size: 13px; color: #0f172a; display: block; margin-bottom: 4px; }
+    .practice-content p { font-size: 13px; color: #475569; margin: 0; line-height: 1.7; }
+    @media (max-width: 768px) { .article { padding: 40px 20px 80px; } h1 { font-size: 24px; } }
+  </style>
+  <div class="article">
+    <div class="bread"><a href="/blog">文章</a> / {title}</div>
+    <span class="label">Harness</span>
+    <h1>{title}</h1>
+    <div class="meta">{date} · 约 4200 字</div>
+
+    <h2>一、一个困扰我很久的问题</h2>
+
+    <p>我用 Agent 做开发已经几个月了。每天产生几十条会话，每条会话里有几十次工具调用。数据量是够了，但一个尖锐的问题一直摆在那里：</p>
+
+    <p><strong>这些历史数据，除了翻出来看，还有别的用吗？</strong></p>
+
+    <p>Hermes 有 session_search，能搜到过去的对话。但当我想从中提炼点什么的时候，过程完全是手动的——翻历史、找模式、写成 skill。做得多了，我开始想：能不能自动化？</p>
+
+    <p>这就是我研究 ECC 的 Continuous Learning 系统的动机。</p>
+
+    <p>ECC 的连续学习 v2 定义了一个管道：</p>
+
+    <div class="callout">
+      <strong>观察 → 分析 → Instinct 评分 → 演化为 Skill</strong>
+    </div>
+
+    <p>这不是理论。它有 Hook 采集数据、有后台服务做分析、有 Instinct 系统做评分、最终产出可复用的 Skill 文件。</p>
+
+    <p>但 ECC 不是唯一能做到这一点的。任何有历史记录的系统，加上一点自动化逻辑，都能实现类似的效果。</p>
+
+    <h2>二、连续学习的四步管道</h2>
+
+    <h3>阶段 1：观察——数据从哪里来</h3>
+
+    <p>ECC 用 PostToolUse Hook 做传感器。每次工具调用完成后，Hook 记录结构化数据：</p>
+
+    <ul>
+      <li>用了什么工具（terminal / write_file / read_file）</li>
+      <li>输入了什么参数（命令、文件名、搜索词）</li>
+      <li>返回了什么结果（exit_code、输出摘要、错误信息）</li>
+      <li>上下文是什么（当前任务、相关文件）</li>
+    </ul>
+
+    <p>关键点：<strong>数据必须是结构化的</strong>。如果只是原始日志，后面的分析就做不了。</p>
+
+    <table>
+      <tr><th>维度</th><th>ECC</th><th>很多系统的现状</th></tr>
+      <tr><td>数据采集</td><td>PostToolUse Hook 自动记录</td><td>可检索但非结构化</td></tr>
+      <tr><td>记录格式</td><td>结构化 JSON</td><td>纯文本对话</td></tr>
+      <tr><td>采集粒度</td><td>每次 tool call</td><td>每次消息</td></tr>
+      <tr><td>关联上下文</td><td>有（任务/文件）</td><td>无</td></tr>
+    </table>
+
+    <p>差距很明显：我们有历史数据，但缺少结构化记录层。连续学习的第一步，不是分析，而是<strong>把数据存成可分析的格式</strong>。</p>
+
+    <h3>阶段 2：分析——从噪音中找信号</h3>
+
+    <p>ECC 的后台分析器定期扫描采集到的记录，提取模式：</p>
+
+    <ul>
+      <li><strong>高频操作</strong>：某个命令在一天内出现了 50 次——可能是一个应该脚本化的重复劳动</li>
+      <li><strong>错误模式</strong>：某个类型的错误反复出现——可能是一个系统性问题</li>
+      <li><strong>成功路径</strong>：某种操作序列总是成功——可能是一个值得固化的工作流</li>
+    </ul>
+
+    <p>分析器的输出不是最终 Skill，而是 "Instinct（本能）"——一个有置信度分数的模式候选。</p>
+
+    <p>这个过程不需要人工参与。分析器跑在后台，像后台垃圾回收一样，静静地处理数据，产出候选。</p>
+
+    <h3>阶段 3：Instinct 评分——什么样的模式值得保留</h3>
+
+    <p>ECC 给每个检测到的模式打分：</p>
+
+    <ul>
+      <li><strong>置信度</strong>：这个模式出现了多少次？频率越高，越可能是真模式</li>
+      <li><strong>稳定性</strong>：模式的变化大吗？稳定的模式比变化大的模式更有价值</li>
+      <li><strong>效果</strong>：这个模式是否关联到成功的结果？</li>
+    </ul>
+
+    <p>只有分数超过阈值的模式，才会被提升为 Instinct。</p>
+
+    <p><strong>为什么需要评分？</strong> 因为 Agent 的使用模式里大部分是噪音。你今天改了三个文件，明天改了另外三个——这不代表有模式。只有那些"每次做 X 之前都会先做 Y"的序列，才值得保留。</p>
+
+    <h3>阶段 4：演化为 Skill——从本能到可复用资产</h3>
+
+    <p>Instinct 经过人工审核，就可以成为正式的 Skill。ECC 的做法是：</p>
+
+    <ol>
+      <li>系统自动生成 SKILL.md 草稿（包含模式描述、触发条件、示例）</li>
+      <li>人工审核：确认模式是真的、示例是准确的、没有附带敏感信息</li>
+      <li>正式创建 Skill，加入技能库</li>
+    </ol>
+
+    <p>这个过程体现了 ECC 的一个重要设计哲学：<strong>机器做采集和分析，人做判断和确认。</strong></p>
+
+    <h2>三、在现有系统上实现连续学习</h2>
+
+    <h3>第一道：把会话数据结构化了再说</h3>
+
+    <p>这是最关键的一步。连续学习对数据格式有硬性要求——纯文本不够。你需要这样存：</p>
+
+    <pre><code>&lbrace;
+  "session_id": "abc-123",
+  "timestamp": "2026-07-07T10:30:00Z",
+  "tools": [
+    &lbrace; "name": "terminal", "input": "npm test", "exit_code": 0, "duration": 12 &rbrace;,
+    &lbrace; "name": "search_files", "input": "TODO", "results": 5, "duration": 0.5 &rbrace;
+  ],
+  "context": &lbrace; "task": "修复登录页面 bug", "repo": "my-app" &rbrace;
+&rbrace;</code></pre>
+
+    <p>格式不一定完美，但必须包含三个要素：<strong>什么操作、什么结果、什么上下文</strong>。</p>
+
+    <h3>第二道：用 cron 定期跑分析</h3>
+
+    <p>设定一个定时任务，每周跑一次分析器。分析器做的事很简单：</p>
+
+    <pre><code>def analyze_sessions(sessions):
+    patterns = []
+    for session in sessions:
+        for i in range(len(session["tools"]) - 1):
+            pair = (session["tools"][i]["name"],
+                    session["tools"][i+1]["name"])
+            patterns.append(pair)
+    from collections import Counter
+    freq = Counter(patterns)
+    return freq.most_common(10)</code></pre>
+
+    <p>这个脚本 50 行就能写出来。不需要 AI，不需要复杂算法——纯统计就够用了。</p>
+
+    <h3>第三道：人工审核 + 确认</h3>
+
+    <p>自动化产出的东西，必须经过人工审核才能进入技能库。这是安全底线。</p>
+
+    <p>审核流程：</p>
+    <ol>
+      <li>系统生成草稿 Skill（Markdown 文件）</li>
+      <li>人审：模式是否真实？示例是否脱敏？</li>
+      <li>确认后正式创建 Skill</li>
+    </ol>
+
+    <p>这个"机器干活、人做判断"的分工，在 Agent 系统里会反复出现。</p>
+
+    <h2>四、连续学习的复利效应</h2>
+
+    <table>
+      <tr><th>时间</th><th>会话数量</th><th>Skill 数量</th><th>状态</th></tr>
+      <tr><td>第 1 周</td><td>50 条</td><td>0</td><td>全是原始数据</td></tr>
+      <tr><td>第 4 周</td><td>200 条</td><td>3</td><td>提炼出 3 个高频模式</td></tr>
+      <tr><td>第 8 周</td><td>500 条</td><td>8</td><td>开始覆盖日常工作的 30%</td></tr>
+      <tr><td>第 12 周</td><td>1000 条</td><td>15</td><td>大部分重复劳动已经自动化</td></tr>
+    </table>
+
+    <p>注意 Skill 数量的增长速度——初期慢（因为要积累数据），后面会加快（因为模式开始互相关联）。这不是线性的，是指数的。</p>
+
+    <p>当你有了 15 个 Skill 覆盖大部分日常工作后，你的 Agent 的开发效率已经不是"有没有助手"的区别，而是<strong>"有没有积累"</strong>的区别。</p>
+
+    <h2>五、从今天可以做的三件事</h2>
+
+    <p><strong>1. 今天就改你的会话存储格式。</strong> 如果现在存的是纯文本，加一个结构化字段。从 <code>&lbrace; "tools": [], "context": "" &rbrace;</code> 开始，格式随用随扩。</p>
+
+    <p><strong>2. 写一个 50 行的分析脚本。</strong> 用 Python 的 Counter 统计你最近的会话，看看有没有重复发生的高频操作。你可能会惊讶地发现，有些命令你在过去一周执行了 30 次。</p>
+
+    <p><strong>3. 定一个每周的"Skill 提炼日"。</strong> 每周五下午，花 30 分钟看分析脚本的输出，挑一个模式做成 Skill。不需要完美，完成比完美重要。</p>
+
+    <div class="practice-box">
+      <div class="practice-icon">📌</div>
+      <div class="practice-content">
+        <strong>实践建议</strong>
+        <p>打开 session_search，找最近 3 天的会话。数一数哪些工具调用出现了 5 次以上。那些重复出现的模式，就是你的第一个 Skill 候选。</p>
+      </div>
+    </div>
+
+    <h2>参考资源</h2>
+    <ul>
+      <li><a href="https://github.com/affaan-m/ECC/blob/main/docs/continuous-learning-v2-spec.md">ECC Continuous Learning v2 Spec</a></li>
+      <li><a href="https://github.com/affaan-m/ECC/tree/main/hooks/memory-persistence">ECC Memory Persistence Hooks</a></li>
+    </ul>
+  </div>
+</Layout>

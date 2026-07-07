@@ -1,0 +1,164 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = '记忆系统的可观测性与调试';
+const desc = '你不知道 Agent 记得什么，就无法调试它。三个观测维度、Memory Bank 模式、5 步排查流程。';
+const date = '2026.07.07';
+---
+
+<Layout title={title} description={desc}>
+  <style>
+    .page { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #475569; margin-bottom: 8px; }
+    .bread a { color: #475569; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 12px; color: #7c3aed; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+    .label::before { content: '— '; } .label::after { content: ' —'; }
+    h1 { font-size: 32px; font-weight: 700; color: #0f172a; line-height: 1.2; margin-bottom: 12px; }
+    .meta { color: #475569; font-size: 13px; margin-bottom: 8px; }
+    .series { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #f5f3ff; color: #6d28d9; font-weight: 500; margin-bottom: 12px; }
+    .subtitle { color: #334155; font-size: 16px; line-height: 1.7; border-left: 3px solid #7c3aed; padding-left: 16px; margin-bottom: 36px; }
+    h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 1.5px solid #e2e8f0; }
+    h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    p { color: #334155; font-size: 15px; line-height: 1.9; margin-bottom: 16px; }
+    strong { color: #0f172a; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+    th { text-align: left; padding: 10px 14px; background: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #334155; font-weight: 600; }
+    td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 20px; overflow-x: auto; margin: 20px 0; }
+    pre code { background: transparent; color: inherit; padding: 0; font-size: 13px; line-height: 1.6; }
+    ul, ol { color: #334155; font-size: 15px; line-height: 1.9; padding-left: 20px; margin-bottom: 16px; }
+    li { margin-bottom: 6px; }
+    .series-prev { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: #7c3aed; font-weight: 500; margin-bottom: 20px; }
+    .series-prev a { color: #7c3aed; text-decoration: none; }
+    .series-prev a:hover { text-decoration: underline; }
+    .series-next { margin-top: 48px; padding: 20px; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0; }
+    .series-next p { font-size: 13px; color: #475569; margin: 0; }
+    .series-next a { color: #7c3aed; font-weight: 500; text-decoration: none; }
+    .series-next a:hover { text-decoration: underline; }
+    .practice-box { margin: 36px 0; padding: 20px; background: #f0fdfa; border: 1.5px solid #a7f3d0; border-radius: 10px; display: flex; gap: 14px; align-items: flex-start; }
+    .practice-icon { font-size: 20px; flex-shrink: 0; }
+    .practice-content strong { font-size: 13px; color: #0f172a; display: block; margin-bottom: 4px; }
+    .practice-content p { font-size: 13px; color: #334155; margin: 0; line-height: 1.7; }
+    hr { border: none; border-top: 1px solid #e2e8f0; margin: 36px 0; }
+    @media (max-width: 768px) { .page { padding: 40px 20px 80px; } h1 { font-size: 26px; } }
+  </style>
+
+  <div class="page">
+    <div class="bread"><a href="/harness">Harness</a> / 记忆系统</div>
+    <div class="label">记忆系统 · 第六篇（终篇）</div>
+    <span class="series">记忆系统系列</span>
+    <h1>{title}</h1>
+    <div class="meta">{date} · 收官篇</div>
+    <div class="subtitle">{desc}</div>
+
+    <div class="series-prev">← <a href="/blog/forgetting">上一篇：遗忘的艺术——什么时候该忘记</a></div>
+
+    <h2>一、一个让我抓狂的下午</h2>
+
+    <p>Agent 突然做了一个我完全理解不了的决定。在修复一个数据库字段映射问题时，它选择了最绕的方案——先加一个中间表做转换，再在查询时做 JOIN。</p>
+
+    <p>我问它：为什么不用我上次已经配好的 field_mapping 表？</p>
+
+    <p>它回答："我检索到了相关记录，认为那个方案不适用当前场景。"</p>
+
+    <p>我翻它的检索记录。发现它确实搜到了 field_mapping 的那个决策，但在检索结果中，同时出现了三条关于"数据库字段兼容"的旧记录——那是两个月前另一个完全不同的问题。那些旧记录和当前问题的关键词重叠度很高，被一起召回。</p>
+
+    <p><strong>这个问题的根因不是 Agent 推理能力不够，而是我无法看到它记得什么、从哪里找到的、为什么做了这个选择。</strong> 在传统软件里，这叫缺乏可观测性；在记忆系统里，这意味着不可调试。</p>
+
+    <h2>二、三个观测维度</h2>
+
+    <h3>维度一：内容观测——Agent 现在记得什么</h3>
+
+    <p>你翻开记忆库，能不能在 30 秒内回答：有多少条记录？最近一周新增了什么？有没有明显过时或冲突的条目？</p>
+
+    <p><strong>最简单的方法：记忆清单。</strong> 把情景记忆文件设计成人类可读的 Markdown 格式，而不是纯 JSON。每周打开看一眼。</p>
+
+    <pre><code># 记忆清单（2026.07.07）
+
+## 本周新增
+- [sync_engine] 字段映射从 hardcode 改为配置化 ✅
+- [database] 新增地域维度表结构确定 ✅
+- [api] 限流策略还在讨论中 ⏳
+
+## 即将过期（剩余 7 天内）
+- [config] 临时关闭了日志级别 DEBUG → 记得恢复</code></pre>
+
+    <h3>维度二：行为观测——Agent 检索了什么</h3>
+
+    <p>每次 Agent 做决策时，它从记忆系统里检索到了什么，这是最关键的观测点。</p>
+
+    <p><strong>关键问题：</strong> 这次决策中，Agent 依赖了哪些记忆？有没有过时的信息？有没有应该检索到但没找到的信息？</p>
+
+    <p><strong>实操做法：</strong> 在 Agent 的上下文中，把检索到的记忆条目显式列出来。让用户能看到"Agent 参考了这些历史记录"。</p>
+
+    <h3>维度三：决策观测——记忆影响了什么</h3>
+
+    <p>反向追溯：假如我想知道"关于字段映射的所有决策"，能不能找到？</p>
+
+    <p><strong>关键问题：</strong> 这条记忆被用来回答过哪些问题？它参与了多少次推理？</p>
+
+    <h2>三、Memory Bank 模式</h2>
+
+    <p>不需要监控系统，不需要 Dashboard。用 Markdown 文件就能跑起来：</p>
+
+    <pre><code>~/.hermes/memory-bank/
+├── 2026-07-01.md     ← 每天的会话摘要
+├── 2026-07-02.md
+├── weekly/           ← 按周归档
+│   └── 2026-W27.md
+└── INDEX.md          ← 快速索引</code></pre>
+
+    <p>这个模式的好处：人类可读、无需额外工具、Agent 可读、版本可控。</p>
+
+    <h2>四、排查步骤</h2>
+
+    <p>当你发现 Agent 表现异常，怀疑是记忆系统的问题时：</p>
+
+    <table>
+      <thead><tr><th>步骤</th><th>做什么</th><th>可能的发现</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>浏览记忆清单</td><td>有没有冲突或大量过期记录？</td></tr>
+        <tr><td>2</td><td>检查检索日志</td><td>Agent 搜到了什么？漏了什么？</td></tr>
+        <tr><td>3</td><td>检查记忆质量</td><td>记录是否结构化？有优先级信息吗？</td></tr>
+        <tr><td>4</td><td>检查遗忘策略</td><td>该过期的过期了吗？该覆盖的覆盖了吗？</td></tr>
+        <tr><td>5</td><td>手动清理</td><td>删除明显无用的、覆盖冲突的</td></tr>
+      </tbody>
+    </table>
+
+    <h2>五、实践建议</h2>
+
+    <p><strong>今天的改进：</strong> 在 Hermes 的系统提示词中加一句："当你参考了历史记忆时，说明信息来源。"</p>
+
+    <p><strong>本周的改进：</strong> 建立一个 memory-bank/ 目录。每个会话结束时，让 Agent 生成一个 Markdown 摘要存入。</p>
+
+    <h2>系列完结</h2>
+
+    <p>从第一篇《Agent 的"失忆症"》到这一篇，记忆系统系列覆盖了：</p>
+
+    <ol>
+      <li><strong>诊断篇</strong> — 断片的三种表现</li>
+      <li><strong>框架篇</strong> — 三层记忆模型</li>
+      <li><strong>工作记忆</strong> — Token 预算与上下文管理</li>
+      <li><strong>情景记忆</strong> — 跨会话持久化与检索</li>
+      <li><strong>遗忘策略</strong> — 什么时候该忘记</li>
+      <li><strong>可观测性</strong> — 如何调试记忆系统</li>
+    </ol>
+
+    <p>六篇构成了一个完整的闭环。下一步，这些方法论应该落地到 Hermes 的实践中。</p>
+
+    <div class="practice-box">
+      <div class="practice-icon">📌</div>
+      <div class="practice-content">
+        <strong>实践建议</strong>
+        <p>在 Hermes 的系统提示词中加一句"说明信息来源"，然后观察一周。你会惊讶地发现 Agent 经常引用过时的信息——这就是改进的起点。</p>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="series-next">
+      <p><strong>上一篇：</strong> <a href="/blog/forgetting">遗忘的艺术——什么时候该忘记</a></p>
+      <p style="margin-top:8px"><strong>系列完结 🎉</strong> — <a href="/memory">返回记忆系统概览</a></p>
+    </div>
+  </div>
+</Layout>

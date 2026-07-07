@@ -1,0 +1,25 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="页面未找到" description="你访问的页面不存在或已被移除。">
+  <style>
+    .page { max-width: 500px; margin: 0 auto; padding: 100px 24px; text-align: center; }
+    .code { font-size: 80px; font-weight: 800; color: #e2e8f0; line-height: 1; margin-bottom: 8px; }
+    h1 { font-size: 24px; font-weight: 700; color: #0f172a; margin-bottom: 12px; }
+    p { color: #334155; font-size: 15px; line-height: 1.7; margin-bottom: 32px; }
+    .links { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn { padding: 10px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: #0f172a; color: white; border: 1px solid #0f172a; }
+    .btn-ghost { background: white; color: #334155; border: 1.5px solid #e2e8f0; }
+  </style>
+  <div class="page">
+    <div class="code">404</div>
+    <h1>页面不存在</h1>
+    <p>你访问的页面不存在或已被移除。<br/>检查一下链接是否正确，或者返回首页看看。</p>
+    <div class="links">
+      <a href="/" class="btn btn-primary">返回首页</a>
+      <a href="/blog/" class="btn btn-ghost">浏览文章</a>
+    </div>
+  </div>
+</Layout>

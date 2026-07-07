@@ -1,0 +1,253 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = '企业级智能体六大知识域总览';
+const description = '这是一张知识地图。让你知道：这个领域到底有多大、从哪里开始、每一步通向哪里。';
+const date = '2026.07.04';
+const tags = ['知识体系', '入门指南'];
+---
+
+<Layout title={title} description={description}>
+  <style>
+    .article { max-width: 720px; margin: 0 auto; padding: 60px 24px 80px; }
+    .meta { color: #334155; font-size: 13px; margin-bottom: 8px; }
+    .tags { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+    .tag { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; }
+    h1 { font-size: 32px; font-weight: 700; line-height: 1.3; margin-bottom: 16px; color: #0f172a; }
+    .subtitle { font-size: 15px; color: #334155; line-height: 1.7; border-left: 3px solid #2563eb; padding-left: 16px; margin-bottom: 40px; }
+    h2 { font-size: 22px; font-weight: 700; margin: 40px 0 16px; color: #0f172a; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; }
+    h3 { font-size: 17px; font-weight: 600; margin: 28px 0 10px; color: #0f172a; }
+    p { font-size: 15px; color: #334155; line-height: 1.8; margin-bottom: 16px; }
+    strong { color: #0f172a; }
+    pre { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 20px; overflow-x: auto; font-size: 13px; line-height: 1.7; color: #334155; margin-bottom: 16px; }
+    blockquote { border-left: 3px solid #2563eb; padding: 12px 16px; margin: 24px 0; background: #f8fafc; border-radius: 0 8px 8px 0; color: #334155; font-size: 14px; }
+    hr { border: none; border-top: 1px solid #e2e8f0; margin: 40px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+    th { text-align: left; padding: 10px 14px; background: #f8fafc; border-bottom: 1.5px solid #e2e8f0; color: #334155; font-weight: 600; font-size: 13px; }
+    td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 13px; }
+    ul, ol { color: #334155; font-size: 15px; line-height: 1.8; margin-bottom: 16px; padding-left: 24px; }
+    li { margin-bottom: 4px; }
+    .diagram-box { background:#ffffff; border:1.5px solid #e2e8f0; border-radius:10px; padding:20px; margin:24px 0; }
+    .diagram-box svg { width:100%; max-width:650px; display:block; margin:0 auto; }
+    .highlight-box { background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:8px; padding:16px 20px; margin:16px 0; }
+    .highlight-box p { margin:0; font-size:14px; }
+    @media (max-width: 768px) { .article { padding: 40px 20px 60px; } h1 { font-size: 26px; } }
+  </style>
+
+  <article class="article">
+    <div class="tags">{tags.map(t => <span class="tag">{t}</span>)}</div>
+    <h1>{title}</h1>
+    <div class="meta">{date}</div>
+    <div class="subtitle">{description}</div>
+
+    <hr>
+
+    <h2>为什么需要一张知识地图</h2>
+    <p>企业级智能体是一个交叉领域——它涉及大语言模型、软件工程、系统架构、安全合规、组织变革等多个学科。没有一张地图，很容易陷入两种困境：</p>
+    <ul>
+      <li><strong>只见树木不见森林：</strong>深入研究了某个框架的用法，却不知道它在整个体系中处于什么位置</li>
+      <li><strong>东一榔头西一棒槌：</strong>今天学 LangGraph，明天学 RAG，学了很久串不起来</li>
+    </ul>
+    <p>这张知识地图把整个领域划分为六个知识域，每个域解决一个核心问题。它们之间不是孤立的，而是层层递进的关系。</p>
+
+    <hr>
+
+    <h2>一个贯穿全文的核心观点</h2>
+    <p>在展开六域之前，先建立一个底层认知。关于 Agent 的定义，目前有两个代表性的说法：</p>
+    <table>
+      <tr><th style="width:120px">来源</th><th>定义</th></tr>
+      <tr><td>行业主流</td><td>Agent = LLM + Tools + Memory</td></tr>
+      <tr><td><strong>另一视角</strong></td><td><strong>Agent = Model + Harness</strong></td></tr>
+    </table>
+    <p>第一种定义把 Agent 拆成了组件，但对组件之间如何稳定协作语焉不详。第二种定义把问题摆得更清楚——Model 提供智力，Harness 提供控制。<strong>没有 Harness 的 Model，能聊天但不能上生产。</strong></p>
+
+    <!-- Model vs Harness 可视化 -->
+    <div class="diagram-box">
+      <svg viewBox="0 0 600 60">
+        <rect x="80" y="15" width="100" height="34" rx="8" fill="#eef2ff" stroke="#bfdbfe" stroke-width="1.5"/>
+        <text x="130" y="37" text-anchor="middle" fill="#1e40af" font-size="12" font-weight="600">基础理论</text>
+        <text x="130" y="7" text-anchor="middle" fill="#2563eb" font-size="9" font-weight="600">MODEL 部分</text>
+
+        <rect x="230" y="15" width="70" height="34" rx="8" fill="#f0fdfa" stroke="#a7f3d0" stroke-width="1.5"/>
+        <text x="265" y="37" text-anchor="middle" fill="#166534" font-size="11">架构设计</text>
+        <rect x="310" y="15" width="70" height="34" rx="8" fill="#f5f3ff" stroke="#ddd6fe" stroke-width="1.5"/>
+        <text x="345" y="37" text-anchor="middle" fill="#5b21b6" font-size="11">工程实践</text>
+        <rect x="390" y="15" width="70" height="34" rx="8" fill="#fff7ed" stroke="#fed7aa" stroke-width="1.5"/>
+        <text x="425" y="37" text-anchor="middle" fill="#9a3412" font-size="11">安全治理</text>
+        <rect x="470" y="15" width="70" height="34" rx="8" fill="#fef9c3" stroke="#fde047" stroke-width="1.5"/>
+        <text x="505" y="37" text-anchor="middle" fill="#854d0e" font-size="11">评估优化</text>
+        <text x="540" y="7" text-anchor="middle" fill="#16a34a" font-size="9" font-weight="600">HARNESS 部分</text>
+      </svg>
+    </div>
+
+    <p>用这个视角来看六域：<strong>六个域中只有一个域在讲 Model，剩下五个域全是在讲 Harness。</strong>这个比例本身就在说明一件事：企业级智能体的核心挑战，不是让模型更聪明，而是给模型套上缰绳。具体的"缰绳"是什么？我们下面逐个拆解。</p>
+
+    <hr>
+
+    <h2>六大知识域总览</h2>
+
+    <!-- 六域全景图 -->
+    <div class="diagram-box">
+      <svg viewBox="0 0 600 220">
+        <!-- 标题 -->
+        <rect x="200" y="0" width="200" height="28" rx="6" fill="#0f172a"/>
+        <text x="300" y="19" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="600">企业级智能体知识体系</text>
+
+        <!-- 第一行：4个域 -->
+        <rect x="10" y="40" width="135" height="70" rx="6" fill="#eef2ff" stroke="#bfdbfe" stroke-width="1.5"/>
+        <text x="77" y="60" text-anchor="middle" fill="#1e40af" font-size="13" font-weight="600">🧩 基础理论</text>
+        <text x="77" y="76" text-anchor="middle" fill="#475569" font-size="10">Agent 范式 · 记忆系统</text>
+        <text x="77" y="90" text-anchor="middle" fill="#475569" font-size="10">LLM 能力边界</text>
+        <text x="77" y="104" text-anchor="middle" fill="#94a3b8" font-size="9">Model</text>
+
+        <rect x="160" y="40" width="135" height="70" rx="6" fill="#f0fdfa" stroke="#a7f3d0" stroke-width="1.5"/>
+        <text x="227" y="60" text-anchor="middle" fill="#166534" font-size="13" font-weight="600">🏗️ 架构设计</text>
+        <text x="227" y="76" text-anchor="middle" fill="#475569" font-size="10">编排模式 · MCP/A2A</text>
+        <text x="227" y="90" text-anchor="middle" fill="#475569" font-size="10">企业扩展</text>
+
+        <rect x="310" y="40" width="135" height="70" rx="6" fill="#f5f3ff" stroke="#ddd6fe" stroke-width="1.5"/>
+        <text x="377" y="60" text-anchor="middle" fill="#5b21b6" font-size="13" font-weight="600">⚙️ 工程实践</text>
+        <text x="377" y="76" text-anchor="middle" fill="#475569" font-size="10">框架 · RAG · MCP</text>
+        <text x="377" y="90" text-anchor="middle" fill="#475569" font-size="10">可观测性</text>
+
+        <rect x="460" y="40" width="135" height="70" rx="6" fill="#fff7ed" stroke="#fed7aa" stroke-width="1.5"/>
+        <text x="527" y="60" text-anchor="middle" fill="#9a3412" font-size="13" font-weight="600">🛡️ 安全与治理</text>
+        <text x="527" y="76" text-anchor="middle" fill="#475569" font-size="10">注入防护 · 审计</text>
+        <text x="527" y="90" text-anchor="middle" fill="#475569" font-size="10">Human-in-loop</text>
+
+        <!-- Harness 标记 -->
+        <text x="300" y="128" text-anchor="middle" fill="#16a34a" font-size="10" font-weight="600">————— Harness（架构/工程/安全/评估/战略） —————</text>
+
+        <!-- 第二行：评估 -->
+        <rect x="150" y="140" width="145" height="50" rx="6" fill="#fef9c3" stroke="#fde047" stroke-width="1.5"/>
+        <text x="222" y="160" text-anchor="middle" fill="#854d0e" font-size="12" font-weight="600">📊 评估与优化</text>
+        <text x="222" y="176" text-anchor="middle" fill="#475569" font-size="10">成本模型 · 评估框架</text>
+
+        <!-- 第三行：战略 -->
+        <rect x="310" y="140" width="145" height="50" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/>
+        <text x="382" y="160" text-anchor="middle" fill="#334155" font-size="12" font-weight="600">🎯 业务与战略</text>
+        <text x="382" y="176" text-anchor="middle" fill="#475569" font-size="10">场景识别 · ROI · 案例</text>
+
+        <!-- 箭头 -->
+        <defs><marker id="a-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10" fill="#94a3b8"/></marker></defs>
+        <line x1="145" y1="115" x2="222" y2="135" stroke="#94a3b8" stroke-width="1" marker-end="url(#a-gray)"/>
+        <line x1="380" y1="115" x2="382" y2="135" stroke="#94a3b8" stroke-width="1" marker-end="url(#a-gray)"/>
+      </svg>
+    </div>
+
+    <p>这张图的核心逻辑是从下往上看：下面两层（评估与优化、业务与战略）偏管理视角——怎么算账、怎么决策；中间四层偏技术视角——理论、架构、工程、安全缺一不可。</p>
+
+    <h2>第一域：基础理论</h2>
+    <p><strong>核心问题：</strong>Agent 是什么？它为什么能工作？</p>
+    <table>
+      <tr><th>知识点</th><th>说明</th><th>重要度</th></tr>
+      <tr><td>ReAct 范式</td><td>思考→行动→观察的循环，是所有 Agent 的理论根基</td><td>★★★★★</td></tr>
+      <tr><td>规划模式</td><td>即时反应 vs 先规划后执行 vs 动态调整</td><td>★★★★</td></tr>
+      <tr><td>记忆分层</td><td>工作记忆/情景记忆/语义记忆/程序记忆</td><td>★★★★</td></tr>
+      <tr><td>Function Calling</td><td>模型如何选择和调用外部工具</td><td>★★★★</td></tr>
+      <tr><td>LLM 能力边界</td><td>模型能做什么、不能做什么、什么时候会出错</td><td>★★★★</td></tr>
+    </table>
+    <p><strong>一句话理解：</strong>Agent = LLM（大脑）+ 循环（思考-行动-观察）+ 工具（手）+ 记忆（经验）。四者缺一不可。</p>
+
+    <h2>第二域：架构设计</h2>
+    <p><strong>核心问题：</strong>怎么把 Agent 组织成一个可靠的企业级系统？</p>
+    <table>
+      <tr><th>知识点</th><th>说明</th><th>重要度</th></tr>
+      <tr><td>三种编排模式</td><td>中心化编排/去中心化协作/DAG流水线</td><td>★★★★★</td></tr>
+      <tr><td>Supervisor-Worker</td><td>最常见的多 Agent 架构模式</td><td>★★★★★</td></tr>
+      <tr><td>MCP 协议</td><td>工具接入标准化</td><td>★★★★</td></tr>
+      <tr><td>A2A 协议</td><td>Agent 间通信协议</td><td>★★★</td></tr>
+      <tr><td>多租户隔离</td><td>不同客户的数据隔离</td><td>★★★★</td></tr>
+    </table>
+
+    <h2>第三域：工程实践</h2>
+    <p><strong>核心问题：</strong>用什么工具、怎么搭、怎么让它稳定跑起来？</p>
+    <p>注意：<strong>工具是第二位的，前面两域的认知是第一位的。</strong></p>
+    <table>
+      <tr><th>知识点</th><th>说明</th><th>重要度</th></tr>
+      <tr><td>主流框架对比</td><td>LangGraph/CrewAI/Dify/AutoGen 选型</td><td>★★★★★</td></tr>
+      <tr><td>MCP Server 开发</td><td>把工具封装成标准化 API</td><td>★★★★</td></tr>
+      <tr><td>RAG 工程</td><td>检索增强生成</td><td>★★★★</td></tr>
+      <tr><td>可观测性</td><td>Trace/日志/指标</td><td>★★★★</td></tr>
+      <tr><td>CI/CD 部署</td><td>版本管理和发布流水线</td><td>★★★</td></tr>
+    </table>
+
+    <h2>第四域：安全与治理</h2>
+    <p><strong>核心问题：</strong>怎么确保 Agent 不做不该做的事？</p>
+    <p>这是企业最关心但最容易被忽视的域。PoC 阶段可以不管，上了生产就必须面对。</p>
+    <table>
+      <tr><th>知识点</th><th>说明</th><th>重要度</th></tr>
+      <tr><td>Prompt 注入防护</td><td>用户输入伪装成系统指令</td><td>★★★★★</td></tr>
+      <tr><td>工具最小权限</td><td>Agent 只能调用它需要的工具</td><td>★★★★</td></tr>
+      <tr><td>审计链设计</td><td>每一步操作可追溯</td><td>★★★★</td></tr>
+      <tr><td>Human-in-the-loop</td><td>关键决策点插入人工确认</td><td>★★★★★</td></tr>
+      <tr><td>数据脱敏</td><td>防止 Agent 输出不该输出的信息</td><td>★★★★</td></tr>
+    </table>
+
+    <h2>第五域：评估与优化</h2>
+    <p><strong>核心问题：</strong>怎么知道 Agent 做得好不好？怎么让它更好？</p>
+    <table>
+      <tr><th>知识点</th><th>说明</th><th>重要度</th></tr>
+      <tr><td>Agent 评估框架</td><td>成功率/成本/延迟/用户修正率</td><td>★★★★★</td></tr>
+      <tr><td>成本模型</td><td>Token 只是冰山一角，人力是最大成本</td><td>★★★★</td></tr>
+      <tr><td>模型路由</td><td>简单用小模型，复杂用大模型</td><td>★★★★</td></tr>
+      <tr><td>反馈闭环</td><td>用户修正反馈到 Prompt 优化</td><td>★★★★</td></tr>
+    </table>
+
+    <h2>第六域：业务与战略</h2>
+    <p><strong>核心问题：</strong>什么场景适合 Agent？怎么算 ROI？组织怎么落地？</p>
+    <table>
+      <tr><th>知识点</th><th>说明</th><th>重要度</th></tr>
+      <tr><td>场景识别框架</td><td>边界清晰？成功标准明确？失败可接受？</td><td>★★★★★</td></tr>
+      <tr><td>ROI 计算</td><td>不只是 Token 成本，要算人力和试错</td><td>★★★★</td></tr>
+      <tr><td>组织采纳路径</td><td>从试点到规模化</td><td>★★★★</td></tr>
+      <tr><td>行业案例库</td><td>真实落地案例</td><td>★★★</td></tr>
+    </table>
+
+    <hr>
+
+    <h2>学习路径建议</h2>
+    <p>知识域之间不是孤立的，建议按三阶段递进学习：</p>
+
+    <!-- 学习路径图 -->
+    <div class="diagram-box">
+      <svg viewBox="0 0 600 200">
+        <!-- 第一阶段 -->
+        <rect x="40" y="10" width="145" height="36" rx="8" fill="#eef2ff" stroke="#bfdbfe" stroke-width="1.5"/>
+        <text x="112" y="32" text-anchor="middle" fill="#1e40af" font-size="12" font-weight="600">基础理论</text>
+        <line x1="185" y1="28" x2="215" y2="28" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#a-gray)"/>
+        <rect x="220" y="10" width="145" height="36" rx="8" fill="#f0fdfa" stroke="#a7f3d0" stroke-width="1.5"/>
+        <text x="292" y="32" text-anchor="middle" fill="#166534" font-size="12" font-weight="600">工程实践</text>
+        <rect x="40" y="50" width="325" height="24" rx="6" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+        <text x="202" y="66" text-anchor="middle" fill="#64748b" font-size="11">第①阶段 · 掌握基础，动手搭第一个 Agent</text>
+        <rect x="40" y="78" width="24" height="24" rx="4" fill="#e2e8f0"/><text x="52" y="93" text-anchor="middle" fill="#475569" font-size="11">1</text>
+        <text x="70" y="93" fill="#64748b" font-size="11">理解原理 → 动手搭建 → 建立手感</text>
+
+        <!-- 向下箭头 -->
+        <line x1="202" y1="105" x2="202" y2="115" stroke="#cbd5e1" stroke-width="2"/>
+        <polygon points="195,114 209,114 202,122" fill="#cbd5e1"/>
+
+        <!-- 第二阶段 -->
+        <rect x="40" y="128" width="145" height="36" rx="8" fill="#f5f3ff" stroke="#ddd6fe" stroke-width="1.5"/>
+        <text x="112" y="150" text-anchor="middle" fill="#5b21b6" font-size="12" font-weight="600">架构设计</text>
+        <line x1="185" y1="146" x2="215" y2="146" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#a-gray)"/>
+        <rect x="220" y="128" width="145" height="36" rx="8" fill="#fff7ed" stroke="#fed7aa" stroke-width="1.5"/>
+        <text x="292" y="150" text-anchor="middle" fill="#9a3412" font-size="12" font-weight="600">安全与治理</text>
+        <rect x="40" y="168" width="325" height="24" rx="6" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+        <text x="202" y="184" text-anchor="middle" fill="#64748b" font-size="11">第②阶段 · 深入架构，从一开始考虑安全</text>
+      </svg>
+    </div>
+
+    <p>第一阶段打基础，第二阶段深入架构和安全，第三阶段扩展到评估优化和业务战略。<strong>不要追求一次掌握所有内容，先搭骨架再填细节。</strong></p>
+
+    <hr>
+
+    <h2>这个知识体系将如何演化</h2>
+    <p>企业级智能体领域的变化速度极快。这个六域框架不是一成不变的——它会随着行业发展而调整：</p>
+    <ul>
+      <li><strong>基础理论域</strong>相对稳定（Agent 的基本原理不会频繁变化）</li>
+      <li><strong>工程实践域</strong>变化最快（新框架、新工具层出不穷）</li>
+      <li><strong>安全与治理域</strong>会越来越重要（随着 Agent 承担更多关键任务）</li>
+    </ul>
+    <p>建议每隔半年回顾一次这张知识地图，看看哪些域需要更新，哪些新知识应该加进来。</p>
+  </article>
+</Layout>

@@ -2,79 +2,103 @@
 import Layout from '../layouts/Layout.astro';
 
 const domains = [
-  { icon: '🧩', iconClass: 'blue', name: '基础理论', desc: 'Agent 范式 · 记忆系统 · LLM 边界', count: '4 篇' },
-  { icon: '🏗️', iconClass: 'purple', name: '架构设计', desc: '编排模式 · MCP/A2A · 企业扩展', count: '4 篇' },
-  { icon: '⚙️', iconClass: 'teal', name: '工程实践', desc: '框架选型 · RAG · 可观测性', count: '5 篇' },
-  { icon: '🛡️', iconClass: 'orange', name: '安全与治理', desc: '注入防护 · 审计 · Human-in-loop', count: '3 篇' },
-  { icon: '📊', iconClass: 'blue', name: '评估与优化', desc: '成本模型 · 模型路由 · 反馈闭环', count: '3 篇' },
-  { icon: '🎯', iconClass: 'purple', name: '业务与战略', desc: '场景识别 · ROI · 组织采纳', count: '3 篇' },
+  { slug: '01-theory', icon: '🧩', iconClass: 'blue', name: '基础理论', desc: 'Agent 范式 · 记忆系统 · LLM 边界', count: '1 篇' },
+  { slug: '02-architecture', icon: '🏗️', iconClass: 'purple', name: '架构设计', desc: '编排模式 · MCP/A2A · 多Agent 协作', count: '3 篇' },
+  { slug: '03-engineering', icon: '⚙️', iconClass: 'teal', name: '工程实践', desc: '框架选型 · RAG · 可观测性', count: '3 篇' },
+  { slug: '04-security', icon: '🛡️', iconClass: 'orange', name: '安全与治理', desc: '注入防护 · 审计 · Human-in-loop', count: '1 篇' },
+  { slug: '05-evaluation', icon: '📊', iconClass: 'blue', name: '评估与优化', desc: '成本模型 · 模型路由 · 反馈闭环', count: '1 篇' },
+  { slug: '06-strategy', icon: '🎯', iconClass: 'purple', name: '业务与战略', desc: '场景识别 · ROI · 组织采纳', count: '撰写中' },
 ];
 
 const articles = [
-  { tag: '行业全景', title: '企业级智能体在 2026 年的真实面貌', status: 'green', statusText: '已发布', date: '2026.07.04' },
-  { tag: '知识体系', title: '企业级智能体六大知识域总览', status: 'yellow', statusText: '撰写中', date: '—' },
-  { tag: '核心循环', title: '从 0 搭建一个生产级 Agent：ReAct 循环解剖', status: 'gray', statusText: '策划中', date: '—' },
-  { tag: '架构', title: '多 Agent 架构：什么时候拆，怎么拆', status: 'gray', statusText: '策划中', date: '—' },
-  { tag: '实战', title: 'Agent 落地最大的三个坑（以及怎么绕过）', status: 'gray', statusText: '策划中', date: '—' },
+  { tag: 'Harness', phase: 'Phase 1', title: '多 Agent 编排模式实战——6 种模式，挑一种现在就上路', slug: 'multi-agent-orchestration-patterns', date: '2026.07.07' },
+  { tag: 'Harness', phase: 'Phase 1', title: '从作坊到工厂——我的 AI Agent 集群升级四步路线图', slug: 'workshop-to-factory-agent-cluster-upgrade', date: '2026.07.07' },
+  { tag: 'Harness', phase: 'Phase 1', title: '半小时实现一个 Hook 系统——从理论到落地', slug: 'hook-system-implementation', date: '2026.07.07' },
+  { tag: '架构设计', phase: 'Phase 2', title: 'LangChain 与 LangGraph 的本质区别——同一个公司的两种武器', slug: 'langchain-vs-langgraph-essence', date: '2026.07.07' },
+  { tag: '行业全景', phase: 'Phase 1', title: '大多数公司只走到了 AI 的 5%——一个 20 年 IT 老兵的真实观察', slug: 'majority-companies-ai-5-percent', date: '2026.07.07' },
+  { tag: 'Harness', phase: 'Phase 1', title: '技能即资产——我们用 2 小时标准化了 20 个 AI Skills', slug: 'skills-as-assets-standardization', date: '2026.07.07' },
+  { tag: 'Harness', phase: 'Phase 1', title: '从 Session 到 Skill——AI Agent 如何自我进化', slug: 'session-to-skill-continuous-learning', date: '2026.07.07' },
+  { tag: 'Harness', phase: 'Phase 1', title: 'Hook 系统——工具调用的前与后', slug: 'hook-system', date: '2026.07.07' },
+  { tag: 'Harness', phase: 'Phase 1', title: 'AI Agent 不只是模型——从 ECC 看 Agent 操作系统的五层架构', slug: 'ai-agent-os-five-layer-architecture', date: '2026.07.07' },
+  { tag: '架构设计', phase: 'Phase 2', title: '多Agent 协作——Supervisor-Worker 模式的实战经验', slug: 'multi-agent-collaboration', date: '2026.07.07' },
+  { tag: 'Harness', phase: 'Phase 1', title: '记忆系统的可观测性与调试', slug: 'memory-observability', date: '2026.07.07' },
+  { tag: 'Harness', phase: 'Phase 1', title: '遗忘的艺术——什么时候该忘记', slug: 'forgetting', date: '2026.07.07' },
+  { tag: '学习周记', phase: 'Phase 1', title: '学习周记 #1 · 记忆系统启动与网站框架重构', slug: 'learning-journal-1', date: '2026.07.07' },
+  { tag: 'Harness', phase: 'Phase 1', title: '情景记忆——Agent 如何记住自己做过什么', slug: 'episodic-memory', date: '2026.07.07' },
+  { tag: 'Harness', phase: 'Phase 1', title: '工作记忆管理——不要让 Token 成为瓶颈', slug: 'working-memory', date: '2026.07.07' },
+  { tag: 'Harness', phase: 'Phase 1', title: '三层记忆模型——工作记忆、情景记忆、语义知识', slug: 'three-layer-memory', date: '2026.07.07' },
+  { tag: 'Harness', phase: 'Phase 1', title: 'Agent 的"失忆症"——为什么 LLM 记不住事', slug: 'agent-amnesia', date: '2026.07.07' },
+  { tag: '案例复盘', phase: 'Phase 1', title: '可配置化风控告警引擎——不要让规则写在代码里', slug: 'alert-engine-case', date: '2026.07.06' },
+  { tag: 'Harness', phase: 'Phase 1', title: '输出约束——让模型说"该说的话"', slug: 'output-constraints', date: '2026.07.06' },
+  { tag: 'Harness', phase: 'Phase 1', title: '知识沉淀——从对话中提取可复用的资产', slug: 'knowledge-precipitation', date: '2026.07.06' },
+  { tag: 'Harness', phase: 'Phase 1', title: '验证闭环——让模型的每一次输出都经过检验', slug: 'validation-loop', date: '2026.07.06' },
+  { tag: 'Harness', phase: 'Phase 1', title: '上下文管理——模型的记忆边界在哪里', slug: 'context-management', date: '2026.07.06' },
+  { tag: '案例复盘', phase: 'Phase 1', title: '从硬编码到配置化——星辉广告系统的同步引擎 V2 改造实录', slug: 'sync-engine-v2-case', date: '2026.07.06' },
+  { tag: '工程实践', phase: 'Phase 2', title: '框架选型指南——LangGraph / CrewAI / Dify / AutoGen 横评', slug: 'framework-comparison', date: '2026.07.05' },
+  { tag: '评估与优化', phase: 'Phase 2', title: '成本模型——Agent 不是越强越好', slug: 'cost-model', date: '2026.07.05' },
+  { tag: '工程实践', phase: 'Phase 2', title: 'RAG 不是把文档扔进去——检索增强生成工程实战', slug: 'rag-engineering', date: '2026.07.05' },
+  { tag: '行业全景', phase: 'Phase 1', title: '企业级智能体在 2026 年的真实面貌', slug: 'enterprise-agent-2026', date: '2026.07.04' },
+  { tag: '知识体系', phase: 'Phase 1', title: '企业级智能体六大知识域总览', slug: 'six-knowledge-domains', date: '2026.07.04' },
+  { tag: '基础理论', phase: 'Phase 1', title: 'ReAct 范式——Agent 的底层循环', slug: 'react-paradigm', date: '2026.07.04' },
+  { tag: '架构设计', phase: 'Phase 2', title: 'MCP 协议——工具接入的标准化', slug: 'mcp-protocol', date: '2026.07.04' },
+  { tag: '架构设计', phase: 'Phase 2', title: '三种编排模式与选型决策', slug: 'orchestration-patterns', date: '2026.07.04' },
 ];
 ---
 
-<Layout title="企业级智能体工程实践指南">
+<Layout title="企业级智能体工程实践指南" description="面向开发者和技术决策者的系统性知识库。从模型控制到系统架构，从工具集成到安全治理。">
   <style>
     .hero { max-width: 1100px; margin: 0 auto; padding: 80px 80px 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
     .hero-left h1 { font-size: 42px; font-weight: 800; line-height: 1.15; letter-spacing: -0.5px; }
     .gradient { background: linear-gradient(135deg, #2563eb, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .hero-left p { color: #64748b; font-size: 15px; margin-top: 16px; line-height: 1.8; max-width: 460px; }
+    .hero-left p { color: #334155; font-size: 15px; margin-top: 16px; line-height: 1.8; max-width: 460px; }
     .hero-actions { display: flex; gap: 12px; margin-top: 28px; }
     .btn { padding: 10px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
     .btn-primary { background: #0f172a; color: white; border: 1px solid #0f172a; }
-    .btn-ghost { background: white; color: #475569; border: 1.5px solid #e2e8f0; }
+    .btn-ghost { background: white; color: #334155; border: 1.5px solid #e2e8f0; }
     .hero-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
-    .tag { padding: 4px 12px; border-radius: 4px; font-size: 12px; background: #ffffff; color: #475569; border: 1px solid #e2e8f0; }
+    .tag { padding: 4px 12px; border-radius: 4px; font-size: 12px; background: #ffffff; color: #334155; border: 1px solid #e2e8f0; }
     .tag-blue { color: #2563eb; border-color: #bfdbfe; }
     .tag-purple { color: #7c3aed; border-color: #ddd6fe; }
+    .tag-teal { color: #0d9488; border-color: #a7f3d0; }
 
-    .hero-right { border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 28px; background: #ffffff; }
-    .hr-title { font-weight: 600; font-size: 14px; color: #0f172a; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1.5px solid #e2e8f0; }
-    .layers { display: flex; flex-direction: column; gap: 0; }
-    .layer { display: grid; grid-template-columns: 40px 80px 1fr; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid #f1f5f9; }
-    .layer:last-child { border-bottom: none; }
-    .l-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; border: 1px solid #e2e8f0; }
-    .l-icon.bg-blue { background: #eef2ff; border-color: #bfdbfe; }
-    .l-icon.bg-purple { background: #f5f3ff; border-color: #ddd6fe; }
-    .l-icon.bg-teal { background: #f0fdfa; border-color: #a7f3d0; }
-    .l-icon.bg-orange { background: #fff7ed; border-color: #fed7aa; }
-    .l-name { font-weight: 600; color: #0f172a; font-size: 13px; }
-    .l-desc { color: #64748b; font-size: 13px; }
+    .hero-right { border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 24px; background: #ffffff; }
+    .hero-right svg { max-width: 100%; height: auto; }
 
     .section { max-width: 1100px; margin: 0 auto; padding: 60px 80px; }
     .sec-label { font-size: 12px; color: #2563eb; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
     .sec-title { font-size: 28px; font-weight: 700; }
-    .sec-desc { color: #64748b; font-size: 14px; margin-top: 8px; margin-bottom: 36px; }
+    .sec-desc { color: #334155; font-size: 14px; margin-top: 8px; margin-bottom: 36px; }
 
     .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-    .card { background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 24px; }
-    .card:hover { border-color: #2563eb; }
+    .card { background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 24px; display: block; text-decoration: none; color: inherit; transition: all .15s; }
+    .card:hover { border-color: #2563eb; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
     .c-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 16px; border: 1px solid #e2e8f0; }
     .c-icon.bg-blue { background: #eef2ff; border-color: #bfdbfe; }
     .c-icon.bg-purple { background: #f5f3ff; border-color: #ddd6fe; }
     .c-icon.bg-teal { background: #f0fdfa; border-color: #a7f3d0; }
     .c-icon.bg-orange { background: #fff7ed; border-color: #fed7aa; }
     .card h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
-    .card p { font-size: 13px; color: #64748b; line-height: 1.7; }
-    .card-foot { font-size: 12px; color: #94a3b8; margin-top: 12px; padding-top: 12px; border-top: 1px solid #f1f5f9; }
+    .card p { font-size: 13px; color: #334155; line-height: 1.7; }
+    .card-foot { font-size: 12px; color: #475569; margin-top: 12px; padding-top: 12px; border-top: 1px solid #f1f5f9; }
 
     .article-tbl { width: 100%; border-collapse: collapse; background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
-    .article-tbl th { text-align: left; padding: 12px 20px; font-size: 12px; color: #64748b; font-weight: 500; border-bottom: 1.5px solid #e2e8f0; background: #f8fafc; }
+    .article-tbl th { text-align: left; padding: 12px 20px; font-size: 12px; color: #334155; font-weight: 500; border-bottom: 1.5px solid #e2e8f0; background: #f8fafc; }
     .article-tbl td { padding: 14px 20px; font-size: 14px; border-bottom: 1px solid #f1f5f9; }
     .article-tbl tr:last-child td { border-bottom: none; }
     .article-tbl tr:hover td { background: #f8fafc; }
     .tag-cell { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; display: inline-block; }
-    .date-cell { color: #94a3b8; font-size: 13px; }
-    .sdot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; }
-    .sdot.green { background: #22c55e; }
-    .sdot.yellow { background: #eab308; }
-    .sdot.gray { background: #cbd5e1; }
+    .phase-cell { font-size: 10px; padding: 2px 8px; border-radius: 3px; font-weight: 600; display: inline-block; margin-left: 4px; }
+    .phase-cell.p1 { background: #dcfce7; color: #166534; }
+    .phase-cell.p2 { background: #fef3c7; color: #92400e; }
+    .date-cell { color: #475569; font-size: 13px; }
+
+    .arch-box { background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 24px; margin: 24px 0; }
+
+    .stats-row { display: flex; gap: 16px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
+    .stat-item { text-align: center; padding: 16px 28px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; min-width: 100px; }
+    .stat-num { font-size: 32px; font-weight: 800; color: #2563eb; line-height: 1.1; }
+    .stat-label { font-size: 12px; color: #475569; margin-top: 4px; }
+    .stat-note { font-size: 12px; color: #475569; text-align: center; margin-top: 12px; }
 
     @media (max-width: 768px) {
       .hero { grid-template-columns: 1fr; padding: 40px 24px; }
@@ -87,61 +111,175 @@ const articles = [
   <section class="hero">
     <div class="hero-left">
       <h1>企业级智能体<br><span class="gradient">工程实践指南</span></h1>
-      <p>面向开发者和技术决策者的系统性知识库。从模型控制到系统架构，从工具集成到安全治理——让 AI Agent 在企业中真正落地。</p>
+      <p>让大模型成为可靠的工程组件。<br>缰绳 · 记忆 · 架构——三层体系，从模型控制到系统落地。</p>
       <div class="hero-actions">
-        <a href="/knowledge" class="btn btn-primary">探索知识体系 →</a>
+        <a href="/roadmap" class="btn btn-primary">学习路径 →</a>
         <a href="/blog" class="btn btn-ghost">最新文章</a>
       </div>
       <div class="hero-tags">
-        <span class="tag tag-blue">Agent Architecture</span>
-        <span class="tag tag-purple">MCP Protocol</span>
-        <span class="tag">Security</span>
-        <span class="tag tag-blue">Observability</span>
-        <span class="tag">RAG</span>
+        <span class="tag tag-blue">Harness</span>
+        <span class="tag tag-purple">记忆系统</span>
+        <span class="tag">Agent 架构</span>
+        <span class="tag tag-teal">MCP</span>
+        <span class="tag tag-blue">可观测性</span>
       </div>
     </div>
     <div class="hero-right">
-      <div class="hr-title">企业级智能体架构全景</div>
-      <div class="layers">
-        <div class="layer">
-          <div class="l-icon bg-blue">🧩</div>
-          <span class="l-name">基础理论</span>
-          <span class="l-desc">Agent 范式 · 记忆系统 · LLM 边界</span>
-        </div>
-        <div class="layer">
-          <div class="l-icon bg-purple">🏗️</div>
-          <span class="l-name">架构设计</span>
-          <span class="l-desc">编排模式 · MCP/A2A · 企业扩展</span>
-        </div>
-        <div class="layer">
-          <div class="l-icon bg-teal">⚙️</div>
-          <span class="l-name">工程实践</span>
-          <span class="l-desc">框架选型 · RAG · 可观测性</span>
-        </div>
-        <div class="layer">
-          <div class="l-icon bg-orange">🛡️</div>
-          <span class="l-name">安全与治理</span>
-          <span class="l-desc">注入防护 · 审计 · Human-in-loop</span>
-        </div>
+      <svg width="100%" height="380" viewBox="0 0 480 380" xmlns="http://www.w3.org/2000/svg" style="display:block">
+        <defs>
+          <linearGradient id="hg1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2563eb"/><stop offset="100%" stop-color="#7c3aed"/>
+          </linearGradient>
+          <linearGradient id="hg2" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#0d9488"/><stop offset="100%" stop-color="#2dd4bf"/>
+          </linearGradient>
+          <linearGradient id="hg3" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#0f172a"/><stop offset="100%" stop-color="#475569"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Title -->
+        <text x="240" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a" font-family="system-ui">知识体系架构 · 从模型控制到系统落地</text>
+        <line x1="80" y1="42" x2="400" y2="42" stroke="#e2e8f0" stroke-width="1"/>
+
+        <!-- Layer 1: 控制层 -->
+        <rect x="115" y="56" width="250" height="34" rx="17" fill="url(#hg1)"/>
+        <text x="240" y="77" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff" font-family="system-ui">控制层 · 双支柱</text>
+
+        <rect x="50" y="104" width="185" height="38" rx="6" fill="#eef2ff" stroke="#bfdbfe" stroke-width="1.2"/>
+        <text x="63" y="118" font-size="11" font-weight="600" fill="#1e40af" font-family="system-ui">🪢 Harness</text>
+        <text x="63" y="133" font-size="9" fill="#475569" font-family="system-ui">控制输出 · 验证闭环 · 约束</text>
+
+        <rect x="245" y="104" width="185" height="38" rx="6" fill="#f5f3ff" stroke="#ddd6fe" stroke-width="1.2"/>
+        <text x="258" y="118" font-size="11" font-weight="600" fill="#5b21b6" font-family="system-ui">🧠 记忆系统</text>
+        <text x="258" y="133" font-size="9" fill="#475569" font-family="system-ui">工作记忆 · 情景记忆 · 语义</text>
+
+        <!-- Arrow -->
+        <line x1="240" y1="148" x2="240" y2="182" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4,3"/>
+        <polygon points="235,180 240,189 245,180" fill="#94a3b8"/>
+
+        <!-- Layer 2: 能力层 -->
+        <rect x="115" y="194" width="250" height="34" rx="17" fill="url(#hg2)"/>
+        <text x="240" y="215" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff" font-family="system-ui">能力层</text>
+
+        <rect x="50" y="240" width="185" height="30" rx="5" fill="#f0fdfa" stroke="#a7f3d0" stroke-width="1"/>
+        <text x="62" y="259" font-size="10" fill="#0f766e" font-family="system-ui">🔧 Tool Use · MCP 协议</text>
+
+        <rect x="245" y="240" width="185" height="30" rx="5" fill="#f0fdfa" stroke="#a7f3d0" stroke-width="1"/>
+        <text x="257" y="259" font-size="10" fill="#0f766e" font-family="system-ui">📡 RAG · 可观测性</text>
+
+        <!-- Arrow -->
+        <line x1="240" y1="276" x2="240" y2="305" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4,3"/>
+        <polygon points="235,303 240,312 245,303" fill="#94a3b8"/>
+
+        <!-- Layer 3: 系统层 -->
+        <rect x="115" y="318" width="250" height="34" rx="17" fill="url(#hg3)"/>
+        <text x="240" y="339" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff" font-family="system-ui">系统层</text>
+      </svg>
+      <div style="margin-top:4px;padding-top:10px;border-top:1px solid #e2e8f0;text-align:center">
+        <a href="/roadmap" style="font-size:12px;color:#475569;text-decoration:none;font-weight:500">查看完整学习路径 →</a>
       </div>
     </div>
   </section>
 
   <hr class="divider">
 
+  <!-- System Architecture -->
+  <section class="section">
+    <div class="sec-label">— 运行 —</div>
+    <div class="sec-title">生产体系架构</div>
+    <div class="sec-desc">这个网站不是静态博客——背后跑着一个多 Agent 协作系统。你看到的每一篇文章，都是这个系统的产出。</div>
+
+    <div class="arch-box">
+      <svg viewBox="0 0 600 420" width="100%" style="max-width:600px;display:block;margin:0 auto;font-family:system-ui;">
+        <defs>
+          <linearGradient id="sg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1e40af"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient>
+          <linearGradient id="sg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient>
+          <linearGradient id="sg3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563eb"/><stop offset="100%" stop-color="#60a5fa"/></linearGradient>
+          <linearGradient id="sg4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0d9488"/><stop offset="100%" stop-color="#5eead4"/></linearGradient>
+          <linearGradient id="sg5" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#fbbf24"/></linearGradient>
+          <linearGradient id="sg6" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#475569"/><stop offset="100%" stop-color="#94a3b8"/></linearGradient>
+        </defs>
+
+        <!-- Layer 1: 决策层 -->
+        <rect x="40" y="10" width="520" height="44" rx="8" fill="url(#sg1)" opacity="0.12"/>
+        <rect x="40" y="10" width="520" height="44" rx="8" fill="none" stroke="url(#sg1)" stroke-width="1.5"/>
+        <text x="70" y="37" font-size="13" font-weight="700" fill="#1e40af">决策层</text>
+        <text x="180" y="37" font-size="11" fill="#334155">定方向 → 审稿 → 确认发布</text>
+
+        <!-- Layer 2: 编排层 -->
+        <rect x="40" y="66" width="520" height="44" rx="8" fill="url(#sg2)" opacity="0.12"/>
+        <rect x="40" y="66" width="520" height="44" rx="8" fill="none" stroke="url(#sg2)" stroke-width="1.5"/>
+        <text x="70" y="93" font-size="13" font-weight="700" fill="#6d28d9">编排层（Supervisor）</text>
+        <text x="240" y="93" font-size="11" fill="#334155">拆任务 · 调度 · 生命周期管理</text>
+
+        <!-- Layer 3: Harness + 记忆系统（新增约束层） -->
+        <rect x="40" y="122" width="520" height="44" rx="8" fill="url(#sg3)" opacity="0.10"/>
+        <rect x="40" y="122" width="520" height="44" rx="8" fill="none" stroke="url(#sg3)" stroke-width="1.5"/>
+        <text x="70" y="149" font-size="13" font-weight="700" fill="#1e40af">约束层</text>
+        <text x="200" y="149" font-size="11" fill="#334155">Harness 方法论 · 记忆系统 · Worker 操作框架</text>
+
+        <!-- Layer 4: Worker 池 -->
+        <rect x="40" y="178" width="520" height="80" rx="8" fill="url(#sg4)" opacity="0.10"/>
+        <rect x="40" y="178" width="520" height="80" rx="8" fill="none" stroke="url(#sg4)" stroke-width="1.5"/>
+        <text x="70" y="201" font-size="13" font-weight="700" fill="#0f766e">Worker 池</text>
+        <rect x="70" y="211" width="95" height="34" rx="6" fill="#ccfbf1" stroke="#5eead4" stroke-width="1"/>
+        <text x="80" y="224" font-size="11" fill="#0f766e" font-weight="600">研究 Agent</text>
+        <text x="80" y="237" font-size="9" fill="#475569">搜索·阅读·提取</text>
+        <rect x="178" y="211" width="95" height="34" rx="6" fill="#ccfbf1" stroke="#5eead4" stroke-width="1"/>
+        <text x="188" y="224" font-size="11" fill="#0f766e" font-weight="600">写作 Agent</text>
+        <text x="188" y="237" font-size="9" fill="#475569">草稿·排版</text>
+        <rect x="286" y="211" width="95" height="34" rx="6" fill="#ccfbf1" stroke="#5eead4" stroke-width="1"/>
+        <text x="296" y="224" font-size="11" fill="#0f766e" font-weight="600">审计 Agent</text>
+        <text x="296" y="237" font-size="9" fill="#475569">质量·深度检查</text>
+        <rect x="394" y="211" width="95" height="34" rx="6" fill="#ccfbf1" stroke="#5eead4" stroke-width="1"/>
+        <text x="404" y="224" font-size="11" fill="#0f766e" font-weight="600">发布 Agent</text>
+        <text x="404" y="237" font-size="9" fill="#475569">构建·部署·验证</text>
+
+        <!-- Layer 5: 工具与基础设施 -->
+        <rect x="40" y="272" width="520" height="44" rx="8" fill="url(#sg5)" opacity="0.15"/>
+        <rect x="40" y="272" width="520" height="44" rx="8" fill="none" stroke="url(#sg5)" stroke-width="1.5"/>
+        <text x="70" y="299" font-size="13" font-weight="700" fill="#b45309">工具与基础设施</text>
+        <text x="230" y="299" font-size="11" fill="#334155">Hermes · Obsidian · GitHub · Nginx · Astro 6</text>
+
+        <!-- Layer 6: entos.top -->
+        <rect x="40" y="330" width="520" height="40" rx="8" fill="url(#sg6)" opacity="0.15"/>
+        <rect x="40" y="330" width="520" height="40" rx="8" fill="none" stroke="url(#sg6)" stroke-width="1.5"/>
+        <text x="240" y="355" font-size="13" font-weight="600" fill="#334155" text-anchor="middle">entos.top — 知识展示站</text>
+      </svg>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-item"><div class="stat-num">50</div><div class="stat-label">页面数</div></div>
+      <div class="stat-item"><div class="stat-num">4</div><div class="stat-label">活跃 Agent</div></div>
+      <div class="stat-item"><div class="stat-num">{articles.length}</div><div class="stat-label">文章数</div></div>
+      <div class="stat-item"><div class="stat-num" id="days-run">—</div><div class="stat-label">运行天数</div></div>
+    </div>
+    <p class="stat-note">数据动态更新 · 文章经决策者确认后由 Agent 全自动发布</p>
+    <script>
+      const launch = new Date('2026-07-07');
+      const today = new Date();
+      const days = Math.floor((today - launch) / (1000 * 60 * 60 * 24)) + 1;
+      const el = document.getElementById('days-run');
+      if (el) el.textContent = days;
+    </script>
+  </section>
+
+  <hr class="divider">
+
   <!-- Knowledge System -->
   <section class="section">
-    <div class="sec-label">— Knowledge Framework —</div>
-    <div class="sec-title">六大知识体系</div>
+    <div class="sec-label">— Knowledge Domains —</div>
+    <div class="sec-title">六大知识域</div>
     <div class="sec-desc">覆盖从理论到实践的完整链路，每篇文章对应一个具体的学习目标。</div>
     <div class="grid-3">
       {domains.map(d => (
-        <div class="card">
+        <a href={`/knowledge/${d.slug}/`} class="card">
           <div class={`c-icon bg-${d.iconClass}`}>{d.icon}</div>
           <h3>{d.name}</h3>
           <p>{d.desc}</p>
-          <div class="card-foot">{d.count} · 构建中</div>
-        </div>
+          <div class="card-foot">{d.count}</div>
+        </a>
       ))}
     </div>
   </section>
@@ -155,18 +293,18 @@ const articles = [
     <div class="sec-desc">以输出倒逼输入——每篇文章都是一个完整的学习闭环。</div>
     <table class="article-tbl">
       <thead>
-        <tr><th style="width:80px">分类</th><th>标题</th><th style="width:100px">状态</th><th style="width:110px">日期</th></tr>
+        <tr><th style="width:160px">分类</th><th>标题</th><th style="width:110px">日期</th></tr>
       </thead>
       <tbody>
-        {articles.map(a => (
-          <tr>
-            <td><span class="tag-cell">{a.tag}</span></td>
-            <td>{a.title}</td>
-            <td><span class={`sdot ${a.status}`}></span>{a.statusText}</td>
+        {articles.slice(0, 10).map(a => (
+          <tr onclick={`window.location=\"/blog/${a.slug}\"`} style="cursor:pointer">
+            <td><span class="tag-cell">{a.tag}</span><span class={"phase-cell " + (a.phase === 'Phase 1' ? 'p1' : 'p2')}>{a.phase}</span></td>
+            <td><a href={`/blog/${a.slug}`} style="color:inherit;text-decoration:none">{a.title}</a></td>
             <td class="date-cell">{a.date}</td>
           </tr>
         ))}
       </tbody>
     </table>
+    <div style="margin-top:16px;text-align:center"><a href="/blog/" style="font-size:13px;color:#2563eb;font-weight:500;text-decoration:none;display:inline-flex;align-items:center;gap:4px">查看全部文章 →</a></div>
   </section>
 </Layout>

@@ -1,14 +1,145 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const categories = [
+  {
+    title: 'Agent 框架',
+    items: [
+      {
+        name: 'LangGraph',
+        desc: 'LangChain 生态下的有状态图编排框架。以节点（Node）和边（Edge）定义工作流，天然支持循环、分支和并行。适合需要精细控制 Agent 执行流程的复杂场景。',
+        pros: ['状态管理内置', '与 LangChain 生态无缝集成', '图结构表达能力极强'],
+        cons: ['学习曲线陡峭', '调试困难', 'Python 生态绑定'],
+        status: '调研中',
+        statusClass: 'research',
+      },
+      {
+        name: 'CrewAI',
+        desc: '多 Agent 协作框架，以"角色（Role）"为核心抽象。每个 Agent 有独立的角色、目标和背景故事，通过任务（Task）和流程（Process）协调。Supervisor-Worker 模式的典型实现。',
+        pros: ['概念直观易上手', '角色化设计贴合业务', '内置协作机制'],
+        cons: ['复杂场景下 Agent 协调困难', '可定制性有限', '大规模部署经验不足'],
+        status: '调研中',
+        statusClass: 'research',
+      },
+      {
+        name: 'Dify',
+        desc: '开源 LLMOps 平台，提供可视化的 Agent 编排界面。支持 RAG 管道、工具集成、监控和模型管理。适合需要快速原型验证和非技术团队参与的场景。',
+        pros: ['可视化编排', '内置 RAG 管道', '企业级功能完整'],
+        cons: ['灵活度不如编码方案', '自定义逻辑受限', '大规模性能待验证'],
+        status: '调研中',
+        statusClass: 'research',
+      },
+      {
+        name: 'AutoGen',
+        desc: '微软推出的多 Agent 对话框架，以"对话（Conversation）"作为 Agent 间通信的基本单元。支持去中心化的多 Agent 协作、代码生成与执行、人类介入。',
+        pros: ['去中心化架构', '代码生成与执行闭合', '微软生态支持'],
+        cons: ['对话管理复杂', '确定性难以保证', '社区版本碎片化'],
+        status: '调研中',
+        statusClass: 'research',
+      },
+    ],
+  },
+  {
+    title: '协议与标准',
+    items: [
+      {
+        name: 'MCP 协议',
+        desc: 'Model Context Protocol，Anthropic 提出的标准化工具接入协议。将工具抽象为"资源（Resource）+ 工具（Tool）+ 提示（Prompt）"三个原语，MCP Server 提供，MCP Client 消费。正在快速成为行业标准。',
+        pros: ['标准化的工具接入方式', '解耦工具实现与消费', '生态快速扩张'],
+        cons: ['规范仍在演进', 'SDK 成熟度参差不齐', '跨语言支持待完善'],
+        status: '已发布',
+        statusClass: 'done',
+        link: '/blog/mcp-protocol',
+      },
+      {
+        name: 'A2A 协议',
+        desc: 'Agent-to-Agent 协议，Google 提出的 Agent 间通信标准。解决多 Agent 系统中互操作问题——不同厂商的 Agent 如何在标准化的框架下发现彼此、协商任务、交换结果。',
+        pros: ['跨厂商互操作', '标准化通信', '企业级场景需求明确'],
+        cons: ['处于早期阶段', '实际落地案例少', '与 MCP 的边界模糊'],
+        status: '调研中',
+        statusClass: 'research',
+      },
+    ],
+  },
+  {
+    title: '选型指南',
+    items: [
+      {
+        name: '场景 vs 框架 决策矩阵',
+        desc: '不同场景推荐不同的框架选择：\n' +
+          '• 简单单 Agent → 任何框架都行，选你最熟悉的\n' +
+          '• 复杂工作流 → LangGraph（图编排）\n' +
+          '• 多角色协作 → CrewAI（角色抽象）\n' +
+          '• 快速原型 → Dify（可视化）\n' +
+          '• 去中心化系统 → AutoGen（对话驱动）\n' +
+          '• 工具标准化 → MCP（协议层统一）\n\n' +
+          '核心原则：框架选型不是单选题。企业级系统往往需要组合使用——MCP 做工具层标准化，LangGraph 做复杂流程编排，Dify 做快速原型。',
+        pros: [],
+        cons: [],
+        status: '已发布',
+        statusClass: 'done',
+        link: '/blog/framework-comparison',
+      },
+    ],
+  },
+];
 ---
 
-<Layout title="工具">
-  <div class="page-wrap">
-    <div style="font-size:12px; color:#2563eb; font-weight:600; letter-spacing:1.5px; margin-bottom:12px;">— Tools —</div>
-    <h1 style="font-size:32px; font-weight:700; margin-bottom:8px;">框架与工具</h1>
-    <p style="color:#64748b; font-size:14px; margin-bottom:36px; max-width:600px;">主流 Agent 框架的深度对比、选型决策指南与最佳实践。</p>
-    <div style="background:white; border:1.5px solid #e2e8f0; border-radius:10px; padding:40px; text-align:center; color:#94a3b8; font-size:14px;">
-      工具版块构建中。<br>将涵盖 LangGraph、CrewAI、Dify、AutoGen、MCP 等。
-    </div>
+<Layout title="框架与工具" description="LangGraph、CrewAI、Dify、AutoGen、MCP——主流 Agent 框架和工具的深度对比与选型指南。">
+  <style>
+    .page { max-width: 1100px; margin: 0 auto; padding: 60px 80px; }
+    .label { font-size: 12px; color: #2563eb; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+    .label::before { content: '— '; } .label::after { content: ' —'; }
+    h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; color: #0f172a; }
+    .desc { color: #334155; font-size: 14px; margin-bottom: 40px; max-width: 600px; line-height: 1.7; }
+
+    .cat-title { font-size: 18px; font-weight: 600; color: #0f172a; margin: 32px 0 16px; padding-bottom: 8px; border-bottom: 1.5px solid #e2e8f0; }
+    .cat-title:first-of-type { margin-top: 0; }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .card { background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 24px; transition: border-color .15s; }
+    .card:hover { border-color: #2563eb; }
+    .card-wide { grid-column: 1 / -1; }
+    .card h3 { font-size: 16px; font-weight: 600; color: #0f172a; margin-bottom: 8px; }
+    .card p { font-size: 13px; color: #334155; line-height: 1.7; margin-bottom: 12px; white-space: pre-line; }
+    .badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; display: inline-block; margin-bottom: 10px; }
+    .badge-done { background: #dcfce7; color: #166534; }
+    .badge-research { background: #fef3c7; color: #92400e; }
+    .badge-planned { background: #f1f5f9; color: #334155; }
+    .lists { display: flex; gap: 24px; font-size: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #f1f5f9; }
+    .lists > div { flex: 1; }
+    .lists strong { display: block; margin-bottom: 4px; color: #0f172a; }
+    .lists ul { margin: 0; padding: 0; list-style: none; }
+    .lists li { color: #334155; padding: 2px 0; }
+    .lists li::before { content: '· '; color: #2563eb; font-weight: bold; }
+    .card-link { display: inline-block; margin-top: 6px; font-size: 12px; color: #2563eb; font-weight: 500; text-decoration: none; }
+    .card-link:hover { text-decoration: underline; }
+    @media (max-width: 768px) { .page { padding: 40px 24px; } .grid { grid-template-columns: 1fr; } }
+  </style>
+  <div class="page">
+    <div class="label">Tools</div>
+    <h1>框架与工具</h1>
+    <p class="desc">主流 Agent 框架的深度对比、选型决策指南与最佳实践。每个工具都标注了实际使用程度。</p>
+
+    {categories.map(cat => (
+      <>
+        <div class="cat-title">{cat.title}</div>
+        <div class="grid">
+          {cat.items.map(t => (
+            <div class={"card" + (t.name === '场景 vs 框架 决策矩阵' ? ' card-wide' : '')}>
+              <span class={"badge badge-" + t.statusClass}>{t.status}</span>
+              <h3>{t.name}</h3>
+              <p>{t.desc}</p>
+              {t.pros.length > 0 && (
+                <div class="lists">
+                  <div><strong>优势</strong><ul>{t.pros.map(p => <li>{p}</li>)}</ul></div>
+                  <div><strong>局限</strong><ul>{t.cons.map(c => <li>{c}</li>)}</ul></div>
+                </div>
+              )}
+              {t.link && <a href={t.link} class="card-link">阅读关联文章 →</a>}
+            </div>
+          ))}
+        </div>
+      </>
+    ))}
   </div>
 </Layout>

@@ -1,0 +1,175 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const title = '遗忘的艺术——什么时候该忘记';
+const desc = '没有遗忘策略的记忆系统，就是堆满旧物的仓库。TTL、衰减、版本覆盖三种策略，以及不遗忘的三类代价。';
+const date = '2026.07.07';
+---
+
+<Layout title={title} description={desc}>
+  <style>
+    .page { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+    .bread { font-size: 12px; color: #475569; margin-bottom: 8px; }
+    .bread a { color: #475569; text-decoration: none; }
+    .bread a:hover { color: #2563eb; }
+    .label { font-size: 12px; color: #7c3aed; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+    .label::before { content: '— '; } .label::after { content: ' —'; }
+    h1 { font-size: 32px; font-weight: 700; color: #0f172a; line-height: 1.2; margin-bottom: 12px; }
+    .meta { color: #475569; font-size: 13px; margin-bottom: 8px; }
+    .series { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #f5f3ff; color: #6d28d9; font-weight: 500; margin-bottom: 12px; }
+    .subtitle { color: #334155; font-size: 16px; line-height: 1.7; border-left: 3px solid #7c3aed; padding-left: 16px; margin-bottom: 36px; }
+    h2 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 1.5px solid #e2e8f0; }
+    h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+    p { color: #334155; font-size: 15px; line-height: 1.9; margin-bottom: 16px; }
+    strong { color: #0f172a; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+    th { text-align: left; padding: 10px 14px; background: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #334155; font-weight: 600; }
+    td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 20px; overflow-x: auto; margin: 20px 0; }
+    pre code { background: transparent; color: inherit; padding: 0; font-size: 13px; line-height: 1.6; }
+    ul, ol { color: #334155; font-size: 15px; line-height: 1.9; padding-left: 20px; margin-bottom: 16px; }
+    li { margin-bottom: 6px; }
+    .series-prev { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: #7c3aed; font-weight: 500; margin-bottom: 20px; }
+    .series-prev a { color: #7c3aed; text-decoration: none; }
+    .series-prev a:hover { text-decoration: underline; }
+    .series-next { margin-top: 48px; padding: 20px; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0; }
+    .series-next p { font-size: 13px; color: #475569; margin: 0; }
+    .series-next a { color: #7c3aed; font-weight: 500; text-decoration: none; }
+    .series-next a:hover { text-decoration: underline; }
+    .practice-box { margin: 36px 0; padding: 20px; background: #f0fdfa; border: 1.5px solid #a7f3d0; border-radius: 10px; display: flex; gap: 14px; align-items: flex-start; }
+    .practice-icon { font-size: 20px; flex-shrink: 0; }
+    .practice-content strong { font-size: 13px; color: #0f172a; display: block; margin-bottom: 4px; }
+    .practice-content p { font-size: 13px; color: #334155; margin: 0; line-height: 1.7; }
+    hr { border: none; border-top: 1px solid #e2e8f0; margin: 36px 0; }
+    @media (max-width: 768px) { .page { padding: 40px 20px 80px; } h1 { font-size: 26px; } }
+  </style>
+
+  <div class="page">
+    <div class="bread"><a href="/harness">Harness</a> / 记忆系统</div>
+    <div class="label">记忆系统 · 第五篇</div>
+    <span class="series">记忆系统系列</span>
+    <h1>{title}</h1>
+    <div class="meta">{date} · 策略篇</div>
+    <div class="subtitle">{desc}</div>
+
+    <div class="series-prev">← <a href="/blog/episodic-memory">上一篇：情景记忆——Agent 如何记住自己做过什么</a></div>
+
+    <h2>一、一个被忽略的问题</h2>
+
+    <p>大多数记忆系统都在解决"怎么记住"。很少有人问：<strong>那些记住但不该记住的东西，怎么办？</strong></p>
+
+    <p>我犯过这样一个错误。</p>
+
+    <p>几个月前，我开始让 Hermes 在每个会话结束时自动生成一个"会话摘要"。每次摘要包含：做了什么、关键决策、待办事项。存到 memory 里。</p>
+
+    <p>看起来很好。过了大概三周，memory 里堆了 40 多条记录。然后问题来了：</p>
+
+    <p>我在调试一个新的模块，Agent 检索了相关记忆——结果一次性拉回来 8 条，其中 5 条是几周前关于其他模块的记录，只是关键词碰上了。这些无关信息挤进了上下文窗口，占用了 Token，稀释了真正需要的信息。</p>
+
+    <p>更糟的是，其中一条旧的决策记录说："这里用方案 A，不用方案 B"。但实际上两天前我已经改为方案 B 了，新的决策记录也存在。Agent 看到两条冲突的记录，产生了困惑。</p>
+
+    <p><strong>这不是记忆系统的故障，这是记忆系统的设计缺陷。</strong> 我只考虑了怎么存，没考虑什么时候该忘。</p>
+
+    <h2>二、不遗忘的代价</h2>
+
+    <p>没有遗忘策略，记忆系统会在不知不觉中积累三类问题。每一类我都踩过。</p>
+
+    <h3>1. 上下文的信噪比下降</h3>
+
+    <p>记忆越多，每次检索召回的无关结果越多。这些噪声挤进上下文，稀释了真正的关键信息。</p>
+
+    <table>
+      <thead><tr><th>记忆条目数</th><th>检索 10 条中相关数</th><th>Token 浪费（约）</th></tr></thead>
+      <tbody>
+        <tr><td>20 条</td><td>7-8 条</td><td>可接受</td></tr>
+        <tr><td>50 条</td><td>4-5 条</td><td>50% 浪费</td></tr>
+        <tr><td>100 条</td><td>2-3 条</td><td>70%+ 浪费</td></tr>
+      </tbody>
+    </table>
+
+    <p>这不是理论推演。我 40 条记录的时候就感觉到了——Agent 的回答开始变得"泛"，因为它要在有限的上下文里处理更多不相关的背景信息。</p>
+
+    <h3>2. 决策冲突</h3>
+
+    <p>同一个主题在不同时间点被记录了不同的结论。旧结论没有被标记"已过时"，新结论也没有声明"覆盖了旧结论"。</p>
+
+    <pre><code>记忆 A（第 3 天）："这个接口不支持批量查询，每次只查一条"
+记忆 B（第 15 天）："新增了批量接口，改成了数组参数"</code></pre>
+
+    <p><strong>问题在于：没有机制让 A 自动失效。</strong></p>
+
+    <h3>3. 检索成本增长</h3>
+
+    <p>条目多了，每次检索（无论是向量搜索还是关键词匹配）的时间都在增加。精度在下降——因为候选集变大了。</p>
+
+    <h2>三、三种遗忘策略</h2>
+
+    <h3>策略一：TTL（生存时间）</h3>
+
+    <p>每条记忆带一个过期时间。到期后归档或删除。这是最直接、最可靠的策略。</p>
+
+    <table>
+      <thead><tr><th>记忆类型</th><th>建议 TTL</th><th>理由</th></tr></thead>
+      <tbody>
+        <tr><td>日常 Bug 修复</td><td>30 天</td><td>短期有效，过时就没用了</td></tr>
+        <tr><td>临时决策</td><td>7 天</td><td>"今天先这样"类决策</td></tr>
+        <tr><td>架构/技术选型</td><td>90 天或更长</td><td>影响周期长，但也要被新决策覆盖</td></tr>
+        <tr><td>配置变更记录</td><td>永久（版本标记）</td><td>可能影响安全检查</td></tr>
+      </tbody>
+    </table>
+
+    <h3>策略二：重要性衰减</h3>
+
+    <p>每条记忆有一个初始重要性分数。每次未被检索时分数递减。低于阈值就降级。</p>
+
+    <pre><code>初始重要性：0.8（刚记录的 session，一般比较重要）
+每 7 天未被检索：-0.1
+低于 0.3：移出主动检索
+低于 0.1：自动归档</code></pre>
+
+    <p><strong>这个策略的价值：</strong> 它让记忆系统"自适应"——真正重要的信息会被频繁检索，自然保持高分数；无关的信息逐渐沉底。</p>
+
+    <h3>策略三：版本覆盖</h3>
+
+    <p>当同一个主题有了新的决策时，旧决策不是追加，而是<strong>替换</strong>为新的版本。</p>
+
+    <pre><code>旧：数据库扩展字段 → ALTER TABLE + 改 struct + 改 SQL
+新：数据库扩展字段 → 加了一个步骤：还要改 routeTable
+
+结果：旧记录被标记为"被 v2 覆盖"，新的 v2 成为活跃版本</code></pre>
+
+    <p><strong>关键：</strong> 替换不是删除，是版本化。旧版本保留但标记为"已过时"，不会进入主动检索。</p>
+
+    <h2>四、遗忘和记忆是一枚硬币的两面</h2>
+
+    <pre><code>好的记忆系统 = 记住该记住的 + 忘记该忘记的
+
+该记住的：架构决策、技术选型、已完成任务的结论
+该忘记的：临时方案、已覆盖的旧决策、调试中间状态</code></pre>
+
+    <p>你没有遗忘策略，就不算有记忆系统——你只有一个一直在膨胀的、越来越难用的存档。</p>
+
+    <h2>五、实践建议</h2>
+
+    <p><strong>从今天可以做的三件事：</strong></p>
+    <ol>
+      <li><strong>给每条记忆加一个 TTL。</strong> 最简单的改进：30 天默认。</li>
+      <li><strong>每月做一次记忆清理。</strong> 打开记忆库，把超过 60 天的条目扫一遍。</li>
+      <li><strong>新决策覆盖旧决策时，显式声明。</strong> 不要让两条冲突的记忆同时存在。</li>
+    </ol>
+
+    <div class="practice-box">
+      <div class="practice-icon">📌</div>
+      <div class="practice-content">
+        <strong>实践建议</strong>
+        <p>给 Hermes 的 memory 记录加一个 TTL 字段。下次看到 Agent 从旧记录中引用了过时信息时，检查它的 TTL 是不是该过期了。</p>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="series-next">
+      <p><strong>上一篇：</strong> <a href="/blog/episodic-memory">情景记忆——Agent 如何记住自己做过什么</a></p>
+      <p style="margin-top:8px"><strong>下一篇：</strong> <a href="/blog/memory-observability">记忆系统的可观测性与调试</a></p>
+    </div>
+  </div>
+</Layout>
