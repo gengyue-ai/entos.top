@@ -1,0 +1,18 @@
+name: Build Windows Client
+on:
+  push:
+    branches: [main]
+    paths: ['scripts/local_pc_agent.py']
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install pyinstaller mcp uvicorn starlette websockets
+      - run: pyinstaller --onefile --windowed --name "RemotePCAgent" scripts/local_pc_agent.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RemotePCAgent
+          path: dist/RemotePCAgent.exe
