@@ -2,6 +2,32 @@
 import Layout from '../layouts/Layout.astro';
 
 const articles = [
+  { tag: '工具', phase: 'Phase 1', level: 'practice', title: '用 FireCrawl + MCP 打通 AI 的信息获取通道', slug: 'firecrawl-mcp-plan', date: '2026.07.13', status: 'green', statusText: '已发布', desc: 'AI 的输出质量取决于它能获取到什么信息。通过 FireCrawl + MCP 协议，让 AI Agent 实时抓取互联网最新数据。' },
+  { tag: '工程实践', phase: 'Phase 2', level: 'core', title: '给你的 Loop 一个名字——如何在现有系统中实现显式 Loop 声明', slug: 'explicit-loop-declaration', date: '2026.07.09', status: 'green', statusText: '已发布', desc: '隐藏的 Loop 不可观测、不可调试、不可治理。四步方案：命名 → 声明 → 观测 → 治理。每一步都有代码实现。' },
+  { tag: 'Harness', phase: 'Phase 1', level: 'core', title: 'Agent Loop 是什么？我用 Harness 做了半年，发现它就是 Loop Engineering', slug: 'agent-loop-engineering', date: '2026.07.09', status: 'green', statusText: '已发布', desc: '硅谷最火的概念。Open Cloud 和 Cloud Code 创始人都在说"我不写 Prompt 了，我写 Loops"。我用 Harness 做了半年，发现它就是 Loop Engineering。' },
+  { tag: '业务与战略', phase: 'Phase 3', level: 'core', title: '企业 Agent 落地五步法——从场景选择到持续运营的完整路径', slug: 'enterprise-agent-five-steps', date: '2026.07.09', status: 'green', statusText: '已发布', desc: '一个系统化的五步框架：场景识别→技术验证→试点运行→规模推广→持续运营。每一步都有明确的门槛和退出标准。' },
+  { tag: '评估与优化', phase: 'Phase 3', level: 'core', title: 'Agent ROI 计算模型——上线前能算清楚这笔账的团队不超过 10%', slug: 'agent-roi-model', date: '2026.07.09', status: 'green', statusText: '已发布', desc: '大多数 Agent 项目在上线前算不清成本。一个工程化的 ROI 框架——从 Token 消耗到人工替代，帮你把账算清楚再动手。' },
+  { tag: '业务与战略', phase: 'Phase 3', level: 'core', title: '场景识别框架——判断一个业务场景是否适合 Agent 化的四步法', slug: 'scenario-identification-framework', date: '2026.07.09', status: 'green', statusText: '已发布', desc: '不是所有场景都适合 Agent。一个系统化的判断框架——从任务特征到 ROI 预判，在动手之前就知道该不该做。' },
+  { tag: '实战', phase: 'Phase 1', level: 'practice', title: 'Agent 落地最大的坑——我全踩了一遍，这是绕过的方法', slug: 'agent-pitfalls', date: '2026.07.09', status: 'green', statusText: '已发布', desc: '五个坑我全踩过。PoC 翻车、成本失控、人抵制、没评估、安全后置——每个都付出了真金白银的代价。' },
+  { tag: '安全与治理', phase: 'Phase 2', level: 'core', title: 'Agent 安全设计指南', slug: 'agent-security-guide', date: '2026.07.04', status: 'green', statusText: '已发布', desc: '三大威胁、三层防护、HITL 设计、审计链——Agent 上生产的安全必修课。' },
+  { tag: '架构设计', phase: 'Phase 2', level: 'core', title: '三种编排模式——我三种都试了，结论是一个系统应该同时用三种', slug: 'orchestration-patterns', date: '2026.07.09', status: 'green', statusText: '已发布', desc: 'Orchestrator、Swarm、Pipeline——不是三选一，是根据任务特征组合使用。一个真实的系统里，三种模式可能同时存在。' },
+  { tag: '架构设计', phase: 'Phase 2', level: 'core', title: 'MCP 协议——我在集成 MCP 时遇到的三个没想到的问题', slug: 'mcp-protocol', date: '2026.07.09', status: 'green', statusText: '已发布', desc: 'MCP 的文档看起来很完美。但真正集成的时候才发现：工具描述质量决定 Agent 表现，跨网络传输的复杂度被低估了，版本管理还没有标准答案。' },
+  { tag: '基础理论', phase: 'Phase 1', level: 'core', title: 'ReAct 范式——我每天都在用 ReAct，但花了一整年才真正理解它', slug: 'react-paradigm', date: '2026.07.09', status: 'green', statusText: '已发布', desc: '三种规划模式的选择直接决定了 Agent 系统的成本、可靠性和开发复杂度。踩过的坑和得出的判断。' },
+  { tag: '工程实践', phase: 'Phase 2', level: 'core', title: '框架选型指南——LangGraph / CrewAI / Dify / AutoGen 横评', slug: 'framework-comparison', date: '2026.07.05', status: 'green', statusText: '已发布', desc: '四个主流框架的设计哲学、适用场景和选型决策方法。没有最好的框架，只有最合适的。' },
+  { tag: '评估与优化', phase: 'Phase 2', level: 'core', title: '成本模型——Agent 不是越强越好', slug: 'cost-model', date: '2026.07.05', status: 'green', statusText: '已发布', desc: 'Token 成本、模型路由、缓存策略、Token 压缩、ROI 计算——五个维度的成本优化方法论。' },
+  { tag: '工程实践', phase: 'Phase 2', level: 'core', title: 'RAG 不是把文档扔进去——检索增强生成工程实战', slug: 'rag-engineering', date: '2026.07.05', status: 'green', statusText: '已发布', desc: 'Chunking、Embedding、检索优化、重排序、生成优化、评估——RAG 是一条完整的工程流水线，不是把文档扔进 Prompt。' },
+  { tag: '工程实践', phase: 'Phase 2', level: 'core', title: 'Agent 可观测性——没有追踪就没有信任', slug: 'agent-observability', date: '2026.07.04', status: 'green', statusText: '已发布', desc: '传统软件能打断点，Agent 出错了你连它刚才想了什么都不知道。' },
+  { tag: '行业全景', phase: 'Phase 1', level: 'reference', title: '企业级智能体在 2026 年的真实面貌', slug: 'enterprise-agent-2026', date: '2026.07.04', status: 'green', statusText: '已发布', desc: '不谈概念，只讲现实。AI Agent 到底走到了哪一步，以及传统企业应该怎么办。' },
+  { tag: '知识体系', phase: 'Phase 1', level: 'reference', title: '企业级智能体六大知识域总览', slug: 'six-knowledge-domains', date: '2026.07.04', status: 'green', statusText: '已发布', desc: '一张知识地图——这个领域到底有多大、从哪里开始、每一步通向哪里。' },
+  { tag: '工程实践', phase: 'Phase 2', level: 'practice', title: '自进化 Agent 落地记录——从方案到可运行的全链路代码', slug: 'self-evolving-implementation-report', date: '2026.07.09', status: 'green', statusText: '已发布', desc: '6 小时完成了自进化引擎的数据库、采集器、分析器、进化器、沙箱、治理层全部代码，全链路测试通过。' },
+  { tag: '工程实践', phase: 'Phase 2', level: 'core', title: '自进化 Agent 实施计划——代码架构、数据设计、部署方案', slug: 'self-evolving-agent-implementation', date: '2026.07.09', status: 'green', statusText: '已发布', desc: '从架构设计到代码落地——数据库设计、模块实现、对接方案、三阶段上线计划。纯工程视角。' },
+  { tag: 'Harness', phase: 'Phase 1', level: 'core', title: '企业级自进化 Agent 系统设计方案', slug: 'self-evolving-agent-design', date: '2026.07.09', status: 'green', statusText: '已发布', desc: '一套完整的企业级自进化智能体架构——五层分离、Skill 生命周期、Harness + 分层记忆、审批门禁与回滚机制。' },
+  { tag: '学习周记', phase: 'Phase 1', level: 'reference', title: '学习周记 #2 · 服务器迁移与 LangGraph 实战周', slug: 'learning-journal-2', date: '2026.07.08', status: 'green', statusText: '已发布', desc: '从 WSL 到阿里云、34 篇文章、LangGraph 实战跑通——这一周做了过去一个月的事。' },
+  { tag: '工程实践', phase: 'Phase 2', level: 'practice', title: 'LangGraph 实战总结——图编排 vs 手工调度，什么时候该用哪个', slug: 'langgraph-vs-delegatetask-summary', date: '2026.07.08', status: 'green', statusText: '已发布', desc: '花了两天用 LangGraph 搭多 Agent 流水线，和自己的 delegate_task 方案做了对比。结论：不是替代关系，是互补关系。' },
+  { tag: '工程实践', phase: 'Phase 2', level: 'practice', title: 'LangGraph 多 Agent 实战记录', slug: 'langgraph-multi-agent-practice', date: '2026.07.08', status: 'green', statusText: '已发布', desc: '用 LangGraph 的 StateGraph 搭一个多 Agent 文档分析流水线。边做边写，全透明——环境搭建、代码实现、踩坑记录、对比总结，每一步实时更新。' },
+  { tag: 'Harness', phase: 'Phase 1', level: 'core', title: '什么是 Harness——让大模型稳定产出可控结果的方法论体系', slug: 'what-is-harness', date: '2026.07.08', status: 'green', statusText: '已发布', desc: 'Harness 不是框架，不是工具，是工程规范。从上下文管理到知识沉淀，四个维度回答一个问题：如何让不可控的模型，稳定地产出可控的结果？' },
+  { tag: '行业全景', phase: 'Phase 1', level: 'reference', title: '2026 AI 智能体大会给我的 3 个信号——Harness 不是自嗨，记忆是共识', slug: 'ai-agent-conference-2026-signals', date: '2026.07.08', status: 'green', statusText: '已发布', desc: '刚结束的中国 AI 智能体大会上，Harness 是十大议题之一。不是"要不要做"，而是"怎么落地"。三个信号告诉我：方向对了，但差距在哪里。' },
+  { tag: '架构设计', phase: 'Phase 2', level: 'core', title: '多 Agent 技术栈地图——你的体系 vs LangGraph vs Dify', slug: 'multi-agent-tech-stack', date: '2026.07.08', status: 'green', statusText: '已发布', desc: 'Hermes + Harness、LangGraph、Dify——三者在多 Agent 系统中分别扮演什么角色？一张图看清定位，然后自然知道什么时候该用哪个。' },
   { tag: 'Harness', phase: 'Phase 1', level: 'practice', title: '多 Agent 编排模式实战——6 种模式，挑一种现在就上路', slug: 'multi-agent-orchestration-patterns', date: '2026.07.07', status: 'green', statusText: '已发布', desc: '当你手上的 Agent 从 1 个变成 N 个，你用什么方式把它们组织起来？6 种经过了验证的编排模式，从 Supervisor-Worker 到 StateGraph，每种都有对比表和适用场景。' },
   { tag: 'Harness', phase: 'Phase 1', level: 'core', title: '从作坊到工厂——我的 AI Agent 集群升级四步路线图', slug: 'workshop-to-factory-agent-cluster-upgrade', date: '2026.07.07', status: 'green', statusText: '已发布', desc: 'Agent 流水线跑通了，多 Agent 协作验证了——但架构还是作坊级的。上云、Kanban、质量门、自我进化，四步从作坊到工厂。' },
   { tag: 'Harness', phase: 'Phase 1', level: 'practice', title: '半小时实现一个 Hook 系统——从理论到落地', slug: 'hook-system-implementation', date: '2026.07.07', status: 'green', statusText: '已发布', desc: '写完了 Hook 的理论文章，然后照着做了一个。结果半小时从零到跑通。Hook 系统核心只有三样东西：注册表 + 动作函数 + 引擎。' },
@@ -25,18 +51,29 @@ const articles = [
   { tag: 'Harness', phase: 'Phase 1', level: 'core', title: '验证闭环——让模型的每一次输出都经过检验', slug: 'validation-loop', date: '2026.07.06', status: 'green', statusText: '已发布', desc: '模型的输出不可信，这是一个前提，不是一个 bug。验证闭环就是在每一个关键输出后面加一道检查。' },
   { tag: 'Harness', phase: 'Phase 1', level: 'core', title: '上下文管理——模型的记忆边界在哪里', slug: 'context-management', date: '2026.07.06', status: 'green', statusText: '已发布', desc: '上下文窗口再大也是有限的。好的上下文管理不是"塞更多"，而是"知道该放什么、该扔什么"。' },
   { tag: '案例复盘', phase: 'Phase 1', level: 'practice', title: '从硬编码到配置化——星辉广告系统的同步引擎 V2 改造实录', slug: 'sync-engine-v2-case', date: '2026.07.06', status: 'green', statusText: '已发布', desc: '一个广告中介平台的同步引擎，从每个上游写一份硬编码逻辑，到零代码配置化接入的完整过程。' },
-  { tag: '工程实践', phase: 'Phase 2', level: 'core', title: '框架选型指南——LangGraph / CrewAI / Dify / AutoGen 横评', slug: 'framework-comparison', date: '2026.07.05', status: 'green', statusText: '已发布', desc: '四个主流框架的设计哲学、适用场景和选型决策方法。没有最好的框架，只有最合适的。' },
-  { tag: '评估与优化', phase: 'Phase 2', level: 'core', title: '成本模型——Agent 不是越强越好', slug: 'cost-model', date: '2026.07.05', status: 'green', statusText: '已发布', desc: 'Token 成本、模型路由、缓存策略、Token 压缩、ROI 计算——五个维度的成本优化方法论。' },
-  { tag: '工程实践', phase: 'Phase 2', level: 'core', title: 'RAG 不是把文档扔进去——检索增强生成工程实战', slug: 'rag-engineering', date: '2026.07.05', status: 'green', statusText: '已发布', desc: 'Chunking、Embedding、检索优化、重排序、生成优化、评估——RAG 是一条完整的工程流水线，不是把文档扔进 Prompt。' },
-  { tag: '工程实践', phase: 'Phase 2', level: 'core', title: 'Agent 可观测性——没有追踪就没有信任', slug: 'agent-observability', date: '2026.07.04', status: 'green', statusText: '已发布', desc: '传统软件能打断点，Agent 出错了你连它刚才想了什么都不知道。' },
-  { tag: '实战', phase: 'Phase 1', level: 'practice', title: 'Agent 落地最大的坑（以及怎么绕过）', slug: 'agent-pitfalls', date: '2026.07.04', status: 'green', statusText: '已发布', desc: 'PoC 翻车、成本失控、人抵制、没评估、安全后置——五个你迟早会遇到的坑。' },
-  { tag: '安全与治理', phase: 'Phase 2', level: 'core', title: 'Agent 安全设计指南', slug: 'agent-security-guide', date: '2026.07.04', status: 'green', statusText: '已发布', desc: '三大威胁、三层防护、HITL 设计、审计链——Agent 上生产的安全必修课。' },
-  { tag: '架构设计', phase: 'Phase 2', level: 'core', title: '三种编排模式与选型决策', slug: 'orchestration-patterns', date: '2026.07.04', status: 'green', statusText: '已发布', desc: '一个 Agent 还是多个 Agent？谁来管？怎么管？三种模式与选型决策。' },
-  { tag: '架构设计', phase: 'Phase 2', level: 'core', title: 'MCP 协议——工具接入的标准化', slug: 'mcp-protocol', date: '2026.07.04', status: 'green', statusText: '已发布', desc: 'Agent 的智能来自模型，但能力来自工具。MCP 如何让工具被标准化地发现和调用。' },
-  { tag: '基础理论', phase: 'Phase 1', level: 'core', title: 'ReAct 范式——Agent 的底层循环', slug: 'react-paradigm', date: '2026.07.04', status: 'green', statusText: '已发布', desc: '所有 Agent 框架本质上都在做同一件事：让 LLM 像人一样想一步做一步看一步。' },
-  { tag: '行业全景', phase: 'Phase 1', level: 'reference', title: '企业级智能体在 2026 年的真实面貌', slug: 'enterprise-agent-2026', date: '2026.07.04', status: 'green', statusText: '已发布', desc: '不谈概念，只讲现实。AI Agent 到底走到了哪一步，以及传统企业应该怎么办。' },
-  { tag: '知识体系', phase: 'Phase 1', level: 'reference', title: '企业级智能体六大知识域总览', slug: 'six-knowledge-domains', date: '2026.07.04', status: 'green', statusText: '已发布', desc: '一张知识地图——这个领域到底有多大、从哪里开始、每一步通向哪里。' },
 ];
+
+// 按分类分组
+const categories = [
+  { id: 'harness', name: 'Harness 方法论', icon: '🎯',
+    tags: ['Harness', '基础理论', '记忆系统'],
+    articles: articles.filter(a => ['Harness', '基础理论'].includes(a.tag)) },
+  { id: 'architecture', name: '架构设计', icon: '🏗️',
+    tags: ['架构设计'],
+    articles: articles.filter(a => a.tag === '架构设计') },
+  { id: 'engineering', name: '工程实践', icon: '⚙️',
+    tags: ['工程实践', '案例复盘', '实战'],
+    articles: articles.filter(a => ['工程实践', '案例复盘', '实战'].includes(a.tag)) },
+  { id: 'strategy', name: '业务与战略', icon: '🎯',
+    tags: ['业务与战略', '评估与优化', '安全与治理'],
+    articles: articles.filter(a => ['业务与战略', '评估与优化', '安全与治理'].includes(a.tag)) },
+  { id: 'overview', name: '行业全景', icon: '🌐',
+    tags: ['行业全景', '知识体系', '学习周记'],
+    articles: articles.filter(a => ['行业全景', '知识体系', '学习周记'].includes(a.tag)) },
+];
+
+const phaseLabels = { 'Phase 1': '实战者', 'Phase 2': '架构师', 'Phase 3': '顾问' };
+const levelLabels = { 'core': '核心', 'practice': '实战', 'reference': '参考' };
 ---
 
 <Layout title="文章">
@@ -45,78 +82,134 @@ const articles = [
     .label { font-size: 12px; color: #2563eb; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
     .label::before { content: '— '; } .label::after { content: ' —'; }
     h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; color: #0f172a; }
-    .desc { color: #334155; font-size: 14px; margin-bottom: 40px; max-width: 600px; line-height: 1.7; }
-    .filter-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-    .filter-btn { padding: 6px 16px; border-radius: 6px; font-size: 12px; font-weight: 500; border: 1.5px solid #e2e8f0; background: #ffffff; color: #334155; cursor: pointer; transition: all .15s; }
-    .filter-btn:hover { border-color: #2563eb; color: #2563eb; }
-    .filter-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
-    .list { display: flex; flex-direction: column; gap: 0; background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
-    .item { display: block; padding: 20px 24px; border-bottom: 1px solid #f1f5f9; text-decoration: none; transition: background .15s; }
-    .item:last-child { border-bottom: none; }
-    .item:hover { background: #f8fafc; }
-    .top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
-    .tag { font-size: 11px; padding: 3px 10px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; }
-    .phase-badge { font-size: 10px; padding: 2px 8px; border-radius: 3px; font-weight: 600; }
-    .phase-1 { background: #dcfce7; color: #166534; }
-    .phase-2 { background: #fef3c7; color: #92400e; }
-    .level-badge { font-size: 10px; padding: 2px 6px; border-radius: 3px; color: #334155; background: #f1f5f9; }
-    .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #22c55e; }
-    .date { font-size: 13px; color: #475569; }
-    .item h3 { font-size: 16px; font-weight: 600; color: #0f172a; margin-bottom: 4px; }
-    .item p { font-size: 13px; color: #334155; line-height: 1.6; }
+    .desc { color: #334155; font-size: 14px; margin-bottom: 32px; max-width: 600px; line-height: 1.7; }
+
+    /* Search + Filter */
     .search-box { width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 14px; outline: none; margin-bottom: 16px; background: #ffffff; color: #0f172a; transition: border-color .15s; }
     .search-box:focus { border-color: #2563eb; }
-    .search-box::placeholder { color: #64748b; }
-    .no-result { font-size: 14px; color: #475569; text-align: center; padding: 40px 0; display: none; }
+    .cat-bar { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
+    .cat-btn { padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; border: 1.5px solid #e2e8f0; background: #ffffff; color: #334155; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 6px; }
+    .cat-btn:hover { border-color: #2563eb; color: #2563eb; }
+    .cat-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
+
+    /* Category section */
+    .category { margin-bottom: 36px; }
+    .cat-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+    .cat-icon { font-size: 20px; }
+    .cat-name { font-size: 17px; font-weight: 700; color: #0f172a; }
+    .cat-count { font-size: 12px; color: #94a3b8; }
+
+    /* Article list */
+    .list { display: flex; flex-direction: column; gap: 0; background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+    .item { display: block; padding: 16px 20px; border-bottom: 1px solid #f1f5f9; text-decoration: none; transition: background .15s; }
+    .item:last-child { border-bottom: none; }
+    .item:hover { background: #f8fafc; }
+    .top { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+    .tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: #eef2ff; color: #4338ca; font-weight: 500; }
+    .phase-badge { font-size: 10px; padding: 2px 6px; border-radius: 3px; font-weight: 600; }
+    .phase-1 { background: #dcfce7; color: #166534; }
+    .phase-2 { background: #fef3c7; color: #92400e; }
+    .phase-3 { background: #f5f3ff; color: #5b21b6; }
+    .level-badge { font-size: 10px; padding: 2px 6px; border-radius: 3px; color: #475569; background: #f1f5f9; }
+    .date { font-size: 12px; color: #94a3b8; }
+    .item h3 { font-size: 15px; font-weight: 600; color: #0f172a; margin-bottom: 2px; line-height: 1.4; }
+    .item p { font-size: 12px; color: #475569; line-height: 1.5; margin: 0; }
+    .no-result { font-size: 14px; color: #475569; text-align: center; padding: 60px 0; display: none; }
+
     @media (max-width: 768px) { .page { padding: 40px 24px; } }
   </style>
+
   <div class="page">
     <div class="label">Articles</div>
     <h1>全部文章</h1>
-    <p class="desc">以输出倒逼输入——每篇文章都是一个完整的学习闭环。</p>
-    <input type="text" class="search-box" id="searchInput" placeholder="搜索文章标题、分类或关键词…" oninput="filterArticles()"/>
-    <div class="filter-bar">
-      <button class="filter-btn active" onclick="filterByPhase('all', this)">全部</button>
-      <button class="filter-btn" onclick="filterByPhase('Phase 1', this)">Phase 1 · 实战者</button>
-      <button class="filter-btn" onclick="filterByPhase('Phase 2', this)">Phase 2 · 架构师</button>
-    </div>
-    <div class="list" id="articleList">
-      {articles.map((a, i) => (
-        <a href={`/blog/${a.slug}`} class="item" data-index={i} data-phase={a.phase}>
-          <div class="top">
-            <span class="tag">{a.tag}</span>
-            <span class={"phase-badge phase-" + (a.phase === 'Phase 1' ? '1' : '2')}>{a.phase}</span>
-            <span class="level-badge">{a.level === 'core' ? '核心' : a.level === 'practice' ? '实战' : '参考'}</span>
-            <span class="dot"></span>
-            <span class="date">{a.date}</span>
-          </div>
-          <h3>{a.title}</h3>
-          <p>{a.desc}</p>
-        </a>
+    <p class="desc">42 篇文章，按分类组织。搜索、筛选、分类——快速找到你需要的。</p>
+
+    <input type="text" class="search-box" id="searchInput" placeholder="搜索文章标题或关键词…" oninput="filterArticles()"/>
+
+    <div class="cat-bar" id="catBar">
+      <button class="cat-btn active" onclick="filterByCategory('all', this)">📋 全部</button>
+      {categories.map(c => (
+        <button class="cat-btn" data-cat={c.id} onclick={"filterByCategory('" + c.id + "', this)"}>{c.icon} {c.name}</button>
       ))}
     </div>
+
+    <div id="articleContainer">
+      {categories.map(cat => (
+        <div class="category" data-category={cat.id}>
+          <div class="cat-header">
+            <span class="cat-icon">{cat.icon}</span>
+            <span class="cat-name">{cat.name}</span>
+            <span class="cat-count">{cat.articles.length} 篇</span>
+          </div>
+          <div class="list">
+            {cat.articles.map(a => (
+              <a href={`/blog/${a.slug}`} class="item" style="display:block">
+                <div class="top">
+                  <span class="tag">{a.tag}</span>
+                  <span class={"phase-badge phase-" + (a.phase === 'Phase 1' ? '1' : a.phase === 'Phase 2' ? '2' : '3')}>{phaseLabels[a.phase]}</span>
+                  <span class="level-badge">{levelLabels[a.level]}</span>
+                  <span class="date">{a.date}</span>
+                </div>
+                <h3>{a.title}</h3>
+                <p>{a.desc}</p>
+              </a>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+
     <div class="no-result" id="noResult">没有找到匹配的文章</div>
   </div>
+
   <script is:inline>
+    function filterByCategory(catId, btn) {
+      // 更新按钮状态
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // 显示/隐藏分类区块
+      document.querySelectorAll('.category').forEach(el => {
+        el.style.display = (catId === 'all' || el.dataset.category === catId) ? '' : 'none';
+      });
+      
+      // 如果按了分类，清空搜索
+      if (catId !== 'all') {
+        document.getElementById('searchInput').value = '';
+      }
+
+      checkNoResult();
+    }
+
     function filterArticles() {
       const q = document.getElementById('searchInput').value.toLowerCase().trim();
-      const items = document.querySelectorAll('#articleList .item');
+      
+      // 如果有搜索内容，显示所有分类
+      if (q) {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.category').forEach(el => el.style.display = '');
+      }
+
+      // 逐条过滤
       let visible = 0;
-      items.forEach(el => {
+      document.querySelectorAll('.item').forEach(el => {
         const text = el.textContent.toLowerCase();
         const match = !q || text.includes(q);
-        const phaseMatch = currentPhase === 'all' || el.dataset.phase === currentPhase;
-        el.style.display = (match && phaseMatch) ? '' : 'none';
-        if (match && phaseMatch) visible++;
+        el.style.display = match ? '' : 'none';
+        if (match) visible++;
       });
+
       document.getElementById('noResult').style.display = visible === 0 ? '' : 'none';
     }
-    let currentPhase = 'all';
-    function filterByPhase(phase, btn) {
-      currentPhase = phase;
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      filterArticles();
+
+    function checkNoResult() {
+      const visible = document.querySelectorAll('.item[style*="display: block"], .item:not([style*="display: none"])').length;
+      // 实际上所有未设置display的item都是可见的
+      let count = 0;
+      document.querySelectorAll('.item').forEach(el => {
+        if (el.style.display !== 'none') count++;
+      });
+      document.getElementById('noResult').style.display = count === 0 ? '' : 'none';
     }
   </script>
 </Layout>
